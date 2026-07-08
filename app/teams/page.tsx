@@ -53,7 +53,7 @@ export default function TeamsPage() {
         setMyTeams(userTeams)
       }
     } catch (error) {
-      console.error('[v0] Error fetching teams:', error)
+      console.error('[teams] Error fetching teams:', error)
     } finally {
       setIsLoading(false)
     }

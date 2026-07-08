@@ -42,7 +42,7 @@ export function MediaUploader({ onMediaUploaded }: MediaUploaderProps) {
         setMedia(data)
       }
     } catch (err) {
-      console.error("[v0] Failed to fetch media:", err)
+      console.error("[media]Failed to fetch media:", err)
     } finally {
       setInitialLoading(false)
     }
@@ -57,7 +57,7 @@ export function MediaUploader({ onMediaUploaded }: MediaUploaderProps) {
 
     try {
       for (const file of Array.from(files)) {
-        console.log("[v0] Starting upload for:", file.name, "Size:", file.size)
+        console.log("[media]Starting upload for:", file.name, "Size:", file.size)
         
         // Client-side validation
         const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
@@ -74,37 +74,37 @@ export function MediaUploader({ onMediaUploaded }: MediaUploaderProps) {
         const formData = new FormData()
         formData.append("file", file)
 
-        console.log("[v0] Sending upload request...")
+        console.log("[media]Sending upload request...")
         const response = await fetch("/api/media/upload", {
           method: "POST",
           body: formData,
           credentials: "include",
         })
 
-        console.log("[v0] Upload response status:", response.status)
+        console.log("[media]Upload response status:", response.status)
 
         let responseData
         try {
           responseData = await response.json()
         } catch (jsonErr) {
-          console.error("[v0] Failed to parse response JSON:", jsonErr)
+          console.error("[media]Failed to parse response JSON:", jsonErr)
           const text = await response.text()
-          console.error("[v0] Response text:", text.substring(0, 200))
+          console.error("[media]Response text:", text.substring(0, 200))
           throw new Error(`Server error: ${response.status} ${response.statusText}`)
         }
 
         if (!response.ok) {
-          console.error("[v0] Upload error response:", responseData)
+          console.error("[media]Upload error response:", responseData)
           throw new Error(responseData.error || `Upload failed with status ${response.status}`)
         }
 
-        console.log("[v0] Upload successful:", responseData)
+        console.log("[media]Upload successful:", responseData)
         setMedia((prev) => [responseData, ...prev])
         onMediaUploaded?.(responseData)
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Upload failed"
-      console.error("[v0] Upload error:", errorMessage)
+      console.error("[media]Upload error:", errorMessage)
       setError(errorMessage)
     } finally {
       setLoading(false)
@@ -116,7 +116,7 @@ export function MediaUploader({ onMediaUploaded }: MediaUploaderProps) {
 
   const handleDelete = async (id: string) => {
     try {
-      console.log("[v0] Deleting media:", id)
+      console.log("[media]Deleting media:", id)
       const response = await fetch(`/api/media/${id}`, {
         method: "DELETE",
         credentials: "include",
@@ -126,11 +126,11 @@ export function MediaUploader({ onMediaUploaded }: MediaUploaderProps) {
         throw new Error("Delete failed")
       }
 
-      console.log("[v0] Delete successful")
+      console.log("[media]Delete successful")
       setMedia((prev) => prev.filter((m) => m._id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Delete failed"
-      console.error("[v0] Delete error:", errorMessage)
+      console.error("[media]Delete error:", errorMessage)
       setError(errorMessage)
     }
   }

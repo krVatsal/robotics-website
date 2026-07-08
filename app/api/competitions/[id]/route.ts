@@ -1,28 +1,33 @@
-import { NextRequest, NextResponse } from "next/server"
-import { updateCompetition, deleteCompetition } from "@/lib/models/competition"
+import { NextRequest, NextResponse } from 'next/server'
+import { deleteCompetition, updateCompetition } from '@/lib/models/competition'
+import { requireAdmin } from '@/lib/auth-guard'
+import { ObjectIdSchema, UpdateCompetitionSchema } from '@/lib/validation'
+import { NotFoundError, handleApiError } from '@/lib/errors'
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-    try {
-        const { id } = await params
-        const body = await request.json()
+type Props = { params: Promise<{ id: string }> }
 
-        const { _id, ...updateData } = body;
-
-        const result = await updateCompetition(id, updateData)
-        return NextResponse.json(result)
-    } catch (error) {
-        console.error("Update competition error:", error)
-        return NextResponse.json({ error: "Update failed" }, { status: 500 })
-    }
+export async function PUT(request: NextRequest, { params }: Props) {
+  try {
+    await requireAdmin()
+    const { id } = await params
+    ObjectIdSchema.parse(id)
+    const body = UpdateCompetitionSchema.parse(await request.json())
+    const result = await updateCompetition(id, body)
+    return NextResponse.json(result)
+  } catch (error) {
+    return handleApiError(error)
+  }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-    try {
-        const { id } = await params
-        const success = await deleteCompetition(id)
-        if (!success) return NextResponse.json({ error: "Not found" }, { status: 404 })
-        return NextResponse.json({ message: "Deleted" })
-    } catch (error) {
-        return NextResponse.json({ error: "Delete failed" }, { status: 500 })
-    }
+export async function DELETE(_request: NextRequest, { params }: Props) {
+  try {
+    await requireAdmin()
+    const { id } = await params
+    ObjectIdSchema.parse(id)
+    const ok = await deleteCompetition(id)
+    if (!ok) throw new NotFoundError('Competition not found')
+    return NextResponse.json({ message: 'Deleted' })
+  } catch (error) {
+    return handleApiError(error)
+  }
 }

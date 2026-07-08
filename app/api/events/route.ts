@@ -1,27 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getAllEvents, createEvent } from '@/lib/models/events';
+import { NextRequest, NextResponse } from 'next/server'
+import { createEvent, getAllEvents } from '@/lib/models/events'
+import { requireAdmin } from '@/lib/auth-guard'
+import { CreateEventSchema } from '@/lib/validation'
+import { handleApiError } from '@/lib/errors'
 
 export async function GET() {
-    try {
-        const events = await getAllEvents();
-        return NextResponse.json(events);
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 });
-    }
+  try {
+    const events = await getAllEvents()
+    return NextResponse.json(events)
+  } catch (error) {
+    return handleApiError(error)
+  }
 }
 
 export async function POST(request: NextRequest) {
-    try {
-        const body = await request.json();
-        // Basic validation
-        if (!body.name || !body.date) {
-            return NextResponse.json({ error: 'Name and Date are required' }, { status: 400 });
-        }
-
-        const result = await createEvent(body);
-        return NextResponse.json(result, { status: 201 });
-    } catch (error) {
-        console.error("Create event error:", error);
-        return NextResponse.json({ error: 'Failed to create event' }, { status: 500 });
-    }
+  try {
+    await requireAdmin()
+    const body = CreateEventSchema.parse(await request.json())
+    const result = await createEvent(body)
+    return NextResponse.json(result, { status: 201 })
+  } catch (error) {
+    return handleApiError(error)
+  }
 }

@@ -1,41 +1,36 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getCompetitionsByEvent, createCompetition } from '@/lib/models/competition';
-import { ObjectId } from 'mongodb';
+import { NextRequest, NextResponse } from 'next/server'
+import { createCompetition, getCompetitionsByEvent } from '@/lib/models/competition'
+import { requireAdmin } from '@/lib/auth-guard'
+import { CreateCompetitionSchema, ObjectIdSchema } from '@/lib/validation'
+import { handleApiError } from '@/lib/errors'
+import { ObjectId } from 'mongodb'
 
 export async function GET(request: NextRequest) {
-    try {
-        const { searchParams } = new URL(request.url);
-        const eventId = searchParams.get('eventId');
-
-        if (!eventId) {
-            return NextResponse.json({ error: 'Event ID is required' }, { status: 400 });
-        }
-
-        const competitions = await getCompetitionsByEvent(eventId);
-        return NextResponse.json(competitions);
-
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch competitions' }, { status: 500 });
+  try {
+    const { searchParams } = new URL(request.url)
+    const eventId = searchParams.get('eventId')
+    if (!eventId) {
+      return NextResponse.json({ error: 'Event ID is required' }, { status: 400 })
     }
+    ObjectIdSchema.parse(eventId)
+    const competitions = await getCompetitionsByEvent(eventId)
+    return NextResponse.json(competitions)
+  } catch (error) {
+    return handleApiError(error)
+  }
 }
 
 export async function POST(request: NextRequest) {
-    try {
-        const body = await request.json();
-
-        if (!body.eventId || !body.title) {
-            return NextResponse.json({ error: 'Event ID and Title are required' }, { status: 400 });
-        }
-
-        const data = {
-            ...body,
-            eventId: new ObjectId(body.eventId)
-        };
-
-        const result = await createCompetition(data);
-        return NextResponse.json(result, { status: 201 });
-    } catch (error) {
-        console.error("Create competition error:", error);
-        return NextResponse.json({ error: 'Failed to create competition' }, { status: 500 });
-    }
+  try {
+    await requireAdmin()
+    const body = CreateCompetitionSchema.parse(await request.json())
+    // Model expects eventId as ObjectId, not string. Convert at the boundary.
+    const result = await createCompetition({
+      ...body,
+      eventId: new ObjectId(body.eventId),
+    })
+    return NextResponse.json(result, { status: 201 })
+  } catch (error) {
+    return handleApiError(error)
+  }
 }
