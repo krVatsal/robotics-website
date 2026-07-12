@@ -34,15 +34,13 @@ export function MediaUploader({ onMediaUploaded }: MediaUploaderProps) {
   const fetchMedia = async () => {
     try {
       setInitialLoading(true)
-      const response = await fetch("/api/media", {
-        credentials: "include",
-      })
+      const response = await fetch("/api/media", { credentials: "include" })
       if (response.ok) {
         const data = await response.json()
         setMedia(data)
       }
     } catch (err) {
-      console.error("[media]Failed to fetch media:", err)
+      console.error("Failed to fetch media:", err)
     } finally {
       setInitialLoading(false)
     }
@@ -57,15 +55,11 @@ export function MediaUploader({ onMediaUploaded }: MediaUploaderProps) {
 
     try {
       for (const file of Array.from(files)) {
-        console.log("[media]Starting upload for:", file.name, "Size:", file.size)
-        
-        // Client-side validation
-        const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+        const MAX_FILE_SIZE = 10 * 1024 * 1024
         if (file.size > MAX_FILE_SIZE) {
           throw new Error(`File "${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum size is 10MB.`)
         }
 
-        // Check file type
         const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml']
         if (!validTypes.includes(file.type)) {
           throw new Error(`File type "${file.type}" not supported. Please use JPEG, PNG, GIF, WebP, or SVG.`)
@@ -74,64 +68,41 @@ export function MediaUploader({ onMediaUploaded }: MediaUploaderProps) {
         const formData = new FormData()
         formData.append("file", file)
 
-        console.log("[media]Sending upload request...")
         const response = await fetch("/api/media/upload", {
           method: "POST",
           body: formData,
           credentials: "include",
         })
 
-        console.log("[media]Upload response status:", response.status)
-
         let responseData
         try {
           responseData = await response.json()
-        } catch (jsonErr) {
-          console.error("[media]Failed to parse response JSON:", jsonErr)
-          const text = await response.text()
-          console.error("[media]Response text:", text.substring(0, 200))
+        } catch {
           throw new Error(`Server error: ${response.status} ${response.statusText}`)
         }
 
         if (!response.ok) {
-          console.error("[media]Upload error response:", responseData)
           throw new Error(responseData.error || `Upload failed with status ${response.status}`)
         }
 
-        console.log("[media]Upload successful:", responseData)
         setMedia((prev) => [responseData, ...prev])
         onMediaUploaded?.(responseData)
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Upload failed"
-      console.error("[media]Upload error:", errorMessage)
-      setError(errorMessage)
+      setError(err instanceof Error ? err.message : "Upload failed")
     } finally {
       setLoading(false)
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ""
-      }
+      if (fileInputRef.current) fileInputRef.current.value = ""
     }
   }
 
   const handleDelete = async (id: string) => {
     try {
-      console.log("[media]Deleting media:", id)
-      const response = await fetch(`/api/media/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      })
-
-      if (!response.ok) {
-        throw new Error("Delete failed")
-      }
-
-      console.log("[media]Delete successful")
+      const response = await fetch(`/api/media/${id}`, { method: "DELETE", credentials: "include" })
+      if (!response.ok) throw new Error("Delete failed")
       setMedia((prev) => prev.filter((m) => m._id !== id))
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Delete failed"
-      console.error("[media]Delete error:", errorMessage)
-      setError(errorMessage)
+      setError(err instanceof Error ? err.message : "Delete failed")
     }
   }
 
@@ -151,64 +122,44 @@ export function MediaUploader({ onMediaUploaded }: MediaUploaderProps) {
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+      year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
     })
   }
 
   return (
     <div className="space-y-6">
-      {/* Upload Area */}
       <div
-        className="border-2 border-dashed border-white/20 rounded-xl p-8 hover:border-[#00D4FF]/50 transition-colors cursor-pointer bg-white/5"
+        className="border-2 border-dashed border-[var(--border)] rounded-2xl p-8 hover:border-[var(--border-hover)] transition-colors cursor-pointer bg-[var(--bg-secondary)]"
         onClick={() => fileInputRef.current?.click()}
       >
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={handleFileChange}
-          className="hidden"
-        />
+        <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleFileChange} className="hidden" />
         <div className="flex flex-col items-center justify-center">
-          <motion.div animate={loading ? { scale: 1.1 } : { scale: 1 }} transition={{ duration: 0.2 }}>
-            {loading ? (
-              <Loader2 size={40} className="text-[#00D4FF] animate-spin mb-3" />
-            ) : (
-              <Upload size={40} className="text-[#00D4FF] mb-3" />
-            )}
-          </motion.div>
-          <h3 className="text-lg font-semibold text-white mb-1">{loading ? "Uploading..." : "Upload Images"}</h3>
-          <p className="text-neutral-400 text-sm">Click to select or drag and drop (PNG, JPG, WebP)</p>
+          {loading ? (
+            <Loader2 size={40} className="text-[var(--fg-tertiary)] animate-spin mb-3" />
+          ) : (
+            <Upload size={40} className="text-[var(--fg-tertiary)] mb-3" />
+          )}
+          <h3 className="text-lg font-semibold text-[var(--fg)] mb-1">{loading ? "Uploading..." : "Upload Images"}</h3>
+          <p className="text-[var(--fg-tertiary)] text-sm">Click to select or drag and drop (PNG, JPG, WebP)</p>
         </div>
       </div>
 
       {error && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 bg-[#E55B5B]/20 border border-[#E55B5B]/50 rounded-lg text-[#E55B5B]"
-        >
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm">
           {error}
         </motion.div>
       )}
 
-      {/* Media Grid */}
       <div>
-        <h3 className="text-lg font-semibold text-white mb-4">Uploaded Media ({media.length})</h3>
+        <h3 className="font-display text-lg font-semibold text-[var(--fg)] mb-4">Uploaded Media ({media.length})</h3>
 
         {initialLoading ? (
-          <div className="text-center py-12 text-neutral-400">
-            <Loader2 className="animate-spin mx-auto mb-3" />
-            <p>Loading media...</p>
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 text-[var(--fg-tertiary)] animate-spin" />
           </div>
         ) : media.length === 0 ? (
-          <div className="text-center py-12 text-neutral-400">
-            <p>No images uploaded yet. Start by uploading your first image.</p>
+          <div className="text-center py-12 text-[var(--fg-tertiary)]">
+            <p>No images uploaded yet.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -219,81 +170,32 @@ export function MediaUploader({ onMediaUploaded }: MediaUploaderProps) {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-[#00D4FF]/50 transition-all group"
+                  className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] overflow-hidden hover:border-[var(--border-hover)] transition-all group"
                 >
-                  {/* Image Preview */}
-                  <div className="aspect-video bg-neutral-900 relative overflow-hidden">
-                    <img
-                      src={item.url || "/placeholder.svg"}
-                      alt={item.filename}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="aspect-video bg-[var(--bg)] relative overflow-hidden">
+                    <img src={item.url || "/placeholder.svg"} alt={item.filename} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => copyToClipboard(item.url, item._id)}
-                        className="p-2 bg-[#00D4FF] text-neutral-950 rounded-lg hover:bg-[#00D4FF]/90 transition-colors"
-                        title="Copy URL"
-                      >
-                        {copiedId === item._id ? <Check size={20} /> : <Copy size={20} />}
+                      <button onClick={() => copyToClipboard(item.url, item._id)} className="p-2.5 rounded-full bg-[var(--fg)] text-[var(--bg)] hover:opacity-90 transition-opacity" title="Copy URL">
+                        {copiedId === item._id ? <Check size={18} /> : <Copy size={18} />}
                       </button>
-                      <button
-                        onClick={() => handleDelete(item._id)}
-                        className="p-2 bg-[#E55B5B] text-white rounded-lg hover:bg-[#E55B5B]/90 transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 size={20} />
+                      <button onClick={() => handleDelete(item._id)} className="p-2.5 rounded-full bg-red-500 text-white hover:opacity-90 transition-opacity" title="Delete">
+                        <Trash2 size={18} />
                       </button>
                     </div>
                   </div>
 
-                  {/* Details */}
-                  <div className="p-3 space-y-2">
+                  <div className="p-4 space-y-2">
                     <div>
-                      <p className="text-sm font-medium text-white truncate">{item.filename}</p>
-                      <p className="text-xs text-neutral-500">{formatDate(item.uploadedAt)}</p>
+                      <p className="text-sm font-medium text-[var(--fg)] truncate">{item.filename}</p>
+                      <p className="text-xs text-[var(--fg-tertiary)]">{formatDate(item.uploadedAt)} · {formatFileSize(item.size)}</p>
                     </div>
 
-                    {/* URL Display */}
-                    <div className="bg-neutral-900 rounded p-2">
-                      <p className="text-xs text-neutral-400 mb-1">URL:</p>
-                      <div className="flex gap-1">
-                        <input
-                          type="text"
-                          readOnly
-                          value={item.url}
-                          className="flex-1 text-xs bg-transparent text-neutral-300 outline-none truncate"
-                        />
-                        <button
-                          onClick={() => copyToClipboard(item.url, item._id)}
-                          className="text-neutral-500 hover:text-[#00D4FF] transition-colors"
-                          title="Copy URL"
-                        >
-                          {copiedId === item._id ? <Check size={16} /> : <Copy size={16} />}
-                        </button>
-                      </div>
+                    <div className="rounded-xl bg-[var(--bg)] border border-[var(--border)] p-2 flex gap-1">
+                      <input type="text" readOnly value={item.url} className="flex-1 text-xs bg-transparent text-[var(--fg-secondary)] outline-none truncate" />
+                      <button onClick={() => copyToClipboard(item.url, item._id)} className="text-[var(--fg-tertiary)] hover:text-[var(--fg)] transition-colors" title="Copy URL">
+                        {copiedId === item._id ? <Check size={14} /> : <Copy size={14} />}
+                      </button>
                     </div>
-
-                    {/* Markdown */}
-                    <div className="bg-neutral-900 rounded p-2">
-                      <p className="text-xs text-neutral-400 mb-1">Markdown:</p>
-                      <div className="flex gap-1">
-                        <input
-                          type="text"
-                          readOnly
-                          value={`![${item.filename}](${item.url})`}
-                          className="flex-1 text-xs bg-transparent text-neutral-300 outline-none truncate"
-                        />
-                        <button
-                          onClick={() => copyToClipboard(`![${item.filename}](${item.url})`, `md-${item._id}`)}
-                          className="text-neutral-500 hover:text-[#00D4FF] transition-colors"
-                          title="Copy Markdown"
-                        >
-                          {copiedId === `md-${item._id}` ? <Check size={16} /> : <Copy size={16} />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-neutral-500">{formatFileSize(item.size)}</p>
                   </div>
                 </motion.div>
               ))}

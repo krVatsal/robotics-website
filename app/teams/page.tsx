@@ -1,13 +1,13 @@
-'use client'
+"use client"
 
-import { useEffect, useState } from 'react'
-import { useAuth } from '@/lib/auth-context'
-import { useRouter } from 'next/navigation'
-import Navbar from '@/components/navbar'
-import Footer from '@/components/footer'
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Plus, Users, ArrowRight, Loader2 } from 'lucide-react'
+import { useEffect, useState } from "react"
+import { useAuth } from "@/lib/auth-context"
+import { useRouter } from "next/navigation"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { Plus, Users, ArrowRight, Loader2 } from "lucide-react"
 
 interface Team {
   _id: string
@@ -28,46 +28,26 @@ export default function TeamsPage() {
   useEffect(() => {
     if (!authLoading) {
       if (!isSignedIn) {
-        router.push('/auth/signin')
+        router.push("/auth/signin")
       } else {
-        fetchTeams()
+        fetch("/api/teams", { credentials: "include" })
+          .then(res => res.json())
+          .then(data => {
+            setAllTeams(data)
+            setMyTeams(data.filter((t: Team) => t.members.some((m: any) => m._id === user?._id) || t.leader._id === user?._id))
+          })
+          .catch(() => {})
+          .finally(() => setIsLoading(false))
       }
     }
-  }, [isSignedIn, authLoading, router])
-
-  const fetchTeams = async () => {
-    try {
-      setIsLoading(true)
-      const response = await fetch('/api/teams', {
-        credentials: 'include',
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setAllTeams(data)
-        
-        // Filter teams where user is a member or leader
-        const userTeams = data.filter((team: Team) => 
-          team.members.some((m: any) => m._id === user?._id) || 
-          team.leader._id === user?._id
-        )
-        setMyTeams(userTeams)
-      }
-    } catch (error) {
-      console.error('[teams] Error fetching teams:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  }, [isSignedIn, authLoading, router, user])
 
   if (authLoading || isLoading) {
     return (
-      <main className="min-h-screen bg-neutral-950">
+      <main className="min-h-screen bg-[var(--bg)]">
         <Navbar />
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin text-[#00D4FF] mx-auto mb-4" />
-            <p className="text-neutral-400">Loading teams...</p>
-          </div>
+          <Loader2 className="w-8 h-8 text-[var(--fg-tertiary)] animate-spin" />
         </div>
         <Footer />
       </main>
@@ -75,77 +55,47 @@ export default function TeamsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-neutral-950">
+    <main className="min-h-screen bg-[var(--bg)]">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 py-20">
-        {/* Header */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-24">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <h1 className="text-5xl font-bold text-neutral-100 mb-2">Teams</h1>
-            <p className="text-neutral-400">Create and manage your team collaborations</p>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="font-display text-4xl md:text-5xl font-bold text-[var(--fg)] tracking-tight mb-2">Teams</h1>
+            <p className="text-[var(--fg-secondary)]">Create and manage your team collaborations</p>
           </motion.div>
-          <Link href="/teams/create">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#E55B5B] to-[#E55B5B]/80 hover:from-[#E55B5B]/90 hover:to-[#E55B5B]/70 text-white rounded-lg transition-all font-semibold shadow-lg"
-            >
-              <Plus size={20} />
-              Create New Team
-            </motion.button>
+          <Link href="/teams/create" className="px-6 py-3 rounded-full bg-[var(--fg)] text-[var(--bg)] text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-2">
+            <Plus className="w-4 h-4" /> Create New Team
           </Link>
         </div>
 
-        {/* My Teams Section */}
         {myTeams.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-16"
-          >
-            <h2 className="text-2xl font-bold text-neutral-100 mb-6 flex items-center gap-2">
-              <Users size={24} className="text-[#E55B5B]" />
-              My Teams ({myTeams.length})
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-16">
+            <h2 className="font-display text-xl font-semibold text-[var(--fg)] mb-6 flex items-center gap-2">
+              <Users className="w-5 h-5 text-[var(--fg-tertiary)]" /> My Teams ({myTeams.length})
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {myTeams.map((team) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {myTeams.map(team => (
                 <motion.div
                   key={team._id}
-                  whileHover={{ y: -4 }}
-                  className="soft-pop-card p-6 rounded-xl border border-neutral-800 hover:border-[#E55B5B]/50 transition-colors group cursor-pointer"
+                  whileHover={{ y: -2 }}
+                  className="p-6 rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] hover:border-[var(--border-hover)] transition-colors group cursor-pointer"
                   onClick={() => router.push(`/teams/${team._id}`)}
                 >
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start justify-between mb-3">
                     <div>
-                      <h3 className="text-xl font-bold text-neutral-100 group-hover:text-[#E55B5B] transition-colors">
-                        {team.name}
-                      </h3>
-                      <p className="text-xs text-neutral-500 mt-1">
-                        Led by {team.leader.name}
-                      </p>
+                      <h3 className="font-display text-lg font-semibold text-[var(--fg)] group-hover:text-[var(--fg)]">{team.name}</h3>
+                      <p className="text-xs text-[var(--fg-tertiary)] mt-0.5">Led by {team.leader.name}</p>
                     </div>
-                    <ArrowRight className="text-neutral-600 group-hover:text-[#E55B5B] transition-colors" size={20} />
+                    <ArrowRight className="w-4 h-4 text-[var(--fg-tertiary)] group-hover:translate-x-0.5 transition-transform" />
                   </div>
-                  
-                  {team.description && (
-                    <p className="text-neutral-400 text-sm mb-4 line-clamp-2">{team.description}</p>
-                  )}
-                  
-                  <div className="flex items-center justify-between pt-4 border-t border-neutral-700">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Users size={16} className="text-[#00D4FF]" />
-                      <span className="text-neutral-300">
-                        {team.members.length} / {team.maxMembers}
-                      </span>
-                    </div>
+                  {team.description && <p className="text-sm text-[var(--fg-secondary)] line-clamp-2 mb-4">{team.description}</p>}
+                  <div className="flex items-center justify-between pt-3 border-t border-[var(--border)]">
+                    <span className="text-xs text-[var(--fg-secondary)] flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5" /> {team.members.length} / {team.maxMembers}
+                    </span>
                     {team.leader._id === user?._id && (
-                      <span className="text-xs px-2 py-1 bg-[#E55B5B]/20 text-[#E55B5B] rounded-full font-medium">
-                        Leader
-                      </span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--bg-tertiary)] text-[var(--fg-secondary)] border border-[var(--border)] font-medium">Leader</span>
                     )}
                   </div>
                 </motion.div>
@@ -154,79 +104,45 @@ export default function TeamsPage() {
           </motion.div>
         )}
 
-        {/* All Teams Browse Section */}
         {allTeams.length > myTeams.length && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <h2 className="text-2xl font-bold text-neutral-100 mb-6">Browse Available Teams</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {allTeams
-                .filter((team) => !myTeams.find((t) => t._id === team._id))
-                .map((team) => (
-                  <motion.div
-                    key={team._id}
-                    whileHover={{ y: -4 }}
-                    className="soft-pop-card p-6 rounded-xl border border-neutral-800 hover:border-[#00D4FF]/50 transition-colors group cursor-pointer"
-                    onClick={() => router.push(`/teams/${team._id}`)}
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-neutral-100 group-hover:text-[#00D4FF] transition-colors">
-                          {team.name}
-                        </h3>
-                        <p className="text-xs text-neutral-500 mt-1">
-                          Led by {team.leader.name}
-                        </p>
-                      </div>
-                      <ArrowRight className="text-neutral-600 group-hover:text-[#00D4FF] transition-colors" size={20} />
-                    </div>
-                    
-                    {team.description && (
-                      <p className="text-neutral-400 text-sm mb-4 line-clamp-2">{team.description}</p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <h2 className="font-display text-xl font-semibold text-[var(--fg)] mb-6">Browse Available Teams</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {allTeams.filter(t => !myTeams.find(m => m._id === t._id)).map(team => (
+                <motion.div
+                  key={team._id}
+                  whileHover={{ y: -2 }}
+                  className="p-6 rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] hover:border-[var(--border-hover)] transition-colors group cursor-pointer"
+                  onClick={() => router.push(`/teams/${team._id}`)}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="font-display text-lg font-semibold text-[var(--fg)]">{team.name}</h3>
+                    <ArrowRight className="w-4 h-4 text-[var(--fg-tertiary)] group-hover:translate-x-0.5 transition-transform" />
+                  </div>
+                  {team.description && <p className="text-sm text-[var(--fg-secondary)] line-clamp-2 mb-4">{team.description}</p>}
+                  <div className="flex items-center justify-between pt-3 border-t border-[var(--border)]">
+                    <span className="text-xs text-[var(--fg-secondary)] flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5" /> {team.members.length} / {team.maxMembers}
+                    </span>
+                    {team.members.length < team.maxMembers && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-medium">Open</span>
                     )}
-                    
-                    <div className="flex items-center justify-between pt-4 border-t border-neutral-700">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Users size={16} className="text-[#00D4FF]" />
-                        <span className="text-neutral-300">
-                          {team.members.length} / {team.maxMembers}
-                        </span>
-                      </div>
-                      {team.members.length < team.maxMembers && (
-                        <span className="text-xs px-2 py-1 bg-[#00D4FF]/20 text-[#00D4FF] rounded-full font-medium">
-                          Open
-                        </span>
-                      )}
-                    </div>
-                  </motion.div>
-                ))}
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         )}
 
-        {/* Empty State */}
         {allTeams.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-20"
-          >
-            <Users size={64} className="mx-auto text-neutral-700 mb-6" />
-            <h3 className="text-2xl font-bold text-neutral-400 mb-2">No teams yet</h3>
-            <p className="text-neutral-500 mb-8">Be the first to create a team and start collaborating!</p>
-            <Link href="/teams/create">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#E55B5B] hover:bg-[#E55B5B]/90 text-white rounded-lg transition-all font-semibold"
-              >
-                <Plus size={20} />
-                Create First Team
-              </motion.button>
+          <div className="text-center py-20">
+            <Users className="w-12 h-12 text-[var(--fg-tertiary)] mx-auto mb-4" />
+            <h3 className="font-display text-xl font-bold text-[var(--fg)] mb-2">No teams yet</h3>
+            <p className="text-[var(--fg-secondary)] mb-8">Be the first to create a team.</p>
+            <Link href="/teams/create" className="px-6 py-3 rounded-full bg-[var(--fg)] text-[var(--bg)] text-sm font-medium hover:opacity-90 transition-opacity inline-flex items-center gap-2">
+              <Plus className="w-4 h-4" /> Create First Team
             </Link>
-          </motion.div>
+          </div>
         )}
       </div>
 

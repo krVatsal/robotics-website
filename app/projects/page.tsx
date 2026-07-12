@@ -3,8 +3,9 @@
 import { useState, useMemo, useEffect } from "react"
 import Link from "next/link"
 import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
 import { motion, AnimatePresence } from "framer-motion"
-import { ArrowRight, Tag, Database, Filter, Cpu, Loader2 } from "lucide-react"
+import { ArrowRight, Loader2 } from "lucide-react"
 
 const categories = ["All", "Competition", "Innovation", "Research"]
 
@@ -14,196 +15,112 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        // Simulating a delay for the "Boot Sequence" effect (optional, remove delay in prod)
-        // await new Promise(resolve => setTimeout(resolve, 1000)); 
-
-        const res = await fetch('/api/projects?published=true')
-        const data = await res.json()
-        setProjects(Array.isArray(data) ? data : [])
-      } catch (err) {
-        console.error("Fetch failed", err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchProjects()
+    fetch("/api/projects?published=true")
+      .then(res => res.json())
+      .then(data => setProjects(Array.isArray(data) ? data : []))
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [])
 
   const filteredProjects = useMemo(() => {
     if (selectedCategory === "All") return projects
-    return projects.filter((p) => p.category === selectedCategory)
+    return projects.filter(p => p.category === selectedCategory)
   }, [selectedCategory, projects])
 
   return (
-    <div className="min-h-screen bg-neutral-950 relative overflow-x-hidden">
+    <main className="min-h-screen bg-[var(--bg)]">
       <Navbar />
 
-      {/* --- BACKGROUND: Blueprint Grid --- */}
-      <div className="absolute inset-0 opacity-[0.05] pointer-events-none fixed"
-        style={{
-          backgroundImage: `linear-gradient(#00D4FF 1px, transparent 1px), linear-gradient(90deg, #00D4FF 1px, transparent 1px)`,
-          backgroundSize: '40px 40px'
-        }}
-      />
-
-      {/* Header Section */}
-      <section className="relative pt-32 pb-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#E55B5B]/10 blur-[100px] rounded-full pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-3 py-1 bg-neutral-900 border border-[#00D4FF]/30 rounded-full mb-6"
-          >
-            <Database className="w-4 h-4 text-[#00D4FF]" />
-            <span className="text-xs font-mono text-[#00D4FF] tracking-widest uppercase">
-              Mainframe // Access Granted
-            </span>
+      <section className="pt-32 pb-12 px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="font-display text-5xl md:text-7xl font-bold text-[var(--fg)] tracking-tight leading-[1.05] mb-4">
+              Our<br />Projects.
+            </h1>
+            <p className="text-lg text-[var(--fg-secondary)] max-w-2xl">
+              Browse our portfolio of robotics builds — from self-driving cars to drones and manipulators. Every project is a hands-on lab for engineering skills.
+            </p>
           </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-5xl sm:text-7xl font-black mb-6 text-white uppercase tracking-tight"
-          >
-            Project <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E55B5B] to-orange-500">Archives</span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-xl text-neutral-400 max-w-2xl mx-auto font-light"
-          >
-            Explore the engineering breakthroughs and autonomous systems developed by our R&D division.
-          </motion.p>
         </div>
       </section>
 
-      {/* Category Filter Interface */}
-      <section className="sticky top-20 z-40 py-4 px-4 backdrop-blur-md border-y border-white/5 bg-neutral-950/80">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-
-          <div className="flex items-center gap-2 text-neutral-500 font-mono text-xs hidden md:flex">
-            <Filter className="w-4 h-4" />
-            <span>FILTER_PROTOCOL: ACTIVE</span>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-2">
-            {categories.map((category) => (
+      {/* Category filters */}
+      <section className="sticky top-0 z-40 py-4 px-6 lg:px-8 backdrop-blur-xl bg-[var(--bg)]/80 border-b border-[var(--border)]">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex flex-wrap gap-2">
+            {categories.map(cat => (
               <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`relative px-6 py-2 text-sm font-mono uppercase tracking-wider transition-all border border-transparent overflow-hidden group
-                  ${selectedCategory === category
-                    ? "text-black font-bold"
-                    : "text-neutral-400 hover:text-white hover:border-white/20 bg-neutral-900/50"
-                  }`}
-                style={{ clipPath: "polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)" }}
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
+                  selectedCategory === cat
+                    ? "bg-[var(--fg)] text-[var(--bg)]"
+                    : "text-[var(--fg-secondary)] hover:text-[var(--fg)] bg-[var(--bg-secondary)] border border-[var(--border)]"
+                }`}
               >
-                {/* Active Background Slide */}
-                {selectedCategory === category && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute inset-0 bg-[#00D4FF]"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
-
-                <span className="relative z-10 flex items-center gap-2">
-                  {category}
-                  {selectedCategory === category && <Cpu className="w-3 h-3 animate-spin-slow" />}
-                </span>
+                {cat}
               </button>
             ))}
           </div>
-
-          <div className="text-right hidden md:block w-[150px]">
-            <span className="text-xs font-mono text-[#E55B5B]">
-              {filteredProjects.length} RECORDS FOUND
-            </span>
-          </div>
+          <span className="text-xs text-[var(--fg-tertiary)] hidden md:block">
+            {filteredProjects.length} records found
+          </span>
         </div>
       </section>
 
-      {/* Projects Grid */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 min-h-[500px]">
+      <section className="py-16 px-6 lg:px-8 min-h-[400px]">
         <div className="max-w-7xl mx-auto">
           {loading ? (
-            <div className="flex flex-col items-center justify-center h-64 space-y-4">
-              <Loader2 className="w-12 h-12 text-[#00D4FF] animate-spin" />
-              <p className="font-mono text-[#00D4FF] animate-pulse">FETCHING_DATA...</p>
+            <div className="flex flex-col items-center justify-center h-64 gap-4">
+              <Loader2 className="w-8 h-8 text-[var(--fg-tertiary)] animate-spin" />
+              <p className="text-sm text-[var(--fg-tertiary)]">Loading projects...</p>
             </div>
           ) : (
-            <motion.div
-              layout
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            >
+            <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <AnimatePresence>
-                {filteredProjects.map((project, index) => (
+                {filteredProjects.map((project, idx) => (
                   <motion.div
                     layout
                     key={project._id}
-                    initial={{ opacity: 0, scale: 0.9 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                    className="h-full"
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ delay: idx * 0.05 }}
                   >
                     <Link href={`/projects/${project._id}`} className="block h-full">
-                      <div className="group h-full flex flex-col bg-neutral-900/40 border border-white/5 overflow-hidden transition-all duration-300 hover:border-[#00D4FF]/50 hover:shadow-[0_0_30px_rgba(0,212,255,0.1)] relative"
-                        style={{ clipPath: "polygon(0 0, 100% 0, 100% 90%, 90% 100%, 0 100%)" }}
-                      >
-                        {/* Image Section */}
-                        <div className="relative h-56 overflow-hidden">
-                          <div className="absolute inset-0 bg-neutral-800 animate-pulse" /> {/* Placeholder while loading image */}
-                          <img
-                            src={project.image || "/placeholder.svg"}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100"
-                            alt={project.title}
-                          />
-
-                          {/* Overlay UI */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent opacity-80" />
-
-                          {/* Scanline */}
-                          <div className="absolute inset-0 bg-[url('/scanline.png')] opacity-10 pointer-events-none" />
-
-                          <div className="absolute top-4 right-4 px-2 py-1 bg-black/60 backdrop-blur border border-white/10 text-[10px] font-mono uppercase tracking-widest text-white rounded-sm">
-                            {project.category}
-                          </div>
-                        </div>
-
-                        {/* Content Section */}
-                        <div className="p-6 flex flex-col flex-1 relative">
-                          {/* Decorative line */}
-                          <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-[#00D4FF]/50 to-transparent" />
-
-                          <div className="mb-4">
-                            <h3 className="text-xl font-bold text-white mb-2 group-hover:text-[#00D4FF] transition-colors line-clamp-1">
-                              {project.title}
-                            </h3>
-                            <p className="text-neutral-400 text-sm line-clamp-2 leading-relaxed">
-                              {project.shortDescription}
-                            </p>
-                          </div>
-
-                          <div className="mt-auto flex items-center justify-between pt-4 border-t border-white/5">
-                            <span className="text-xs font-mono text-neutral-500 group-hover:text-white transition-colors">
-                              ID: {project._id.slice(-4).toUpperCase()}
+                      <div className="group h-full rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] overflow-hidden hover:border-[var(--border-hover)] transition-all">
+                        <div className="relative h-52 overflow-hidden bg-[var(--bg-tertiary)]">
+                          {project.image ? (
+                            <img
+                              src={project.image}
+                              alt={project.title}
+                              className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[var(--fg-tertiary)] text-sm">No image</div>
+                          )}
+                          {project.category && (
+                            <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 dark:bg-black/70 text-[10px] font-semibold uppercase tracking-wider text-black dark:text-white backdrop-blur-sm">
+                              {project.category}
                             </span>
-                            <div className="flex items-center gap-2 text-[#E55B5B] text-sm font-bold tracking-wider group-hover:translate-x-1 transition-transform">
-                              ACCESS <ArrowRight size={14} />
-                            </div>
+                          )}
+                          {project.status && (
+                            <span className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-black/70 text-[10px] font-medium text-black dark:text-white backdrop-blur-sm">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                              {project.status}
+                            </span>
+                          )}
+                        </div>
+                        <div className="p-5">
+                          <h3 className="font-display text-lg font-bold text-[var(--fg)] mb-1 group-hover:text-[var(--fg)] transition-colors">
+                            {project.title}
+                          </h3>
+                          <p className="text-sm text-[var(--fg-secondary)] line-clamp-2 mb-4">{project.shortDescription || project.description}</p>
+                          <div className="flex items-center justify-between pt-3 border-t border-[var(--border)]">
+                            <span className="text-xs text-[var(--fg-tertiary)]">ID: {project._id?.slice(-4).toUpperCase()}</span>
+                            <ArrowRight className="w-4 h-4 text-[var(--fg-tertiary)] group-hover:text-[var(--fg)] group-hover:translate-x-0.5 transition-all" />
                           </div>
                         </div>
-
-                        {/* Corner Glow Effect */}
-                        <div className="absolute bottom-0 right-0 w-8 h-8 bg-gradient-to-tl from-[#00D4FF]/20 to-transparent pointer-events-none" />
                       </div>
                     </Link>
                   </motion.div>
@@ -212,17 +129,48 @@ export default function ProjectsPage() {
             </motion.div>
           )}
 
-          {/* Empty State */}
           {!loading && filteredProjects.length === 0 && (
-            <div className="text-center py-20 border border-dashed border-white/10 rounded-xl bg-white/5">
-              <Tag className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-white mb-2">No Records Found</h3>
-              <p className="text-neutral-400">Try adjusting your filter parameters.</p>
+            <div className="space-y-8">
+              {selectedCategory !== "All" ? (
+                <div className="text-center py-20 border border-dashed border-[var(--border)] rounded-2xl">
+                  <h3 className="text-xl font-display font-bold text-[var(--fg)] mb-2">No {selectedCategory} projects</h3>
+                  <p className="text-[var(--fg-secondary)]">Try selecting a different category.</p>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[
+                    { title: "Self-Driving Car", category: "Competition", desc: "Autonomous vehicle with LiDAR, stereo vision, and path planning — our flagship SDC project." },
+                    { title: "6-DOF Robotic Arm", category: "Innovation", desc: "Desktop manipulator with inverse kinematics and computer vision for pick-and-place tasks." },
+                    { title: "Swarm Drones", category: "Research", desc: "Multi-agent drone swarm with decentralized coordination for search-and-rescue scenarios." },
+                    { title: "Robocon Bot", category: "Competition", desc: "Annual competition robot designed for the ABU Robocon challenge theme." },
+                    { title: "SLAM Navigator", category: "Research", desc: "Indoor mapping robot using LiDAR SLAM and autonomous navigation in unknown environments." },
+                    { title: "Agri-Bot", category: "Innovation", desc: "Autonomous crop monitoring robot with soil sensors and weed detection using edge AI." },
+                  ].map((project, idx) => (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.06 }}
+                      className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] overflow-hidden"
+                    >
+                      <div className="h-40 bg-[var(--bg-tertiary)] flex items-center justify-center">
+                        <span className="text-[var(--fg-tertiary)] text-sm font-display">{project.title}</span>
+                      </div>
+                      <div className="p-5">
+                        <span className="text-[10px] uppercase tracking-wider text-[var(--fg-tertiary)] font-medium">{project.category}</span>
+                        <h3 className="font-display text-lg font-bold text-[var(--fg)] mt-1 mb-2">{project.title}</h3>
+                        <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">{project.desc}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
-
         </div>
       </section>
-    </div>
+
+      <Footer />
+    </main>
   )
 }

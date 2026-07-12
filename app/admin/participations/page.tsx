@@ -3,14 +3,14 @@
 import { useState, useEffect } from "react"
 import Navbar from "@/components/navbar"
 import { motion } from "framer-motion"
-import { Search, Trophy, Users, CheckCircle, Clock, Download, ChevronLeft } from "lucide-react"
+import { Search, Trophy, Users, CheckCircle, Clock, Download, ChevronLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 export default function AdminParticipationsPage() {
     const [teams, setTeams] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState("")
-    const [filter, setFilter] = useState("ALL") // ALL, FINALIZED, PENDING
+    const [filter, setFilter] = useState("ALL")
 
     useEffect(() => {
         const fetchData = async () => {
@@ -65,40 +65,38 @@ export default function AdminParticipationsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-neutral-950 text-white">
+        <div className="min-h-screen bg-[var(--bg)]">
             <Navbar />
 
-            <div className="max-w-7xl mx-auto px-4 py-32">
-                {/* Header */}
+            <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-28 pb-20">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
-                    <div>
-                        <div className="flex items-center gap-4 mb-2">
-                            <Link href="/admin" className="p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
-                                <ChevronLeft size={20} />
-                            </Link>
-                            <h1 className="text-4xl font-bold">Participation <span className="text-[#E55B5B]">Log</span></h1>
+                    <div className="flex items-center gap-4">
+                        <Link href="/admin" className="w-10 h-10 rounded-full border border-[var(--border)] flex items-center justify-center hover:bg-[var(--bg-secondary)] transition-colors text-[var(--fg-tertiary)]">
+                            <ChevronLeft size={20} />
+                        </Link>
+                        <div>
+                            <h1 className="font-display text-4xl font-bold text-[var(--fg)] tracking-tight">Participations</h1>
+                            <p className="text-[var(--fg-secondary)] mt-1">Monitor all team registrations across competitions.</p>
                         </div>
-                        <p className="text-neutral-400">Monitor all team registrations across competitions.</p>
                     </div>
 
                     <button
                         onClick={exportCSV}
-                        className="flex items-center gap-2 px-4 py-2 bg-[#00D4FF]/10 text-[#00D4FF] border border-[#00D4FF]/20 rounded-lg hover:bg-[#00D4FF]/20 transition-colors"
+                        className="px-5 py-2.5 rounded-full text-sm font-medium bg-[var(--bg-secondary)] text-[var(--fg-secondary)] border border-[var(--border)] hover:border-[var(--border-hover)] transition-all flex items-center gap-2"
                     >
-                        <Download size={18} /> Export CSV
+                        <Download size={16} /> Export CSV
                     </button>
                 </div>
 
-                {/* Filters */}
-                <div className="flex flex-col md:flex-row gap-4 mb-8 bg-neutral-900/50 p-4 rounded-xl border border-white/5">
+                <div className="flex flex-col md:flex-row gap-4 mb-8 rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-4">
                     <div className="flex-1 relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 w-5 h-5" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--fg-tertiary)] w-4 h-4" />
                         <input
                             type="text"
                             placeholder="Search teams, leaders, or competitions..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 bg-black/50 border border-white/10 rounded-lg focus:border-[#E55B5B] outline-none text-white"
+                            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[var(--bg)] border border-[var(--border)] text-[var(--fg)] placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg)] focus:outline-none transition-colors text-sm"
                         />
                     </div>
                     <div className="flex gap-2">
@@ -106,23 +104,28 @@ export default function AdminParticipationsPage() {
                             <button
                                 key={f}
                                 onClick={() => setFilter(f)}
-                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${filter === f ? "bg-white text-black" : "bg-white/5 text-neutral-400 hover:text-white"}`}
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                                    filter === f
+                                        ? "bg-[var(--fg)] text-[var(--bg)]"
+                                        : "bg-[var(--bg)] text-[var(--fg-secondary)] border border-[var(--border)] hover:border-[var(--border-hover)]"
+                                }`}
                             >
-                                {f}
+                                {f.charAt(0) + f.slice(1).toLowerCase()}
                             </button>
                         ))}
                     </div>
                 </div>
 
-                {/* Table */}
                 {loading ? (
-                    <div className="text-center py-20 text-neutral-500">Loading participation data...</div>
+                    <div className="flex items-center justify-center py-20">
+                        <Loader2 className="w-8 h-8 text-[var(--fg-tertiary)] animate-spin" />
+                    </div>
                 ) : (
-                    <div className="border border-white/10 rounded-xl overflow-hidden bg-neutral-900/30">
+                    <div className="rounded-2xl border border-[var(--border)] overflow-hidden bg-[var(--bg-secondary)]">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>
-                                    <tr className="bg-white/5 border-b border-white/10 text-xs uppercase tracking-wider text-neutral-400">
+                                    <tr className="border-b border-[var(--border)] text-xs uppercase tracking-wider text-[var(--fg-tertiary)]">
                                         <th className="p-4">Team Details</th>
                                         <th className="p-4">Competition</th>
                                         <th className="p-4">Leader</th>
@@ -130,41 +133,41 @@ export default function AdminParticipationsPage() {
                                         <th className="p-4 text-center">Status</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-white/5">
+                                <tbody className="divide-y divide-[var(--border)]">
                                     {filteredTeams.map((team) => (
                                         <motion.tr
                                             key={team._id}
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className="hover:bg-white/5 transition-colors"
+                                            className="hover:bg-[var(--bg-tertiary)] transition-colors"
                                         >
                                             <td className="p-4">
-                                                <p className="font-bold text-white">{team.name}</p>
-                                                <p className="text-xs font-mono text-neutral-500">{team.teamCode}</p>
+                                                <p className="font-medium text-[var(--fg)]">{team.name}</p>
+                                                <p className="text-xs text-[var(--fg-tertiary)]">{team.teamCode}</p>
                                             </td>
                                             <td className="p-4">
                                                 <div className="flex items-center gap-2">
-                                                    <Trophy size={14} className="text-[#E55B5B]" />
-                                                    <span className="text-sm text-neutral-300">{team.competitionName || "Unknown"}</span>
+                                                    <Trophy size={14} className="text-[var(--fg-tertiary)]" />
+                                                    <span className="text-sm text-[var(--fg-secondary)]">{team.competitionName || "Unknown"}</span>
                                                 </div>
                                             </td>
                                             <td className="p-4">
-                                                <p className="text-sm text-white">{team.leaderName}</p>
-                                                <p className="text-xs text-neutral-500">{team.leaderEmail}</p>
+                                                <p className="text-sm text-[var(--fg)]">{team.leaderName}</p>
+                                                <p className="text-xs text-[var(--fg-tertiary)]">{team.leaderEmail}</p>
                                             </td>
                                             <td className="p-4 text-center">
-                                                <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-neutral-800 text-xs">
+                                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--bg)] text-[var(--fg-secondary)] text-xs border border-[var(--border)]">
                                                     <Users size={12} /> {team.memberCount}
-                                                </div>
+                                                </span>
                                             </td>
                                             <td className="p-4 text-center">
                                                 {team.isFinalized ? (
-                                                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-500/20 text-green-400 text-xs font-bold border border-green-500/30">
-                                                        <CheckCircle size={12} /> DEPLOYED
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-medium border border-emerald-500/20">
+                                                        <CheckCircle size={12} /> Finalized
                                                     </span>
                                                 ) : (
-                                                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-yellow-500/20 text-yellow-400 text-xs font-bold border border-yellow-500/30">
-                                                        <Clock size={12} /> ASSEMBLING
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-medium border border-amber-500/20">
+                                                        <Clock size={12} /> Pending
                                                     </span>
                                                 )}
                                             </td>
@@ -174,7 +177,7 @@ export default function AdminParticipationsPage() {
                             </table>
                         </div>
                         {filteredTeams.length === 0 && (
-                            <div className="p-12 text-center text-neutral-500">
+                            <div className="p-12 text-center text-[var(--fg-tertiary)]">
                                 No records found matching your filters.
                             </div>
                         )}
