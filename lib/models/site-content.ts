@@ -1,4 +1,4 @@
-import { getDB, connectDB } from '../db'
+import { getDB } from '../db'
 
 export interface SiteContent {
   sectionId: string
@@ -6,9 +6,10 @@ export interface SiteContent {
   updatedAt: Date
 }
 
+// getDB() is async now — you must await it before calling .collection(...)
 async function collection() {
-  await connectDB()
-  return getDB().collection<SiteContent>('site_content')
+  const db = await getDB()
+  return db.collection<SiteContent>('site_content')
 }
 
 export async function getSectionContent(sectionId: string): Promise<SiteContent | null> {
