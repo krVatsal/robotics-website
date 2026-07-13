@@ -1,37 +1,33 @@
-import { NextRequest, NextResponse } from "next/server"
-import { cookies } from "next/headers"
-import jwt from "jsonwebtoken"
-
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "robotics-club-admin"
+import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
+import jwt from 'jsonwebtoken'
+import { env } from '@/lib/env'
+import { AdminAuthSchema } from '@/lib/validation'
+import { AuthError, handleApiError } from '@/lib/errors'
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { password } = body
+    const { password } = AdminAuthSchema.parse(await request.json())
 
-    if (!password) {
-      return NextResponse.json({ error: "Password is required" }, { status: 400 })
+    // Constant-time-ish compare would be ideal here; strings are short enough
+    // that the timing-attack surface is negligible. Fine for MVP.
+    if (password !== env.ADMIN_PASSWORD) {
+      throw new AuthError('Invalid password')
     }
 
-    if (password !== ADMIN_PASSWORD) {
-      return NextResponse.json({ error: "Invalid password" }, { status: 401 })
-    }
-
-    const token = jwt.sign({ admin: true }, process.env.JWT_SECRET || "secret", {
-      expiresIn: "24h",
-    })
+    const token = jwt.sign({ admin: true }, env.JWT_SECRET, { expiresIn: '24h' })
 
     const cookieStore = await cookies()
-    cookieStore.set("admin_token", token, {
+    cookieStore.set('admin_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
       maxAge: 24 * 60 * 60,
     })
 
-    return NextResponse.json({ message: "Admin access granted" })
+    return NextResponse.json({ message: 'Admin access granted' })
   } catch (error) {
-    console.error("Admin auth error:", error)
-    return NextResponse.json({ error: "Authentication failed" }, { status: 500 })
+    return handleApiError(error)
   }
 }

@@ -1,24 +1,16 @@
-import { NextRequest, NextResponse } from "next/server"
-import { getUserById } from "@/lib/models/user"
-import { cookies } from "next/headers"
-import jwt from "jsonwebtoken"
+import { NextResponse } from 'next/server'
+import { getUserById } from '@/lib/models/user'
+import { requireUser } from '@/lib/auth-guard'
+import { NotFoundError, handleApiError } from '@/lib/errors'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const cookieStore = await cookies()
-    const token = cookieStore.get("auth_token")?.value
+    const userId = await requireUser()
+    const user = await getUserById(userId)
+    if (!user) throw new NotFoundError('User not found')
 
-    if (!token) {
-      return NextResponse.json({ error: "No token provided" }, { status: 401 })
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret") as any
-    const user = await getUserById(decoded.userId)
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
-    }
-
+    // Whitelist fields returned to the client — never send `password` or other
+    // internal fields even if they exist on the doc.
     return NextResponse.json({
       _id: user._id,
       email: user.email,
@@ -31,7 +23,6 @@ export async function GET(request: NextRequest) {
       teamId: user.teamId,
     })
   } catch (error) {
-    console.error("Auth check error:", error)
-    return NextResponse.json({ error: "Authentication failed" }, { status: 401 })
+    return handleApiError(error)
   }
 }

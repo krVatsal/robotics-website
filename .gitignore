@@ -6,7 +6,6 @@
 # next.js
 /.next/
 /out/
-scripts
 
 # production
 /build
@@ -26,3 +25,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python venv (accidentally committed earlier)
+/robo/
+
+__pycache__/
+*.pyc

@@ -1,17 +1,9 @@
-// lib/auth-utils.ts
-import { cookies } from "next/headers"
-import jwt from "jsonwebtoken"
-
-export async function getAuthUserId(): Promise<string | null> {
-    const cookieStore = await cookies()
-    const token = cookieStore.get("auth_token")?.value
-
-    if (!token) return null
-
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret") as { userId: string }
-        return decoded.userId
-    } catch (error) {
-        return null
-    }
-}
+/**
+ * Backward-compat shim.
+ *
+ * The real auth helpers now live in `lib/auth-guard.ts`. This file re-exports
+ * `getAuthUserId` so existing routes that import from `@/lib/auth-utils` keep
+ * working. New code should import from `@/lib/auth-guard` directly and prefer
+ * the stricter `requireUser` / `requireAdmin` helpers.
+ */
+export { getAuthUserId } from './auth-guard'

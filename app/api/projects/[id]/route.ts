@@ -1,76 +1,77 @@
-import { getProjectById, updateProject, deleteProject, togglePublished } from "@/lib/models/project"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from 'next/server'
+import {
+  deleteProject,
+  getProjectById,
+  togglePublished,
+  updateProject,
+} from '@/lib/models/project'
+import { requireAdmin } from '@/lib/auth-guard'
+import {
+  ObjectIdSchema,
+  ProjectPatchActionSchema,
+  UpdateProjectSchema,
+} from '@/lib/validation'
+import { NotFoundError, handleApiError } from '@/lib/errors'
 
-// Next.js 15 requirement: params must be awaited
 type Props = {
   params: Promise<{ id: string }>
 }
 
-export async function GET(request: NextRequest, { params }: Props) {
+export async function GET(_request: NextRequest, { params }: Props) {
   try {
     const { id } = await params
+    ObjectIdSchema.parse(id)
     const project = await getProjectById(id)
-    if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 })
-    }
+    if (!project) throw new NotFoundError('Project not found')
     return NextResponse.json(project)
   } catch (error) {
-    console.error("Failed to fetch project:", error)
-    return NextResponse.json({ error: "Failed to fetch project" }, { status: 500 })
+    return handleApiError(error)
   }
 }
 
 export async function PUT(request: NextRequest, { params }: Props) {
   try {
+    await requireAdmin()
     const { id } = await params
-    const body = await request.json()
-
+    ObjectIdSchema.parse(id)
+    const body = UpdateProjectSchema.parse(await request.json())
     const project = await updateProject(id, body)
-    if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 })
-    }
-
+    if (!project) throw new NotFoundError('Project not found')
     return NextResponse.json(project)
   } catch (error) {
-    console.error("Failed to update project:", error)
-    return NextResponse.json({ error: "Failed to update project" }, { status: 500 })
+    return handleApiError(error)
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: Props) {
+export async function DELETE(_request: NextRequest, { params }: Props) {
   try {
+    await requireAdmin()
     const { id } = await params
-    console.log("Attempting to delete project:", id)
-
-    const success = await deleteProject(id)
-
-    if (!success) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 })
-    }
-
-    return NextResponse.json({ message: "Project deleted successfully" })
+    ObjectIdSchema.parse(id)
+    const ok = await deleteProject(id)
+    if (!ok) throw new NotFoundError('Project not found')
+    return NextResponse.json({ message: 'Project deleted successfully' })
   } catch (error) {
-    console.error("Failed to delete project:", error)
-    return NextResponse.json({ error: "Failed to delete project" }, { status: 500 })
+    return handleApiError(error)
   }
 }
 
 export async function PATCH(request: NextRequest, { params }: Props) {
   try {
+    await requireAdmin()
     const { id } = await params
-    const body = await request.json()
+    ObjectIdSchema.parse(id)
+    const { action } = ProjectPatchActionSchema.parse(await request.json())
 
-    if (body.action === "togglePublished") {
+    if (action === 'togglePublished') {
       const project = await togglePublished(id)
-      if (!project) {
-        return NextResponse.json({ error: "Project not found" }, { status: 404 })
-      }
+      if (!project) throw new NotFoundError('Project not found')
       return NextResponse.json(project)
     }
 
-    return NextResponse.json({ error: "Invalid action" }, { status: 400 })
+    // Shouldn't reach here — the Zod enum already rejects unknown actions.
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
   } catch (error) {
-    console.error("Failed to patch project:", error)
-    return NextResponse.json({ error: "Failed to patch project" }, { status: 500 })
+    return handleApiError(error)
   }
 }

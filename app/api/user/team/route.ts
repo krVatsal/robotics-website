@@ -1,20 +1,14 @@
-import { NextResponse } from "next/server"
-import { getAuthUserId } from "@/lib/auth-utils"
-import { getAllTeamsForUser } from "@/lib/models/team" // Import the new function
+import { NextResponse } from 'next/server'
+import { getAllTeamsForUser } from '@/lib/models/team'
+import { requireUser } from '@/lib/auth-guard'
+import { handleApiError } from '@/lib/errors'
 
 export async function GET() {
-    try {
-        const userId = await getAuthUserId()
-        if (!userId) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-        }
-
-        // Fetch ALL teams instead of just the latest
-        const teams = await getAllTeamsForUser(userId)
-
-        return NextResponse.json(teams)
-    } catch (error) {
-        console.error("Failed to fetch user teams:", error)
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
-    }
+  try {
+    const userId = await requireUser()
+    const teams = await getAllTeamsForUser(userId)
+    return NextResponse.json(teams)
+  } catch (error) {
+    return handleApiError(error)
+  }
 }
