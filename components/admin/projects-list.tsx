@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Trash2, Edit2, Eye } from "lucide-react"
+import { Trash2, Edit2, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 export function ProjectsList({ onProjectDeleted }: { onProjectDeleted: () => void }) {
   const [projects, setProjects] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [deletingId, setDeletingId] = useState<string | null>(null) // FIXED: Added missing state
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchProjects()
@@ -60,86 +60,86 @@ export function ProjectsList({ onProjectDeleted }: { onProjectDeleted: () => voi
   }
 
   if (loading) {
-    return <div className="text-center text-neutral-400 py-12">Loading projects from database...</div>
+    return <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 text-[var(--fg-tertiary)] animate-spin" /></div>
   }
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">
-          All Projects <span className="text-neutral-400 text-lg">({projects.length})</span>
+        <h2 className="font-display text-2xl font-bold text-[var(--fg)]">
+          All Projects <span className="text-[var(--fg-tertiary)] text-lg">({projects.length})</span>
         </h2>
       </div>
 
       {projects.length === 0 ? (
-        <div className="text-center py-12 border border-dashed border-white/10 rounded-xl">
-          <p className="text-neutral-400 mb-4">No projects found in database.</p>
+        <div className="text-center py-12 rounded-2xl border border-dashed border-[var(--border)]">
+          <p className="text-[var(--fg-tertiary)] mb-4">No projects found.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto border border-white/10 rounded-xl">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-white/10 bg-white/5">
-                <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-400">Title</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-neutral-400">Category</th>
-                <th className="px-6 py-4 text-center text-sm font-semibold text-neutral-400">Status</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-neutral-400">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <AnimatePresence>
-                {projects.map((project) => (
-                  <motion.tr
-                    key={project._id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="border-b border-white/5 hover:bg-white/5 transition-colors"
-                  >
-                    <td className="px-6 py-4">
-                      <p className="font-medium text-white">{project.title}</p>
-                      <p className="text-sm text-neutral-400 truncate max-w-xs">{project.shortDescription}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="px-3 py-1 bg-[#E55B5B]/20 text-[#E55B5B] text-xs rounded-full">
-                        {project.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className={`px-3 py-1 text-xs rounded-full font-medium ${project.published ? "bg-green-500/20 text-green-400" : "bg-yellow-500/20 text-yellow-400"
-                        }`}>
-                        {project.published ? "Published" : "Draft"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => handleTogglePublish(project._id)}
-                          className="p-2 hover:bg-white/10 rounded-lg text-neutral-400 transition-colors"
-                          title="Toggle Publish"
-                        >
-                          {project.published ? "Unpublish" : "Publish"}
-                        </button>
-                        <Link
-                          href={`/admin/edit/${project._id}`}
-                          className="p-2 hover:bg-white/10 rounded-lg text-neutral-400 hover:text-white transition-colors"
-                        >
-                          <Edit2 size={18} />
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(project._id)}
-                          disabled={deletingId === project._id}
-                          className="p-2 hover:bg-white/10 rounded-lg text-neutral-400 hover:text-[#E55B5B] transition-colors disabled:opacity-50"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))}
-              </AnimatePresence>
-            </tbody>
-          </table>
+        <div className="rounded-2xl border border-[var(--border)] overflow-hidden bg-[var(--bg-secondary)]">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[var(--border)]">
+                  <th className="px-6 py-4 text-left text-xs font-medium text-[var(--fg-tertiary)] uppercase tracking-wider">Title</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-[var(--fg-tertiary)] uppercase tracking-wider">Category</th>
+                  <th className="px-6 py-4 text-center text-xs font-medium text-[var(--fg-tertiary)] uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-right text-xs font-medium text-[var(--fg-tertiary)] uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <AnimatePresence>
+                  {projects.map((project) => (
+                    <motion.tr
+                      key={project._id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="border-b border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors"
+                    >
+                      <td className="px-6 py-4">
+                        <p className="font-medium text-[var(--fg)]">{project.title}</p>
+                        <p className="text-sm text-[var(--fg-tertiary)] truncate max-w-xs">{project.shortDescription}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-3 py-1 rounded-full bg-[var(--bg-tertiary)] text-[var(--fg-secondary)] text-xs border border-[var(--border)]">
+                          {project.category}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={`px-3 py-1 text-xs rounded-full font-medium ${project.published ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"}`}>
+                          {project.published ? "Published" : "Draft"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => handleTogglePublish(project._id)}
+                            className="px-3 py-1.5 text-xs rounded-lg text-[var(--fg-secondary)] hover:bg-[var(--bg)] border border-[var(--border)] transition-colors"
+                          >
+                            {project.published ? "Unpublish" : "Publish"}
+                          </button>
+                          <Link
+                            href={`/admin/edit/${project._id}`}
+                            className="p-2 rounded-lg text-[var(--fg-tertiary)] hover:text-[var(--fg)] hover:bg-[var(--bg)] transition-colors"
+                          >
+                            <Edit2 size={16} />
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(project._id)}
+                            disabled={deletingId === project._id}
+                            className="p-2 rounded-lg text-[var(--fg-tertiary)] hover:text-red-500 hover:bg-[var(--bg)] transition-colors disabled:opacity-50"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

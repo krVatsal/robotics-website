@@ -12,28 +12,28 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-    try {
-        const { id } = await params
-        const body = await request.json()
-
-        const { _id, ...updateData } = body;
-
-        const result = await updateCompetition(id, updateData)
-        return NextResponse.json(result)
-    } catch (error) {
-        console.error("Update competition error:", error)
-        return NextResponse.json({ error: "Update failed" }, { status: 500 })
-    }
+export async function PUT(request: NextRequest, { params }: Props) {
+  try {
+    await requireAdmin()
+    const { id } = await params
+    ObjectIdSchema.parse(id)
+    const body = UpdateCompetitionSchema.parse(await request.json())
+    const result = await updateCompetition(id, body)
+    return NextResponse.json(result)
+  } catch (error) {
+    return handleApiError(error)
+  }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-    try {
-        const { id } = await params
-        const success = await deleteCompetition(id)
-        if (!success) return NextResponse.json({ error: "Not found" }, { status: 404 })
-        return NextResponse.json({ message: "Deleted" })
-    } catch (error) {
-        return NextResponse.json({ error: "Delete failed" }, { status: 500 })
-    }
+export async function DELETE(_request: NextRequest, { params }: Props) {
+  try {
+    await requireAdmin()
+    const { id } = await params
+    ObjectIdSchema.parse(id)
+    const ok = await deleteCompetition(id)
+    if (!ok) throw new NotFoundError('Competition not found')
+    return NextResponse.json({ message: 'Deleted' })
+  } catch (error) {
+    return handleApiError(error)
+  }
 }

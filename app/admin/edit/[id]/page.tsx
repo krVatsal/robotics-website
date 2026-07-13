@@ -1,16 +1,15 @@
 "use client"
 
-import { useState, useEffect, use } from "react" // Use 'use' from react
+import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import Navbar from "@/components/navbar"
 import { ProjectForm } from "@/components/admin/project-form"
 import { motion } from "framer-motion"
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 export default function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
-  // Unwrapping params using React.use()
   const { id } = use(params)
 
   const [project, setProject] = useState<any | null>(null)
@@ -40,33 +39,33 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
-        <div className="text-neutral-400">Loading project data...</div>
+      <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-[var(--fg-tertiary)] animate-spin" />
       </div>
     )
   }
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold mb-4">Project not found</h1>
-        <Link href="/admin" className="text-[#00D4FF]">Back to Dashboard</Link>
+      <div className="min-h-screen bg-[var(--bg)] flex flex-col items-center justify-center gap-4">
+        <h1 className="font-display text-2xl font-bold text-[var(--fg)]">Project not found</h1>
+        <Link href="/admin" className="text-sm text-[var(--fg-secondary)] hover:text-[var(--fg)] underline">Back to Dashboard</Link>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950">
+    <div className="min-h-screen bg-[var(--bg)]">
       <Navbar />
-      <section className="py-12 px-4 max-w-7xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Link href="/admin" className="p-2 hover:bg-white/10 rounded-lg text-neutral-400">
-            <ChevronLeft size={24} />
+      <div className="max-w-7xl mx-auto px-6 pt-28 pb-20">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-4 mb-8">
+          <Link href="/admin" className="w-10 h-10 rounded-full border border-[var(--border)] flex items-center justify-center hover:bg-[var(--bg-secondary)] transition-colors text-[var(--fg-tertiary)]">
+            <ChevronLeft size={20} />
           </Link>
-          <h1 className="text-4xl font-bold">Edit <span className="text-[#E55B5B]">Project</span></h1>
-        </div>
+          <h1 className="font-display text-4xl font-bold text-[var(--fg)] tracking-tight">Edit Project</h1>
+        </motion.div>
         <ProjectForm initialData={project} onSuccess={handleSuccess} />
-      </section>
+      </div>
     </div>
   )
 }

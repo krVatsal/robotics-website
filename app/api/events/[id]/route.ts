@@ -1,26 +1,30 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getEventById, updateEvent, deleteEvent } from "@/lib/models/events"
 
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-    try {
-        const { id } = await params
-        const body = await request.json()
-        const result = await updateEvent(id, body)
-        return NextResponse.json(result)
-    } catch (error) {
-        return NextResponse.json({ error: "Update failed" }, { status: 500 })
-    }
+export async function PUT(request: NextRequest, { params }: Props) {
+  try {
+    await requireAdmin()
+    const { id } = await params
+    ObjectIdSchema.parse(id)
+    const body = UpdateEventSchema.parse(await request.json())
+    const result = await updateEvent(id, body)
+    return NextResponse.json(result)
+  } catch (error) {
+    return handleApiError(error)
+  }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-    try {
-        const { id } = await params
-        const success = await deleteEvent(id)
-        if (!success) return NextResponse.json({ error: "Not found" }, { status: 404 })
-        return NextResponse.json({ message: "Deleted" })
-    } catch (error) {
-        return NextResponse.json({ error: "Delete failed" }, { status: 500 })
-    }
+export async function DELETE(_request: NextRequest, { params }: Props) {
+  try {
+    await requireAdmin()
+    const { id } = await params
+    ObjectIdSchema.parse(id)
+    const ok = await deleteEvent(id)
+    if (!ok) throw new NotFoundError('Event not found')
+    return NextResponse.json({ message: 'Deleted' })
+  } catch (error) {
+    return handleApiError(error)
+  }
 }
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

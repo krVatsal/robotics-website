@@ -5,23 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Terminal, UserPlus, Fingerprint, AlertTriangle } from 'lucide-react'
-
-// Custom "Chamfered" Input Component for that sharp tech look
-const TechInput = ({ ...props }: React.InputHTMLAttributes<HTMLInputElement>) => (
-  <div className="relative group">
-    {/* Decorative corner accents */}
-    <div className="absolute top-0 left-0 w-2 h-2 border-l border-t border-white/30 group-focus-within:border-[#00D4FF] transition-colors pointer-events-none" />
-    <div className="absolute bottom-0 right-0 w-2 h-2 border-r border-b border-white/30 group-focus-within:border-[#00D4FF] transition-colors pointer-events-none" />
-
-    <input
-      {...props}
-      className="w-full bg-black/40 border-b border-white/10 text-neutral-200 px-4 py-3 focus:outline-none focus:border-[#00D4FF] focus:bg-black/60 transition-all font-mono placeholder:text-neutral-600"
-      style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)" }}
-    />
-  </div>
-)
+import { UserPlus, ArrowRight, AlertCircle, Loader2 } from 'lucide-react'
 
 const departments = [
   "Computer Science and Engineering",
@@ -61,7 +45,7 @@ export default function SignUpPage() {
     setError('')
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Encryption keys (passwords) do not match')
+      setError('Passwords do not match')
       return
     }
 
@@ -77,185 +61,82 @@ export default function SignUpPage() {
     }
   }
 
+  const inputClass = "w-full rounded-xl bg-[var(--bg)] border border-[var(--border)] px-4 py-3 text-[var(--fg)] placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg)] focus:outline-none transition-colors text-sm"
+
   return (
-    <div className="min-h-screen bg-neutral-950 flex items-center justify-center px-4 py-8 relative">
-
-      {/* --- BACKGROUND: Blueprint Grid --- */}
-      <div className="absolute inset-0 opacity-[0.15] pointer-events-none"
-        style={{
-          backgroundImage: `linear-gradient(#00D4FF 1px, transparent 1px), linear-gradient(90deg, #00D4FF 1px, transparent 1px)`,
-          backgroundSize: '30px 30px'
-        }}
-      />
-
+    <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center px-6 py-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="w-full max-w-2xl relative z-10"
+        className="w-full max-w-lg"
       >
-        <div className="relative bg-neutral-900/90 backdrop-blur-xl border border-[#00D4FF]/20" style={{ clipPath: "polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)" }}>
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-8">
+          <div className="text-center mb-8">
+            <div className="w-12 h-12 rounded-full border border-[var(--border)] flex items-center justify-center mx-auto mb-4">
+              <UserPlus className="w-5 h-5 text-[var(--fg-tertiary)]" />
+            </div>
+            <h1 className="font-display text-2xl font-bold text-[var(--fg)]">Create Account</h1>
+            <p className="text-sm text-[var(--fg-tertiary)] mt-1">Join the MNNIT Robotics Club</p>
+          </div>
 
-          {/* Top Decorative Bar */}
-          <div className="h-1 w-full bg-gradient-to-r from-transparent via-[#00D4FF] to-transparent" />
+          {error && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" /> {error}
+            </motion.div>
+          )}
 
-          <div className="p-8 md:p-10">
-
-            {/* Header Section */}
-            <div className="flex items-start justify-between mb-8 border-b border-white/5 pb-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-                  <Terminal className="w-6 h-6 text-[#00D4FF]" />
-                  INIT <span className="text-[#00D4FF]">PROFILE</span>
-                </h1>
-                <p className="text-neutral-400 text-sm mt-2 font-mono">
-                  Join the MNNIT Robotics network.
-                </p>
+                <label className="block text-xs text-[var(--fg-tertiary)] uppercase tracking-wider font-medium mb-2">Full Name</label>
+                <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="John Doe" required disabled={isLoading} className={inputClass} />
               </div>
-              <Fingerprint className="w-12 h-12 text-[#00D4FF]/10 hidden md:block" />
+              <div>
+                <label className="block text-xs text-[var(--fg-tertiary)] uppercase tracking-wider font-medium mb-2">Email</label>
+                <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="you@mnnit.ac.in" required disabled={isLoading} className={inputClass} />
+              </div>
             </div>
 
-            {error && (
-              <div className="mb-6 p-4 bg-red-900/20 border-l-2 border-red-500 text-red-400 text-sm flex items-center gap-3">
-                <AlertTriangle className="w-4 h-4 shrink-0" />
-                {error}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs text-[var(--fg-tertiary)] uppercase tracking-wider font-medium mb-2">Roll Number</label>
+                <input type="text" name="rollNo" value={formData.rollNo} onChange={handleChange} placeholder="2024XXX" disabled={isLoading} className={inputClass} />
               </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-8">
-
-              {/* Personal Info Group */}
-              <div className="space-y-4">
-                <h3 className="text-xs font-mono text-[#00D4FF] uppercase tracking-widest pl-1 mb-4 flex items-center gap-2">
-                  <span className="w-1 h-1 bg-[#00D4FF]"></span> Cadet Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-xs font-mono text-neutral-500 mb-2 uppercase">Full Designation</label>
-                    <TechInput
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder="JOHN DOE"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-mono text-neutral-500 mb-2 uppercase">Comm Link (Email)</label>
-                    <TechInput
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="user@mnnit.ac.in"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                </div>
+              <div>
+                <label className="block text-xs text-[var(--fg-tertiary)] uppercase tracking-wider font-medium mb-2">Department</label>
+                <select name="department" value={formData.department} onChange={handleChange} disabled={isLoading} className={`${inputClass} appearance-none`}>
+                  <option value="">Select department</option>
+                  {departments.map((dept) => (
+                    <option key={dept} value={dept}>{dept}</option>
+                  ))}
+                </select>
               </div>
+            </div>
 
-              {/* Academic Info Group */}
-              <div className="space-y-4">
-                <h3 className="text-xs font-mono text-[#00D4FF] uppercase tracking-widest pl-1 mb-4 flex items-center gap-2">
-                  <span className="w-1 h-1 bg-[#00D4FF]"></span> Academic Data
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-xs font-mono text-neutral-500 mb-2 uppercase">ID Number</label>
-                    <TechInput
-                      type="text"
-                      name="rollNo"
-                      value={formData.rollNo}
-                      onChange={handleChange}
-                      placeholder="2024XXX"
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-mono text-neutral-500 mb-2 uppercase">Division</label>
-                    <div className="relative group">
-                      {/* Decorative corners for select */}
-                      <div className="absolute top-0 left-0 w-2 h-2 border-l border-t border-white/30 group-focus-within:border-[#00D4FF] transition-colors pointer-events-none" />
-                      <div className="absolute bottom-0 right-0 w-2 h-2 border-r border-b border-white/30 group-focus-within:border-[#00D4FF] transition-colors pointer-events-none" />
-
-                      <select
-                        name="department"
-                        value={formData.department}
-                        onChange={handleChange}
-                        disabled={isLoading}
-                        className="w-full bg-black/40 border-b border-white/10 text-neutral-200 px-4 py-3 focus:outline-none focus:border-[#00D4FF] focus:bg-black/60 transition-all font-mono appearance-none"
-                        style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)" }}
-                      >
-                        <option value="" className="bg-neutral-900 text-neutral-500">SELECT DEPARTMENT</option>
-                        {departments.map((dept) => (
-                          <option key={dept} value={dept} className="bg-neutral-900 text-white">
-                            {dept.toUpperCase()}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500 text-xs">▼</div>
-                    </div>
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs text-[var(--fg-tertiary)] uppercase tracking-wider font-medium mb-2">Password</label>
+                <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" required disabled={isLoading} className={inputClass} />
               </div>
-
-              {/* Security Group */}
-              <div className="space-y-4">
-                <h3 className="text-xs font-mono text-[#00D4FF] uppercase tracking-widest pl-1 mb-4 flex items-center gap-2">
-                  <span className="w-1 h-1 bg-[#00D4FF]"></span> Security Protocols
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-xs font-mono text-neutral-500 mb-2 uppercase">Passcode</label>
-                    <TechInput
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="••••••••"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-mono text-neutral-500 mb-2 uppercase">Confirm Passcode</label>
-                    <TechInput
-                      type="password"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      placeholder="••••••••"
-                      required
-                      disabled={isLoading}
-                    />
-                  </div>
-                </div>
+              <div>
+                <label className="block text-xs text-[var(--fg-tertiary)] uppercase tracking-wider font-medium mb-2">Confirm Password</label>
+                <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••" required disabled={isLoading} className={inputClass} />
               </div>
+            </div>
 
-              <div className="pt-6">
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-[#00D4FF] hover:bg-[#00D4FF]/90 text-black font-bold h-14 text-base relative overflow-hidden group tracking-widest uppercase rounded-none"
-                  style={{ clipPath: "polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)" }}
-                >
-                  <span className="relative z-10 flex items-center gap-3">
-                    {isLoading ? 'PROCESSING...' : 'INITIALIZE ACCOUNT'}
-                    {!isLoading && <UserPlus className="w-5 h-5" />}
-                  </span>
-                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                </Button>
-              </div>
-            </form>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 rounded-full bg-[var(--fg)] text-[var(--bg)] text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
+            >
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Create Account <ArrowRight className="w-4 h-4" /></>}
+            </button>
+          </form>
 
-            <p className="mt-8 text-center text-neutral-500 text-sm">
-              Already operational?{' '}
-              <Link href="/auth/signin" className="text-[#00D4FF] hover:text-white hover:underline transition-colors font-mono uppercase tracking-wide">
-                System Login
-              </Link>
+          <div className="mt-6 text-center border-t border-[var(--border)] pt-5">
+            <p className="text-sm text-[var(--fg-secondary)]">
+              Already have an account?{' '}
+              <Link href="/auth/signin" className="text-[var(--fg)] font-medium hover:underline">Sign in</Link>
             </p>
           </div>
         </div>

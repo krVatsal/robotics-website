@@ -1,51 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import {
   Plus, X, Save, Layout, Cpu,
   Users, FileText, Link as LinkIcon,
   Github, ExternalLink, Image as ImageIcon,
-  Eye, EyeOff, Terminal, AlertCircle
+  Eye, EyeOff, AlertCircle, Loader2
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 
-// --- Custom UI Components for the "Tech" Look ---
-
-const TechInput = ({ label, ...props }: any) => (
-  <div className="group">
-    {label && <label className="block text-xs font-mono text-[#00D4FF] mb-2 uppercase tracking-wider">{label}</label>}
-    <div className="relative">
-      {/* Decorative Corners */}
-      <div className="absolute top-0 left-0 w-2 h-2 border-l border-t border-white/20 group-focus-within:border-[#E55B5B] transition-colors pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-2 h-2 border-r border-b border-white/20 group-focus-within:border-[#E55B5B] transition-colors pointer-events-none" />
-
-      <input
-        {...props}
-        className="w-full bg-black/40 border-b border-white/10 text-white px-4 py-3 focus:outline-none focus:border-[#E55B5B] focus:bg-black/60 transition-all placeholder:text-neutral-600"
-        style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)" }}
-      />
-    </div>
-  </div>
-)
-
-const TechTextArea = ({ label, ...props }: any) => (
-  <div className="group">
-    {label && <label className="block text-xs font-mono text-[#00D4FF] mb-2 uppercase tracking-wider">{label}</label>}
-    <div className="relative">
-      <div className="absolute top-0 left-0 w-2 h-2 border-l border-t border-white/20 group-focus-within:border-[#E55B5B] transition-colors pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-2 h-2 border-r border-b border-white/20 group-focus-within:border-[#E55B5B] transition-colors pointer-events-none" />
-
-      <textarea
-        {...props}
-        className="w-full bg-black/40 border-b border-white/10 text-white px-4 py-3 focus:outline-none focus:border-[#E55B5B] focus:bg-black/60 transition-all placeholder:text-neutral-600 min-h-[120px]"
-        style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)" }}
-      />
-    </div>
-  </div>
-)
-
-// --- Main Form Component ---
+const inputClass = "w-full rounded-xl bg-[var(--bg)] border border-[var(--border)] px-4 py-3 text-[var(--fg)] placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg)] focus:outline-none transition-colors text-sm"
 
 export function ProjectForm({ onSuccess, initialData }: { onSuccess: () => void, initialData?: any }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -71,23 +36,15 @@ export function ProjectForm({ onSuccess, initialData }: { onSuccess: () => void,
     links: initialData?.links || { github: "", documentation: "", demo: "" },
   })
 
-  // --- Handlers ---
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
     const checked = (e.target as HTMLInputElement).checked
 
     if (name.startsWith('links.')) {
       const linkField = name.split('.')[1]
-      setFormData(prev => ({
-        ...prev,
-        links: { ...prev.links, [linkField]: value }
-      }))
+      setFormData(prev => ({ ...prev, links: { ...prev.links, [linkField]: value } }))
     } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === "checkbox" ? checked : value,
-      }))
+      setFormData(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }))
     }
   }
 
@@ -97,9 +54,7 @@ export function ProjectForm({ onSuccess, initialData }: { onSuccess: () => void,
   }
 
   const removeArrayItem = (field: string, index: number) => {
-    setFormData((prev: any) => ({
-      ...prev, [field]: prev[field].filter((_: any, i: number) => i !== index)
-    }))
+    setFormData((prev: any) => ({ ...prev, [field]: prev[field].filter((_: any, i: number) => i !== index) }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -115,7 +70,7 @@ export function ProjectForm({ onSuccess, initialData }: { onSuccess: () => void,
         body: JSON.stringify(formData),
       })
 
-      if (!response.ok) throw new Error("Failed to sync with database.")
+      if (!response.ok) throw new Error("Failed to save project.")
       onSuccess()
     } catch (err: any) {
       setError(err.message)
@@ -124,45 +79,31 @@ export function ProjectForm({ onSuccess, initialData }: { onSuccess: () => void,
     }
   }
 
-  // --- Render Helpers ---
-
   const sections = [
-    { id: "basic", label: "Core Data", icon: Layout },
+    { id: "basic", label: "Basic Info", icon: Layout },
     { id: "details", label: "Tech Stack", icon: Cpu },
-    { id: "team", label: "Personnel", icon: Users },
-    { id: "links", label: "Connections", icon: LinkIcon },
-    { id: "content", label: "Documentation", icon: FileText },
+    { id: "team", label: "Team", icon: Users },
+    { id: "links", label: "Links", icon: LinkIcon },
+    { id: "content", label: "Content", icon: FileText },
   ]
 
   return (
     <div className="max-w-5xl mx-auto">
-      {/* --- Tab Navigation --- */}
-      <div className="flex flex-wrap gap-2 mb-8 border-b border-white/10 pb-1">
+      <div className="flex flex-wrap gap-2 mb-8">
         {sections.map((sec) => {
           const Icon = sec.icon
-          const isActive = activeSection === sec.id
           return (
             <button
               key={sec.id}
               type="button"
               onClick={() => setActiveSection(sec.id)}
-              className={`flex items-center gap-2 px-6 py-3 text-sm font-bold uppercase tracking-wider transition-all relative overflow-hidden group ${isActive ? "text-black" : "text-neutral-500 hover:text-white"
-                }`}
-              style={{ clipPath: "polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px)" }}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+                activeSection === sec.id
+                  ? "bg-[var(--fg)] text-[var(--bg)]"
+                  : "bg-[var(--bg-secondary)] text-[var(--fg-secondary)] border border-[var(--border)] hover:border-[var(--border-hover)]"
+              }`}
             >
-              {isActive && (
-                <motion.div
-                  layoutId="activeTabBg"
-                  className="absolute inset-0 bg-[#00D4FF]"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-              {/* Border for inactive */}
-              {!isActive && <div className="absolute inset-0 border border-white/10 group-hover:border-white/30 transition-colors" />}
-
-              <span className="relative z-10 flex items-center gap-2">
-                <Icon size={16} /> {sec.label}
-              </span>
+              <Icon size={16} /> {sec.label}
             </button>
           )
         })}
@@ -170,93 +111,89 @@ export function ProjectForm({ onSuccess, initialData }: { onSuccess: () => void,
 
       <form onSubmit={handleSubmit} className="space-y-8 min-h-[400px]">
         {error && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 flex items-center gap-2">
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 flex items-center gap-2 text-sm">
             <AlertCircle size={18} /> {error}
           </motion.div>
         )}
 
-        {/* --- SECTION: BASIC INFO --- */}
         {activeSection === "basic" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <TechInput name="title" value={formData.title} onChange={handleInputChange} label="Project Title" placeholder="e.g. Autonomous Drone" required />
-
-              <div className="group">
-                <label className="block text-xs font-mono text-[#00D4FF] mb-2 uppercase tracking-wider">Classification</label>
-                <div className="relative">
-                  <select
-                    name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    className="w-full bg-black/40 border-b border-white/10 text-white px-4 py-3 focus:outline-none focus:border-[#E55B5B] transition-all appearance-none"
-                    style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%)" }}
-                  >
-                    <option value="Innovation">Innovation</option>
-                    <option value="Competition">Competition</option>
-                    <option value="Research">Research</option>
-                  </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500">▼</div>
-                </div>
+              <div>
+                <label className="block text-xs text-[var(--fg-tertiary)] uppercase tracking-wider font-medium mb-2">Project Title</label>
+                <input name="title" value={formData.title} onChange={handleInputChange} placeholder="e.g. Autonomous Drone" required className={inputClass} />
+              </div>
+              <div>
+                <label className="block text-xs text-[var(--fg-tertiary)] uppercase tracking-wider font-medium mb-2">Category</label>
+                <select name="category" value={formData.category} onChange={handleInputChange} className={`${inputClass} appearance-none`}>
+                  <option value="Innovation">Innovation</option>
+                  <option value="Competition">Competition</option>
+                  <option value="Research">Research</option>
+                </select>
               </div>
             </div>
 
-            <TechInput name="shortDescription" value={formData.shortDescription} onChange={handleInputChange} label="Short Brief" placeholder="One liner for cards..." required />
-            <TechTextArea name="description" value={formData.description} onChange={handleInputChange} label="Full Abstract" placeholder="Detailed summary..." />
+            <div>
+              <label className="block text-xs text-[var(--fg-tertiary)] uppercase tracking-wider font-medium mb-2">Short Description</label>
+              <input name="shortDescription" value={formData.shortDescription} onChange={handleInputChange} placeholder="One liner for cards..." required className={inputClass} />
+            </div>
+
+            <div>
+              <label className="block text-xs text-[var(--fg-tertiary)] uppercase tracking-wider font-medium mb-2">Full Description</label>
+              <textarea name="description" value={formData.description} onChange={handleInputChange} placeholder="Detailed summary..." className={`${inputClass} min-h-[120px]`} />
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
               <div>
-                <TechInput name="image" value={formData.image} onChange={handleInputChange} label="Cover Image URL" placeholder="https://..." />
+                <label className="block text-xs text-[var(--fg-tertiary)] uppercase tracking-wider font-medium mb-2">Cover Image URL</label>
+                <input name="image" value={formData.image} onChange={handleInputChange} placeholder="https://..." className={inputClass} />
                 <div className="flex gap-6 mt-6">
                   <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${formData.published ? "bg-green-500 border-green-500" : "border-white/30"}`}>
-                      {formData.published && <span className="text-black font-bold text-xs">✓</span>}
+                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${formData.published ? "bg-emerald-500 border-emerald-500" : "border-[var(--border)]"}`}>
+                      {formData.published && <span className="text-white font-bold text-xs">✓</span>}
                     </div>
                     <input type="checkbox" name="published" checked={formData.published} onChange={handleInputChange} className="hidden" />
-                    <span className="text-sm font-mono uppercase text-neutral-300 group-hover:text-white">Publish to Live</span>
+                    <span className="text-sm text-[var(--fg-secondary)]">Published</span>
                   </label>
-
                   <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${formData.featured ? "bg-yellow-500 border-yellow-500" : "border-white/30"}`}>
-                      {formData.featured && <span className="text-black font-bold text-xs">✓</span>}
+                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${formData.featured ? "bg-amber-500 border-amber-500" : "border-[var(--border)]"}`}>
+                      {formData.featured && <span className="text-white font-bold text-xs">✓</span>}
                     </div>
                     <input type="checkbox" name="featured" checked={formData.featured} onChange={handleInputChange} className="hidden" />
-                    <span className="text-sm font-mono uppercase text-neutral-300 group-hover:text-white">Mark Featured</span>
+                    <span className="text-sm text-[var(--fg-secondary)]">Featured</span>
                   </label>
                 </div>
               </div>
 
-              {/* Image Preview */}
-              <div className="aspect-video bg-neutral-900 border border-white/10 rounded-lg overflow-hidden relative flex items-center justify-center">
+              <div className="aspect-video rounded-xl bg-[var(--bg)] border border-[var(--border)] overflow-hidden flex items-center justify-center">
                 {formData.image ? (
                   <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="text-center text-neutral-600">
+                  <div className="text-center text-[var(--fg-tertiary)]">
                     <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <span className="text-xs font-mono">NO_SIGNAL</span>
+                    <span className="text-xs">No image</span>
                   </div>
                 )}
-                <div className="absolute top-2 right-2 px-2 py-1 bg-black/60 backdrop-blur text-[10px] font-mono text-white">PREVIEW</div>
               </div>
             </div>
           </motion.div>
         )}
 
-        {/* --- SECTION: TECH STACK --- */}
         {activeSection === "details" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
             {[
               { key: "techStack", label: "Core Technologies" },
-              { key: "hardwareUsed", label: "Hardware Manifest" },
-              { key: "softwareUsed", label: "Software Modules" }
+              { key: "hardwareUsed", label: "Hardware" },
+              { key: "softwareUsed", label: "Software" }
             ].map((section) => (
-              <div key={section.key} className="bg-white/5 border border-white/5 p-6 rounded-lg">
-                <label className="block text-xs font-mono text-[#00D4FF] mb-4 uppercase tracking-wider">{section.label}</label>
+              <div key={section.key} className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-6">
+                <label className="block text-xs text-[var(--fg-tertiary)] uppercase tracking-wider font-medium mb-4">{section.label}</label>
 
                 <div className="flex flex-wrap gap-2 mb-4">
                   {(formData as any)[section.key].map((item: string, i: number) => (
-                    <span key={i} className="flex items-center gap-2 px-3 py-1.5 bg-[#00D4FF]/10 border border-[#00D4FF]/30 text-[#00D4FF] text-xs font-mono rounded-sm">
+                    <span key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-tertiary)] text-[var(--fg-secondary)] text-xs border border-[var(--border)]">
                       {item}
-                      <button type="button" onClick={() => removeArrayItem(section.key, i)} className="hover:text-white transition-colors"><X size={12} /></button>
+                      <button type="button" onClick={() => removeArrayItem(section.key, i)} className="hover:text-[var(--fg)] transition-colors"><X size={12} /></button>
                     </span>
                   ))}
                 </div>
@@ -265,7 +202,7 @@ export function ProjectForm({ onSuccess, initialData }: { onSuccess: () => void,
                   <input
                     type="text"
                     placeholder="Type and press Enter..."
-                    className="flex-1 bg-black border border-white/10 px-4 py-2 text-sm text-white focus:border-[#E55B5B] outline-none"
+                    className={inputClass}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
@@ -274,131 +211,83 @@ export function ProjectForm({ onSuccess, initialData }: { onSuccess: () => void,
                       }
                     }}
                   />
-                  <div className="px-4 py-2 bg-neutral-800 text-neutral-500 text-xs font-mono flex items-center">⏎ ENTER</div>
                 </div>
               </div>
             ))}
           </motion.div>
         )}
 
-        {/* --- SECTION: TEAM --- */}
         {activeSection === "team" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-            <div className="bg-neutral-900/50 border border-white/10 p-6">
-              <h4 className="text-white font-bold mb-4 flex items-center gap-2"><Users size={18} className="text-[#E55B5B]" /> Contributors</h4>
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-6">
+              <h4 className="font-display text-base font-semibold text-[var(--fg)] mb-4 flex items-center gap-2"><Users size={18} className="text-[var(--fg-tertiary)]" /> Contributors</h4>
               <div className="space-y-3 mb-4">
                 {formData.contributors.map((c: any, i: any) => (
                   <div key={i} className="flex gap-2 items-center">
-                    <input
-                      placeholder="Name" value={c.name}
-                      className="flex-1 bg-black/40 border border-white/10 px-3 py-2 text-sm text-white focus:border-[#00D4FF] outline-none"
-                      onChange={(e) => { const items = [...formData.contributors]; (items[i] as any).name = e.target.value; setFormData({ ...formData, contributors: items }) }}
-                    />
-                    <input
-                      placeholder="Role (e.g. Lead)" value={c.role}
-                      className="flex-1 bg-black/40 border border-white/10 px-3 py-2 text-sm text-white focus:border-[#00D4FF] outline-none"
-                      onChange={(e) => { const items = [...formData.contributors]; (items[i] as any).role = e.target.value; setFormData({ ...formData, contributors: items }) }}
-                    />
-                    <button type="button" onClick={() => removeArrayItem("contributors", i)} className="p-2 text-neutral-500 hover:text-[#E55B5B]"><X size={16} /></button>
+                    <input placeholder="Name" value={c.name} className={inputClass}
+                      onChange={(e) => { const items = [...formData.contributors]; (items[i] as any).name = e.target.value; setFormData({ ...formData, contributors: items }) }} />
+                    <input placeholder="Role" value={c.role} className={inputClass}
+                      onChange={(e) => { const items = [...formData.contributors]; (items[i] as any).role = e.target.value; setFormData({ ...formData, contributors: items }) }} />
+                    <button type="button" onClick={() => removeArrayItem("contributors", i)} className="p-2 text-[var(--fg-tertiary)] hover:text-red-500"><X size={16} /></button>
                   </div>
                 ))}
               </div>
-              <button type="button" onClick={() => setFormData({ ...formData, contributors: [...formData.contributors, { name: "", role: "" }] })} className="text-xs bg-white/5 hover:bg-white/10 px-3 py-2 text-[#00D4FF] flex items-center gap-2 transition-colors">
-                <Plus size={14} /> ADD_MEMBER
+              <button type="button" onClick={() => setFormData({ ...formData, contributors: [...formData.contributors, { name: "", role: "" }] })} className="text-sm px-4 py-2 rounded-full border border-[var(--border)] text-[var(--fg-secondary)] hover:border-[var(--border-hover)] flex items-center gap-2 transition-colors">
+                <Plus size={14} /> Add Member
               </button>
             </div>
 
-            <div className="bg-neutral-900/50 border border-white/10 p-6">
-              <h4 className="text-white font-bold mb-4 flex items-center gap-2"><Users size={18} className="text-yellow-500" /> Mentors</h4>
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-6">
+              <h4 className="font-display text-base font-semibold text-[var(--fg)] mb-4 flex items-center gap-2"><Users size={18} className="text-amber-500" /> Mentors</h4>
               <div className="space-y-3 mb-4">
                 {formData.mentors.map((c: any, i: any) => (
                   <div key={i} className="flex gap-2 items-center">
-                    <input
-                      placeholder="Name" value={c.name}
-                      className="flex-1 bg-black/40 border border-white/10 px-3 py-2 text-sm text-white focus:border-yellow-500 outline-none"
-                      onChange={(e) => { const items = [...formData.mentors]; (items[i] as any).name = e.target.value; setFormData({ ...formData, mentors: items }) }}
-                    />
-                    <input
-                      placeholder="Role (e.g. Faculty Advisor)" value={c.role}
-                      className="flex-1 bg-black/40 border border-white/10 px-3 py-2 text-sm text-white focus:border-yellow-500 outline-none"
-                      onChange={(e) => { const items = [...formData.mentors]; (items[i] as any).role = e.target.value; setFormData({ ...formData, mentors: items }) }}
-                    />
-                    <button type="button" onClick={() => removeArrayItem("mentors", i)} className="p-2 text-neutral-500 hover:text-[#E55B5B]"><X size={16} /></button>
+                    <input placeholder="Name" value={c.name} className={inputClass}
+                      onChange={(e) => { const items = [...formData.mentors]; (items[i] as any).name = e.target.value; setFormData({ ...formData, mentors: items }) }} />
+                    <input placeholder="Role" value={c.role} className={inputClass}
+                      onChange={(e) => { const items = [...formData.mentors]; (items[i] as any).role = e.target.value; setFormData({ ...formData, mentors: items }) }} />
+                    <button type="button" onClick={() => removeArrayItem("mentors", i)} className="p-2 text-[var(--fg-tertiary)] hover:text-red-500"><X size={16} /></button>
                   </div>
                 ))}
               </div>
-              <button type="button" onClick={() => setFormData({ ...formData, mentors: [...formData.mentors, { name: "", role: "" }] })} className="text-xs bg-white/5 hover:bg-white/10 px-3 py-2 text-yellow-500 flex items-center gap-2 transition-colors">
-                <Plus size={14} /> ADD_MENTOR
+              <button type="button" onClick={() => setFormData({ ...formData, mentors: [...formData.mentors, { name: "", role: "" }] })} className="text-sm px-4 py-2 rounded-full border border-[var(--border)] text-[var(--fg-secondary)] hover:border-[var(--border-hover)] flex items-center gap-2 transition-colors">
+                <Plus size={14} /> Add Mentor
               </button>
             </div>
           </motion.div>
         )}
 
-        {/* --- SECTION: LINKS (FIXED) --- */}
         {activeSection === "links" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-            <div className="p-6 border border-white/10 bg-neutral-900/30 rounded-lg space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-white/10 rounded flex items-center justify-center text-white"><Github size={20} /></div>
-                <div className="flex-1">
-                  <label className="block text-xs font-mono text-neutral-400 mb-1">GITHUB_REPO</label>
-                  <input
-                    name="links.github"
-                    value={formData.links.github}
-                    onChange={handleInputChange}
-                    placeholder="https://github.com/..."
-                    className="w-full bg-black border border-white/10 p-2 text-white text-sm focus:border-[#00D4FF] outline-none"
-                  />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-6 space-y-5">
+              {[
+                { name: "links.github", icon: Github, label: "GitHub Repository", placeholder: "https://github.com/...", value: formData.links.github },
+                { name: "links.demo", icon: ExternalLink, label: "Live Demo", placeholder: "https://...", value: formData.links.demo },
+                { name: "links.documentation", icon: FileText, label: "Documentation", placeholder: "https://docs...", value: formData.links.documentation },
+              ].map((link) => (
+                <div key={link.name} className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center text-[var(--fg-tertiary)]"><link.icon size={18} /></div>
+                  <div className="flex-1">
+                    <label className="block text-xs text-[var(--fg-tertiary)] uppercase tracking-wider font-medium mb-1">{link.label}</label>
+                    <input name={link.name} value={link.value} onChange={handleInputChange} placeholder={link.placeholder} className={inputClass} />
+                  </div>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-white/10 rounded flex items-center justify-center text-white"><ExternalLink size={20} /></div>
-                <div className="flex-1">
-                  <label className="block text-xs font-mono text-neutral-400 mb-1">LIVE_DEMO</label>
-                  <input
-                    name="links.demo"
-                    value={formData.links.demo}
-                    onChange={handleInputChange}
-                    placeholder="https://..."
-                    className="w-full bg-black border border-white/10 p-2 text-white text-sm focus:border-[#00D4FF] outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-white/10 rounded flex items-center justify-center text-white"><FileText size={20} /></div>
-                <div className="flex-1">
-                  <label className="block text-xs font-mono text-neutral-400 mb-1">DOCUMENTATION</label>
-                  <input
-                    name="links.documentation"
-                    value={formData.links.documentation}
-                    onChange={handleInputChange}
-                    placeholder="https://docs..."
-                    className="w-full bg-black border border-white/10 p-2 text-white text-sm focus:border-[#00D4FF] outline-none"
-                  />
-                </div>
-              </div>
+              ))}
             </div>
           </motion.div>
         )}
 
-        {/* --- SECTION: CONTENT (With Preview) --- */}
         {activeSection === "content" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-mono text-[#E55B5B] uppercase tracking-wider">Detailed Documentation (Markdown)</label>
-              <button
-                type="button"
-                onClick={() => setShowPreview(!showPreview)}
-                className="flex items-center gap-2 text-xs font-bold uppercase px-3 py-1 bg-white/10 hover:bg-white/20 text-white rounded transition-colors"
-              >
-                {showPreview ? <><EyeOff size={14} /> Edit Mode</> : <><Eye size={14} /> Preview Mode</>}
+              <label className="text-xs text-[var(--fg-tertiary)] uppercase tracking-wider font-medium">Documentation (Markdown)</label>
+              <button type="button" onClick={() => setShowPreview(!showPreview)} className="flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full border border-[var(--border)] text-[var(--fg-secondary)] hover:border-[var(--border-hover)] transition-colors">
+                {showPreview ? <><EyeOff size={14} /> Edit</> : <><Eye size={14} /> Preview</>}
               </button>
             </div>
 
             {showPreview ? (
-              <div className="w-full p-6 bg-black/40 border border-white/10 rounded min-h-[400px] prose prose-invert prose-sm max-w-none">
+              <div className="w-full p-6 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border)] min-h-[400px] prose prose-neutral dark:prose-invert prose-sm max-w-none">
                 <ReactMarkdown>{formData.content || "*No content entered yet...*"}</ReactMarkdown>
               </div>
             ) : (
@@ -406,36 +295,27 @@ export function ProjectForm({ onSuccess, initialData }: { onSuccess: () => void,
                 name="content"
                 value={formData.content}
                 onChange={handleInputChange}
-                placeholder="# Introduction\n\nDescribe the project architecture..."
-                className="w-full p-6 bg-black/40 border border-white/10 text-white min-h-[400px] font-mono text-sm leading-relaxed focus:border-[#E55B5B] outline-none resize-y"
-                style={{ clipPath: "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)" }}
+                placeholder="# Introduction&#10;&#10;Describe the project..."
+                className={`${inputClass} min-h-[400px] font-mono`}
               />
             )}
           </motion.div>
         )}
 
-        {/* --- Footer Action Bar --- */}
-        <div className="fixed bottom-0 left-0 w-full bg-neutral-900/90 backdrop-blur border-t border-white/10 p-4 z-40">
-          <div className="max-w-5xl mx-auto flex justify-between items-center">
-            <div className="text-xs text-neutral-500 font-mono hidden md:block">
-              {isSubmitting ? "SYNCING_WITH_MAINFRAME..." : "SYSTEM_READY_FOR_INPUT"}
-            </div>
-            <div className="flex gap-4 w-full md:w-auto">
-              <button type="button" onClick={() => window.history.back()} className="px-6 py-3 border border-white/10 text-white hover:bg-white/5 transition-colors font-mono text-sm uppercase">Cancel</button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1 md:flex-none px-8 py-3 bg-[#E55B5B] text-white font-bold uppercase tracking-widest hover:bg-[#ff6b6b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                style={{ clipPath: "polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px)" }}
-              >
-                {isSubmitting ? <span className="animate-pulse">Processing...</span> : <><Save size={18} /> Save Project</>}
-              </button>
-            </div>
+        <div className="sticky bottom-0 bg-[var(--bg)]/90 backdrop-blur-xl border-t border-[var(--border)] py-4 -mx-6 px-6 mt-8">
+          <div className="max-w-5xl mx-auto flex justify-end gap-3">
+            <button type="button" onClick={() => window.history.back()} className="px-6 py-3 rounded-full border border-[var(--border)] text-[var(--fg-secondary)] hover:border-[var(--border-hover)] text-sm font-medium transition-colors">Cancel</button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-8 py-3 rounded-full bg-[var(--fg)] text-[var(--bg)] text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
+            >
+              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save size={16} /> Save Project</>}
+            </button>
           </div>
         </div>
 
-        {/* Spacer for fixed footer */}
-        <div className="h-20" />
+        <div className="h-4" />
       </form>
     </div>
   )

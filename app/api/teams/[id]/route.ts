@@ -1,24 +1,21 @@
-import { NextRequest, NextResponse } from "next/server"
-import { getTeamById } from "@/lib/models/team"
+import { NextRequest, NextResponse } from 'next/server'
+import { getTeamById } from '@/lib/models/team'
+import { requireUser } from '@/lib/auth-guard'
+import { ObjectIdSchema } from '@/lib/validation'
+import { NotFoundError, handleApiError } from '@/lib/errors'
 
-// Next.js 15 requires awaiting params
-type Props = {
-    params: Promise<{ id: string }>
-}
+type Props = { params: Promise<{ id: string }> }
 
-export async function GET(request: NextRequest, { params }: Props) {
-    try {
-        const { id } = await params;
-
-        const team = await getTeamById(id);
-
-        if (!team) {
-            return NextResponse.json({ error: "Team not found" }, { status: 404 });
-        }
-
-        return NextResponse.json(team);
-    } catch (error) {
-        console.error("Error fetching team:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-    }
+export async function GET(_request: NextRequest, { params }: Props) {
+  try {
+    // Team info includes member emails — only authenticated users should see it.
+    await requireUser()
+    const { id } = await params
+    ObjectIdSchema.parse(id)
+    const team = await getTeamById(id)
+    if (!team) throw new NotFoundError('Team not found')
+    return NextResponse.json(team)
+  } catch (error) {
+    return handleApiError(error)
+  }
 }

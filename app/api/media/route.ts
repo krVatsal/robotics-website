@@ -1,13 +1,18 @@
-import { NextResponse } from "next/server"
-import { getAllMedia } from "@/lib/models/media"
+import { NextResponse } from 'next/server'
+import { getAllMedia } from '@/lib/models/media'
+import { requireUser } from '@/lib/auth-guard'
+import { handleApiError } from '@/lib/errors'
 
 export async function GET() {
   try {
-    console.log("[v0] Fetching all media")
+    // Media library is an authenticated-only view. Anon users don't need to
+    // browse every uploaded image.
+    await requireUser()
+
     const allMedia = await getAllMedia()
 
-    // Map fields to match UI expectations
-    const mappedMedia = allMedia.map((item: any) => ({
+    // Shape mapping stays the same — UI expects `url`, `cloudinaryId`, `uploadedAt`.
+    const mapped = allMedia.map((item: any) => ({
       _id: item._id,
       filename: item.filename,
       url: item.cloudinaryUrl,
@@ -16,10 +21,8 @@ export async function GET() {
       size: item.fileSize,
     }))
 
-    console.log("[v0] Found", mappedMedia.length, "media items")
-    return NextResponse.json(mappedMedia)
+    return NextResponse.json(mapped)
   } catch (error) {
-    console.error("[v0] Failed to fetch media:", error)
-    return NextResponse.json({ error: "Failed to fetch media" }, { status: 500 })
+    return handleApiError(error)
   }
 }

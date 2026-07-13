@@ -1,50 +1,31 @@
-import { getAllProjects, getPublishedProjects, createProject } from "@/lib/models/project"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from 'next/server'
+import { createProject, getAllProjects, getPublishedProjects } from '@/lib/models/project'
+import { requireAdmin } from '@/lib/auth-guard'
+import { CreateProjectSchema } from '@/lib/validation'
+import { handleApiError } from '@/lib/errors'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const published = searchParams.get("published")
-    
-    let projects
-    if (published === "true") {
-      projects = await getPublishedProjects()
-    } else {
-      projects = await getAllProjects()
-    }
-    
+    const publishedOnly = searchParams.get('published') === 'true'
+
+    const projects = publishedOnly
+      ? await getPublishedProjects()
+      : await getAllProjects()
+
     return NextResponse.json(projects)
   } catch (error) {
-    console.error("Failed to fetch projects:", error)
-    return NextResponse.json({ error: "Failed to fetch projects" }, { status: 500 })
+    return handleApiError(error)
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    
-    const project = await createProject({
-      title: body.title,
-      description: body.description,
-      shortDescription: body.shortDescription,
-      category: body.category,
-      image: body.image,
-      featured: body.featured || false,
-      published: body.published || false,
-      hardwareUsed: body.hardwareUsed || [],
-      softwareUsed: body.softwareUsed || [],
-      techStack: body.techStack || [],
-      contributors: body.contributors || [],
-      mentors: body.mentors || [],
-      content: body.content || "",
-      achievements: body.achievements || [],
-      links: body.links || {},
-    })
-    
+    await requireAdmin()
+    const body = CreateProjectSchema.parse(await request.json())
+    const project = await createProject(body)
     return NextResponse.json(project, { status: 201 })
   } catch (error) {
-    console.error("Failed to create project:", error)
-    return NextResponse.json({ error: "Failed to create project" }, { status: 500 })
+    return handleApiError(error)
   }
 }

@@ -1,12 +1,11 @@
 "use client"
 
 import React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import Navbar from "@/components/navbar"
-import { Lock } from "lucide-react"
+import { Lock, AlertCircle, Loader2 } from "lucide-react"
 
 export default function AdminAuthPage() {
   const [password, setPassword] = useState("")
@@ -42,46 +41,48 @@ export default function AdminAuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950">
+    <div className="min-h-screen bg-[var(--bg)]">
       <Navbar />
 
-      <div className="flex items-center justify-center min-h-[calc(100vh-64px)] px-4">
+      <div className="flex items-center justify-center min-h-[calc(100vh-64px)] px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
-          <div className="bg-neutral-900/50 border border-white/10 rounded-lg p-8">
-            <div className="flex justify-center mb-6">
-              <div className="p-3 bg-[#E55B5B]/20 rounded-lg">
-                <Lock className="w-6 h-6 text-[#E55B5B]" />
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-8">
+            <div className="text-center mb-8">
+              <div className="w-12 h-12 rounded-full border border-[var(--border)] flex items-center justify-center mx-auto mb-4">
+                <Lock className="w-5 h-5 text-[var(--fg-tertiary)]" />
               </div>
+              <h1 className="font-display text-2xl font-bold text-[var(--fg)]">Admin Access</h1>
+              <p className="text-sm text-[var(--fg-tertiary)] mt-1">Enter the admin password to continue</p>
             </div>
 
-            <h1 className="text-2xl font-bold text-center mb-2">Admin Access</h1>
-            <p className="text-neutral-400 text-center mb-6">Enter the admin password to continue</p>
+            {error && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" /> {error}
+              </motion.div>
+            )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium mb-2">Password</label>
+                <label className="block text-xs text-[var(--fg-tertiary)] uppercase tracking-wider font-medium mb-2">Password</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter admin password"
-                  className="w-full px-4 py-2 bg-neutral-800 border border-white/10 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:border-[#00D4FF] transition-colors"
+                  className="w-full rounded-xl bg-[var(--bg)] border border-[var(--border)] px-4 py-3 text-[var(--fg)] placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg)] focus:outline-none transition-colors text-sm"
                 />
               </div>
-
-              {error && <div className="p-3 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">{error}</div>}
 
               <button
                 type="submit"
                 disabled={isLoading || !password}
-                className="w-full px-4 py-2 bg-[#E55B5B] text-white rounded-lg hover:bg-[#E55B5B]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                className="w-full py-3 rounded-full bg-[var(--fg)] text-[var(--bg)] text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {isLoading ? "Verifying..." : "Unlock Dashboard"}
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Unlock Dashboard"}
               </button>
             </form>
           </div>

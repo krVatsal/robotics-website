@@ -1,18 +1,17 @@
-// app/api/auth/logout/route.ts
-import { NextResponse } from "next/server"
-import { cookies } from "next/headers"
+import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
+import { handleApiError } from '@/lib/errors'
 
 export async function POST() {
   try {
     const cookieStore = await cookies()
-
-    cookieStore.delete("auth_token")
-
-    cookieStore.set("auth_token", "", { maxAge: 0, path: '/' })
-
-    return NextResponse.json({ message: "Logged out successfully" })
+    // Belt-and-braces: delete AND overwrite with an expired cookie. Some proxies
+    // don't forward Set-Cookie deletions cleanly; the maxAge:0 overwrite is the
+    // guaranteed way to invalidate on the browser.
+    cookieStore.delete('auth_token')
+    cookieStore.set('auth_token', '', { maxAge: 0, path: '/' })
+    return NextResponse.json({ message: 'Logged out successfully' })
   } catch (error) {
-    console.error("Logout error:", error)
-    return NextResponse.json({ error: "Logout failed" }, { status: 500 })
+    return handleApiError(error)
   }
 }

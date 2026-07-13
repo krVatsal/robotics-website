@@ -2,117 +2,68 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ChevronRight, Terminal, Cpu, HelpCircle } from "lucide-react"
+import { Plus, Minus } from "lucide-react"
+import { useSiteContent } from "@/lib/use-site-content"
 
-const faqs = [
-  {
-    question: "Do I need prior coding experience?",
-    answer: "Negative. Our initialization protocols are designed for beginners. We provide the necessary knowledge base to get you operational.",
-    id: "SYS_Q_01"
-  },
-  {
-    question: "Does the club provide components?",
-    answer: "Affirmative. We allocate hardware resources for all sanctioned club projects and R&D initiatives.",
-    id: "SYS_Q_02"
-  },
-  {
-    question: "Can students from any branch join?",
-    answer: "Confirmed. Robotics is an interdisciplinary field. We require diverse skill sets including mechanical, electrical, and logic synthesis.",
-    id: "SYS_Q_03"
-  },
-]
+const defaults = {
+  heading: "Frequently asked questions",
+  items: [
+    { question: "Do I need prior coding experience?", answer: "Not at all. We welcome students from all skill levels. Our onboarding program covers everything from basic electronics to ROS 2 — you'll be contributing to real projects within weeks. Many of our strongest members started with zero robotics experience." },
+    { question: "Does the club provide components?", answer: "Yes. The club maintains a well-stocked inventory of microcontrollers, sensors, motors, 3D-printed parts, and development boards. For competition projects, we provide all materials. Members can also request components for personal projects through our resource allocation system." },
+    { question: "Can students from any branch join?", answer: "Absolutely. Robotics is inherently multidisciplinary — we need mechanical engineers for chassis design, CS students for software, ECE for circuits, and even civil/chemical engineers have contributed to specialized projects. Every branch brings a unique perspective." },
+    { question: "How do I participate in competitions?", answer: "Sign up on this website and join any active competition from the Events page. Teams are formed based on interest and skill mix. We hold internal selection rounds for national-level competitions like Robocon, and run workshops to prepare participants." },
+    { question: "What is the time commitment?", answer: "Most members spend 6–8 hours per week on club activities — a mix of workshops, build sessions, and independent project work. During competition season the pace picks up, but we're flexible with academic schedules." },
+    { question: "How is the club structured?", answer: "We have five technical verticals — Software, Electronics, Mechanical, Computer Vision, and CAD & Fabrication — each led by a team lead. The club is coordinated by a President, Vice President, and Technical Head, with guidance from two faculty advisors." },
+  ],
+}
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
+  const { content } = useSiteContent("faq", defaults)
+  const data = content ?? defaults
 
   return (
-    <section className="py-24 px-4 bg-neutral-950 overflow-hidden relative border-t border-white/5">
+    <section className="py-24 lg:py-32 px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="font-display text-4xl md:text-5xl font-bold text-[var(--fg)] tracking-tight mb-14"
+        >
+          {data.heading}
+        </motion.h2>
 
-      {/* --- BACKGROUND: Digital Static & Grid --- */}
-      <div className="absolute inset-0 bg-[#0a0a0a]">
-        <div className="absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage: `linear-gradient(0deg, transparent 24%, #222 25%, #222 26%, transparent 27%, transparent 74%, #222 75%, #222 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, #222 25%, #222 26%, transparent 27%, transparent 74%, #222 75%, #222 76%, transparent 77%, transparent)`,
-            backgroundSize: '30px 30px'
-          }}
-        />
-      </div>
-
-      <div className="max-w-4xl mx-auto relative z-10">
-        <div className="text-center mb-16">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-3 px-6 py-2 bg-neutral-900 border border-[#00D4FF]/30 rounded-full mb-6 relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-[#00D4FF]/10 animate-pulse" />
-            <Terminal className="w-4 h-4 text-[#00D4FF]" />
-            <span className="text-xs font-mono text-[#00D4FF] relative z-10 tracking-widest">SYSTEM_DIAGNOSTICS</span>
-          </motion.div>
-
-          <h2 className="text-4xl md:text-5xl font-bold text-white">
-            Common <span className="text-neutral-600">Queries</span>
-          </h2>
-        </div>
-
-        <div className="space-y-4">
-          {faqs.map((faq, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              viewport={{ once: true }}
-              className={`group border transition-all duration-300 relative overflow-hidden ${openIndex === idx
-                  ? "bg-neutral-900/80 border-[#00D4FF] shadow-[0_0_20px_rgba(0,212,255,0.1)]"
-                  : "bg-neutral-900/30 border-white/10 hover:border-[#00D4FF]/50"
-                }`}
-            >
-              {/* Active Indicator Bar */}
-              <div className={`absolute left-0 top-0 bottom-0 w-1 transition-colors duration-300 ${openIndex === idx ? "bg-[#00D4FF]" : "bg-transparent"}`} />
-
+        <div className="divide-y divide-[var(--border)]">
+          {(data.items ?? []).map((faq: any, idx: number) => (
+            <div key={idx}>
               <button
                 onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-                className="w-full p-6 flex items-center justify-between text-left relative z-10"
+                className="w-full py-6 flex items-center justify-between text-left group"
               >
-                <div className="flex items-center gap-4 md:gap-6">
-                  <span className={`font-mono text-xs md:text-sm transition-colors duration-300 ${openIndex === idx ? "text-[#00D4FF]" : "text-neutral-600 group-hover:text-[#00D4FF]/50"}`}>
-                    [{faq.id}]
-                  </span>
-                  <span className={`text-base md:text-lg font-medium transition-colors ${openIndex === idx ? "text-white" : "text-neutral-300 group-hover:text-white"}`}>
-                    {faq.question}
-                  </span>
-                </div>
-                <div className={`p-1 rounded border transition-all duration-300 ${openIndex === idx ? "border-[#00D4FF] bg-[#00D4FF]/10" : "border-white/10 bg-neutral-800"}`}>
-                  <ChevronRight
-                    className={`w-4 h-4 transition-transform duration-300 ${openIndex === idx ? "rotate-90 text-[#00D4FF]" : "text-neutral-400"}`}
-                  />
-                </div>
+                <span className={`text-base font-medium pr-8 transition-colors ${openIndex === idx ? "text-[var(--fg)]" : "text-[var(--fg-secondary)]"}`}>
+                  {faq.question}
+                </span>
+                <span className="w-8 h-8 rounded-full border border-[var(--border)] flex items-center justify-center shrink-0 group-hover:border-[var(--border-hover)] transition-colors">
+                  {openIndex === idx
+                    ? <Minus className="w-3.5 h-3.5 text-[var(--fg-tertiary)]" />
+                    : <Plus className="w-3.5 h-3.5 text-[var(--fg-tertiary)]" />
+                  }
+                </span>
               </button>
-
               <AnimatePresence>
                 {openIndex === idx && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "circOut" }}
+                    transition={{ duration: 0.2 }}
                   >
-                    <div className="px-6 pb-6 pt-2 pl-12 md:pl-16">
-                      <div className="relative pl-6 border-l border-[#00D4FF]/20">
-                        {/* Blinking Cursor Decoration */}
-                        <div className="absolute -left-[5px] top-0 w-2 h-2 bg-[#00D4FF] rounded-full" />
-
-                        <p className="text-neutral-400 leading-relaxed font-mono text-sm md:text-base">
-                          <span className="text-[#00D4FF] mr-2 opacity-50">{`>>`}</span>
-                          {faq.answer}
-                        </p>
-                      </div>
-                    </div>
+                    <p className="pb-6 text-[var(--fg-secondary)] leading-relaxed">{faq.answer}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
