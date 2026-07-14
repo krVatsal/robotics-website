@@ -1,12 +1,23 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { deleteCompetition, updateCompetition } from '@/lib/models/competition'
-import { requireAdmin } from '@/lib/auth-guard'
-import { ObjectIdSchema, UpdateCompetitionSchema } from '@/lib/validation'
-import { NotFoundError, handleApiError } from '@/lib/errors'
+import { NextRequest, NextResponse } from "next/server"
+import { getCompetitionById, updateCompetition, deleteCompetition } from "@/lib/models/competition"
+import { requireAdmin } from "@/lib/auth-guard"
+import { handleApiError, NotFoundError } from "@/lib/errors"
+import { ObjectIdSchema, UpdateCompetitionSchema } from "@/lib/validation"
 
-type Props = { params: Promise<{ id: string }> }
 
-export async function PUT(request: NextRequest, { params }: Props) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+    try {
+        const { id } = await params
+        ObjectIdSchema.parse(id)
+        const competition = await getCompetitionById(id)
+        if (!competition) throw new NotFoundError('Competition not found')
+        return NextResponse.json(competition)
+    } catch (error) {
+        return handleApiError(error)
+    }
+}
+
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await requireAdmin()
     const { id } = await params
@@ -19,7 +30,7 @@ export async function PUT(request: NextRequest, { params }: Props) {
   }
 }
 
-export async function DELETE(_request: NextRequest, { params }: Props) {
+export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await requireAdmin()
     const { id } = await params
