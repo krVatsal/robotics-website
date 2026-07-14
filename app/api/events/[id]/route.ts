@@ -33,10 +33,11 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params
+        ObjectIdSchema.parse(id)
         const event = await getEventById(id)
-        if (!event) return NextResponse.json({ error: "Not found" }, { status: 404 })
+        if (!event) throw new NotFoundError('Event not found')
         return NextResponse.json(event)
     } catch (error) {
-        return NextResponse.json({ error: "Fetch failed" }, { status: 500 })
+        return handleApiError(error)
     }
 }

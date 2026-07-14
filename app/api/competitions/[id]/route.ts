@@ -4,14 +4,16 @@ import { requireAdmin } from "@/lib/auth-guard"
 import { handleApiError, NotFoundError } from "@/lib/errors"
 import { ObjectIdSchema, UpdateCompetitionSchema } from "@/lib/validation"
 
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params
+        ObjectIdSchema.parse(id)
         const competition = await getCompetitionById(id)
-        if (!competition) return NextResponse.json({ error: "Not found" }, { status: 404 })
+        if (!competition) throw new NotFoundError('Competition not found')
         return NextResponse.json(competition)
     } catch (error) {
-        return NextResponse.json({ error: "Fetch failed" }, { status: 500 })
+        return handleApiError(error)
     }
 }
 
