@@ -5,9 +5,13 @@ import { createUser, getUserByEmail } from '@/lib/models/user'
 import { env } from '@/lib/env'
 import { SignupSchema } from '@/lib/validation'
 import { ConflictError, handleApiError } from '@/lib/errors'
+import { clientIp, enforceLimit, signupLimiter } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit first — cheap to reject spam before any DB work.
+    await enforceLimit(signupLimiter(), clientIp(request))
+
     const body = SignupSchema.parse(await request.json())
 
     // Cheap pre-check. The DB unique index on `users.email` (once added) is the

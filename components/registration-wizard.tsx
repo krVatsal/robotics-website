@@ -21,7 +21,7 @@ export default function RegistrationWizard({ competitionId }: Props) {
   const [teamCode, setTeamCode] = useState("")
   const [validatedTeam, setValidatedTeam] = useState<string | null>(null)
   const [isValidating, setIsValidating] = useState(false)
-  const [result, setResult] = useState<{ teamId: string; teamCode?: string; teamName?: string } | null>(null)
+  const [result, setResult] = useState<{ teamId: string; teamCode?: string; teamName?: string; pending?: boolean } | null>(null)
   const [copied, setCopied] = useState(false)
 
   const steps = mode === "create"
@@ -31,16 +31,36 @@ export default function RegistrationWizard({ competitionId }: Props) {
     : ["Mode"]
 
   async function validateCode(code: string) {
-    if (code.length < 3) { setValidatedTeam(null); return }
+    // Nanoid codes are 6 chars — start validating at 6 so we don't chatter
+    // the API on every keystroke.
+    if (code.length < 4) { setValidatedTeam(null); setError(""); return }
     setIsValidating(true)
     try {
-      const res = await fetch(`/api/teams/validate-code?code=${encodeURIComponent(code)}`)
+      const res = await fetch(
+        `/api/teams/validate-code?code=${encodeURIComponent(code)}`,
+        { credentials: "include" },
+      )
       const data = await res.json()
-      setValidatedTeam(data.valid ? data.teamName : null)
-      if (!data.valid) setError("Invalid team code")
-      else setError("")
+      if (data.valid) {
+        setValidatedTeam(data.teamName)
+        setError("")
+      } else {
+        setValidatedTeam(null)
+        // Show a targeted message per reason so users know how to recover.
+        if (data.reason === "finalized") {
+          setError(`Team "${data.teamName ?? "?"}" is already finalized and can't accept new members.`)
+        } else if (data.reason === "not_found") {
+          setError("No team matches that code.")
+        } else if (data.reason === "malformed") {
+          // Silent — user is still typing.
+          setError("")
+        } else {
+          setError(data.error ?? "Invalid team code")
+        }
+      }
     } catch {
       setValidatedTeam(null)
+      setError("Couldn't verify code — try again.")
     } finally {
       setIsValidating(false)
     }
@@ -53,6 +73,7 @@ export default function RegistrationWizard({ competitionId }: Props) {
       const res = await fetch("/api/participate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           action: mode!.toUpperCase(),
           competitionId,
@@ -62,6 +83,20 @@ export default function RegistrationWizard({ competitionId }: Props) {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Operation failed")
+
+      // JOIN now returns { pending: true, teamId, teamName, requestId } — the
+      // wizard needs to show a "request sent" state instead of dumping the user
+      // onto the team page (they're not on it yet — leader has to approve).
+      if (mode === "join" && data.pending) {
+        setResult({
+          teamId: data.teamId,
+          teamName: data.teamName,
+          pending: true,
+        } as any)
+        setStep(steps.length)
+        return
+      }
+
       const teamId = data._id || data.team?._id || data.value?._id
       setResult({
         teamId,
@@ -95,9 +130,17 @@ export default function RegistrationWizard({ competitionId }: Props) {
           <Check className="w-8 h-8 text-emerald-500" />
         </div>
         <h2 className="text-2xl font-display font-bold text-[var(--fg)] mb-2">
-          {mode === "create" ? "Team Created!" : "Team Joined!"}
+          {mode === "create"
+            ? "Team Created!"
+            : result.pending
+              ? "Request Sent!"
+              : "Team Joined!"}
         </h2>
-        <p className="text-[var(--fg-secondary)] text-sm mb-6">{result.teamName}</p>
+        <p className="text-[var(--fg-secondary)] text-sm mb-6">
+          {result.pending
+            ? `Waiting for the leader of "${result.teamName}" to approve your request.`
+            : result.teamName}
+        </p>
 
         {result.teamCode && mode === "create" && (
           <div className="mb-8">

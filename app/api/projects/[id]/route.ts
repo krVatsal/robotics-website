@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import {
   deleteProject,
   getProjectById,
@@ -12,6 +13,14 @@ import {
   UpdateProjectSchema,
 } from '@/lib/validation'
 import { NotFoundError, handleApiError } from '@/lib/errors'
+
+export const revalidate = 60
+
+/** Bust every cached read that touches this project. */
+function invalidateProject(id: string) {
+  revalidatePath('/api/projects')
+  revalidatePath(`/api/projects/${id}`)
+}
 
 type Props = {
   params: Promise<{ id: string }>
@@ -37,6 +46,7 @@ export async function PUT(request: NextRequest, { params }: Props) {
     const body = UpdateProjectSchema.parse(await request.json())
     const project = await updateProject(id, body)
     if (!project) throw new NotFoundError('Project not found')
+    invalidateProject(id)
     return NextResponse.json(project)
   } catch (error) {
     return handleApiError(error)
@@ -50,6 +60,7 @@ export async function DELETE(_request: NextRequest, { params }: Props) {
     ObjectIdSchema.parse(id)
     const ok = await deleteProject(id)
     if (!ok) throw new NotFoundError('Project not found')
+    invalidateProject(id)
     return NextResponse.json({ message: 'Project deleted successfully' })
   } catch (error) {
     return handleApiError(error)
@@ -66,6 +77,7 @@ export async function PATCH(request: NextRequest, { params }: Props) {
     if (action === 'togglePublished') {
       const project = await togglePublished(id)
       if (!project) throw new NotFoundError('Project not found')
+      invalidateProject(id)
       return NextResponse.json(project)
     }
 

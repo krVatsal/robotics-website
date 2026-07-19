@@ -4,12 +4,17 @@ import { getDB } from '@/lib/db'
 export interface Event {
     _id?: ObjectId
     name: string
-    year: number // Extracted from date or name
-    // New UI fields
+    year: number // Auto-derived by the validation layer from startDate.
+    // Raw ISO date strings — the source of truth. `date` (below) is a
+    // pre-formatted display string derived from these; both are stored so
+    // the frontend can pick whichever it prefers.
+    startDate?: string // "YYYY-MM-DD"
+    endDate?: string   // "YYYY-MM-DD"
+    // UI fields
     theme: string
     tagline: string
     description: string
-    date: string // "OCT 24 - 26, 2025"
+    date: string // Pre-formatted, e.g. "OCT 24-26, 2026"
     location: string
     participantsLabel: string // "500+ Engineers"
     highlights: string[]
