@@ -1,90 +1,34 @@
 "use client"
 
 import { motion } from "framer-motion"
-import Image from "next/image"
+import { useSiteContent } from "@/lib/use-site-content"
 
-// Same data array as before
-const technologies = [
-  {
-    title: "AI/ML",
-    icon: "🧠",
-    description: "Neural networks & autonomous decision making.",
-    className: "col-span-2 md:col-span-2 md:row-span-2",
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    title: "Aerial Robots",
-    icon: "🚁",
-    description: "Swarm intelligence and UAV flight dynamics.",
-    className: "col-span-2 md:col-span-2 md:row-span-1",
-    image: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    title: "ROS",
-    icon: "🤖",
-    description: "The backbone of our robotic communication.",
-    className: "col-span-1 md:col-span-1 md:row-span-1",
-    image: "https://images.unsplash.com/photo-1531746790731-6c087fecd05a?auto=format&fit=crop&q=80&w=400",
-  },
-  {
-    title: "Image Processing",
-    icon: "📸",
-    description: "Computer vision for real-time tracking.",
-    className: "col-span-1 md:col-span-1 md:row-span-1",
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=400",
-  },
-  {
-    title: "Underwater Robots",
-    icon: "🌊",
-    description: "Navigating the complexities of AUVs.",
-    className: "col-span-2 md:col-span-2 md:row-span-2",
-    image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    title: "Path Planning & SLAM",
-    icon: "🗺️",
-    description: "Localization in unknown environments.",
-    className: "col-span-2 md:col-span-2 md:row-span-1",
-    image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    title: "Electronics",
-    icon: "⚡",
-    description: "PCB design and power management.",
-    className: "col-span-1 md:col-span-1 md:row-span-1",
-    image: "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?auto=format&fit=crop&q=80&w=400",
-  },
-  {
-    title: "3D Printing & CAD",
-    icon: "🖨️",
-    description: "From digital models to physical prototypes.",
-    className: "col-span-1 md:col-span-1 md:row-span-1",
-    image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=400",
-  },
-  {
-    title: "Internet of Things",
-    icon: "🌐",
-    description: "Connecting hardware to the cloud.",
-    className: "col-span-2 md:col-span-2 md:row-span-1",
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    title: "Kinematics & Control",
-    icon: "⚙️",
-    description: "The physics of motion and precision.",
-    className: "col-span-1 md:col-span-1 md:row-span-1",
-    image: "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?auto=format&fit=crop&q=80&w=400",
-  },
-  {
-    title: "Simulation Software",
-    icon: "🖥️",
-    description: "Gazebo and Webots testing environments.",
-    className: "col-span-1 md:col-span-1 md:row-span-1",
-    image: "https://images.unsplash.com/photo-1558494949-ef010ccdcc39?auto=format&fit=crop&q=80&w=400",
-  },
+const defaultTech = [
+  { title: "AI/ML", icon: "🧠", description: "Neural networks & autonomous decision making.", size: "large" },
+  { title: "Aerial Robots", icon: "🚁", description: "Swarm intelligence and UAV flight dynamics.", size: "medium" },
+  { title: "ROS", icon: "🤖", description: "The backbone of our robotic communication.", size: "small" },
+  { title: "Image Processing", icon: "📸", description: "Computer vision for real-time tracking.", size: "small" },
+  { title: "Underwater Robots", icon: "🌊", description: "Navigating the complexities of AUVs.", size: "large" },
+  { title: "Path Planning & SLAM", icon: "🗺️", description: "Localization in unknown environments.", size: "medium" },
+  { title: "Electronics", icon: "⚡", description: "PCB design and power management.", size: "small" },
+  { title: "3D Printing & CAD", icon: "🖨️", description: "From digital models to physical prototypes.", size: "small" },
+  { title: "Internet of Things", icon: "🌐", description: "Connecting hardware to the cloud.", size: "medium" },
+  { title: "Kinematics & Control", icon: "⚙️", description: "The physics of motion and precision.", size: "small" },
+  { title: "Simulation Software", icon: "🖥️", description: "Gazebo and Webots testing environments.", size: "small" },
 ]
 
+const sizeClasses: Record<string, string> = {
+  large: "col-span-2 md:col-span-2 md:row-span-2",
+  medium: "col-span-2 md:col-span-2 md:row-span-1",
+  small: "col-span-1 md:col-span-1 md:row-span-1",
+}
+
 export default function TechStack() {
+  const { content } = useSiteContent("tech-stack", { items: defaultTech })
+  const technologies = (content?.items ?? defaultTech).map((t: any) => ({
+    ...t,
+    className: sizeClasses[t.size] || sizeClasses.small,
+  }))
   return (
     <section className="py-24 px-4 bg-neutral-950 relative overflow-hidden">
 
@@ -137,17 +81,8 @@ export default function TechStack() {
               className={`group relative overflow-hidden bg-neutral-900 border border-white/10 transition-all duration-300 hover:border-[#E55B5B] hover:z-10 hover:shadow-[0_0_30px_rgba(229,91,91,0.2)] ${tech.className}`}
               style={{ clipPath: "polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)" }}
             >
-              {/* Image Layer - Clear Visibility (Opacity 0.7 -> 1) */}
-              <div className="absolute inset-0 z-0">
-                <Image
-                  src={tech.image}
-                  alt={tech.title}
-                  fill
-                  sizes="(max-width: 768px) 50vw, 20vw"
-                  className="object-cover opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500"
-                />
-                {/* Gradient only at the bottom for text readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90" />
+              <div className="absolute inset-0 z-0 bg-neutral-900">
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
               </div>
 
               {/* Scanline Effect on Hover */}

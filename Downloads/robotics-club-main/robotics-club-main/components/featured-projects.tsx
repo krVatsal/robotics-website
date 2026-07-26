@@ -3,39 +3,18 @@
 import { motion } from "framer-motion"
 import Image from "next/image"
 import { ChevronRight } from "lucide-react"
+import { useSiteContent } from "@/lib/use-site-content"
 
-const projects = [
-  {
-    id: "01",
-    title: "Cart 95 - Self Driving",
-    description: "MNNIT's flagship autonomous vehicle prototype featuring LiDAR integration and real-time path planning.",
-    image: "https://images.unsplash.com/photo-1555353540-64580b51c258?auto=format&fit=crop&q=80&w=1200",
-    tech: ["LIDAR", "Python", "ROS"],
-  },
-  {
-    id: "02",
-    title: "Self Balancing Bike",
-    description: "A precision-engineered two-wheeler utilizing gyroscopic stabilization and PID control loops.",
-    image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=1200",
-    tech: ["Arduino", "PID", "Gyro"],
-  },
-  {
-    id: "03",
-    title: "Humanoid Research",
-    description: "Bi-pedal robotics research focusing on dynamic balance and human-like movement patterns.",
-    image: "https://images.unsplash.com/photo-1546776310-eef45dd6d63c?auto=format&fit=crop&q=80&w=800",
-    tech: ["Inverse Kinematics", "Servo"],
-  },
-  {
-    id: "04",
-    title: "Gagankavach",
-    description: "Vision-guided surveillance rover designed for high-stakes environmental monitoring.",
-    image: "https://images.unsplash.com/photo-1533619239233-6280475a634a?auto=format&fit=crop&q=80&w=800",
-    tech: ["CV", "IoT", "Rover"],
-  },
+const defaultProjects = [
+  { id: "01", title: "Cart 95 - Self Driving", description: "MNNIT's flagship autonomous vehicle prototype featuring LiDAR integration and real-time path planning.", image: "/projects/cart95.svg", tech: ["LIDAR", "Python", "ROS"] },
+  { id: "02", title: "Self Balancing Bike", description: "A precision-engineered two-wheeler utilizing gyroscopic stabilization and PID control loops.", image: "/projects/balancing-bike.svg", tech: ["Arduino", "PID", "Gyro"] },
+  { id: "03", title: "Humanoid Research", description: "Bi-pedal robotics research focusing on dynamic balance and human-like movement patterns.", image: "/projects/humanoid.svg", tech: ["Inverse Kinematics", "Servo"] },
+  { id: "04", title: "Gagankavach", description: "Vision-guided surveillance rover designed for high-stakes environmental monitoring.", image: "/projects/gagankavach.svg", tech: ["CV", "IoT", "Rover"] },
 ]
 
 export default function FeaturedProjects() {
+  const { content } = useSiteContent("featured-projects", { items: defaultProjects })
+  const projects = (content?.items ?? defaultProjects).map((p: any, i: number) => ({ ...p, id: p.id || String(i + 1).padStart(2, "0") }))
   return (
     <section className="py-24 bg-neutral-950 overflow-hidden relative">
 

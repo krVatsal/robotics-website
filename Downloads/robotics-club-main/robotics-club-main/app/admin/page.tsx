@@ -6,13 +6,13 @@ import Navbar from "@/components/navbar"
 import { ProjectForm } from "@/components/admin/project-form"
 import { ProjectsList } from "@/components/admin/projects-list"
 import { MediaUploader } from "@/components/admin/media-uploader"
-import { EventsManager } from "@/components/admin/events-manager" // Import new component
+import { EventsManager } from "@/components/admin/events-manager"
+import { ContentEditor } from "@/components/admin/content-editor"
 import { motion } from "framer-motion"
-import { Plus, ImageIcon, Users, Calendar } from "lucide-react" // Import Calendar icon
+import { Plus, ImageIcon, Users, Calendar, FileText } from "lucide-react"
 import Link from "next/link"
 
-// Add 'events' to type
-type AdminTab = "list" | "add" | "media" | "events"
+type AdminTab = "list" | "add" | "media" | "events" | "content"
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>("list")
@@ -85,6 +85,13 @@ export default function AdminPage() {
           </button>
 
           <button
+            onClick={() => setActiveTab("content")}
+            className={`px-6 py-4 font-medium border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === "content" ? "border-[#E55B5B] text-white" : "border-transparent text-neutral-400 hover:text-white"}`}
+          >
+            <FileText size={18} /> Site Content
+          </button>
+
+          <button
             onClick={() => setActiveTab("media")}
             className={`px-6 py-4 font-medium border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === "media" ? "border-[#E55B5B] text-white" : "border-transparent text-neutral-400 hover:text-white"}`}
           >
@@ -105,6 +112,7 @@ export default function AdminPage() {
           {activeTab === "list" && <ProjectsList key={refreshKey} onProjectDeleted={() => setRefreshKey(k => k + 1)} />}
           {activeTab === "add" && <ProjectForm onSuccess={handleProjectAdded} />}
           {activeTab === "events" && <EventsManager />}
+          {activeTab === "content" && <ContentEditor />}
           {activeTab === "media" && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
               <div className="mb-6">

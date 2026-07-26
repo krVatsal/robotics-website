@@ -2,32 +2,17 @@
 
 import { motion } from "framer-motion"
 import { ArrowUpRight, Newspaper, Radio, Trophy, Award } from "lucide-react"
+import { useSiteContent } from "@/lib/use-site-content"
 
-const achievements = [
-  {
-    title: "MNNIT students develop first self-driving car prototype",
-    source: "Times of India",
-    date: "Dec 2019",
-    category: "Automotive",
-    rank: "01"
-  },
-  {
-    title: "Breakthrough innovation in Prosthetic Arm technology",
-    source: "Dainik Bhaskar",
-    date: "Aug 2021",
-    category: "Biomedical",
-    rank: "02"
-  },
-  {
-    title: "Vision Guided Rover deployed for advanced surveillance",
-    source: "Jagran News",
-    date: "Feb 2023",
-    category: "Defense",
-    rank: "03"
-  },
+const defaultAchievements = [
+  { title: "MNNIT students develop first self-driving car prototype", source: "Times of India", date: "Dec 2019", category: "Automotive", rank: "01" },
+  { title: "Breakthrough innovation in Prosthetic Arm technology", source: "Dainik Bhaskar", date: "Aug 2021", category: "Biomedical", rank: "02" },
+  { title: "Vision Guided Rover deployed for advanced surveillance", source: "Jagran News", date: "Feb 2023", category: "Defense", rank: "03" },
 ]
 
 export default function Achievements() {
+  const { content } = useSiteContent("achievements", { items: defaultAchievements })
+  const achievements = content?.items ?? defaultAchievements
   return (
     <section className="py-24 px-4 bg-neutral-950 relative overflow-hidden">
 

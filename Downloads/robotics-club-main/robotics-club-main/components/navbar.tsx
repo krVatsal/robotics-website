@@ -23,6 +23,8 @@ export default function Navbar() {
     { name: "About", href: "#who-are-we" },
     { name: "Projects", href: "/projects" },
     { name: "Events", href: "/events" },
+    { name: "Team", href: "/team" },
+    { name: "SDC", href: "/sdc" },
   ]
 
   // --- Components ---

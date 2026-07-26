@@ -3,47 +3,29 @@
 import { motion, useMotionTemplate, useMotionValue } from "framer-motion"
 import { Lightbulb, Users, Rocket, Zap } from "lucide-react"
 import { MouseEvent } from "react"
+import { useSiteContent } from "@/lib/use-site-content"
 
-const purposes = [
-  {
-    icon: Users,
-    title: "Unite Curious Minds",
-    id: "SYS-01",
-    description:
-      "A convergence point for multidisciplinary engineering. We bridge the gap between theoretical curiosity and practical application.",
-    accent: "text-blue-400",
-    border: "group-hover:border-blue-400/50",
-  },
-  {
-    icon: Lightbulb,
-    title: "Hands-on Experience",
-    id: "SYS-02",
-    description:
-      "Deployment of real-world scenarios. Mastering embedded systems, mechanical design, and control theory through direct fabrication.",
-    accent: "text-cyan-400",
-    border: "group-hover:border-cyan-400/50",
-  },
-  {
-    icon: Rocket,
-    title: "Compete & Excel",
-    id: "SYS-03",
-    description:
-      "High-performance bot development for national arenas. Pushing the limits of torque, speed, and autonomous navigation.",
-    accent: "text-red-400",
-    border: "group-hover:border-red-400/50",
-  },
-  {
-    icon: Zap,
-    title: "Inspire & Educate",
-    id: "SYS-04",
-    description:
-      "Knowledge transfer protocols. Workshops and outreach programs designed to ignite the next generation of roboticists.",
-    accent: "text-amber-400",
-    border: "group-hover:border-amber-400/50",
-  },
+const purposeIconMap: Record<string, any> = { Users, Lightbulb, Rocket, Zap }
+const accentColors = ["text-blue-400", "text-cyan-400", "text-red-400", "text-amber-400"]
+const borderColors = ["group-hover:border-blue-400/50", "group-hover:border-cyan-400/50", "group-hover:border-red-400/50", "group-hover:border-amber-400/50"]
+
+const defaultPurposes = [
+  { icon: "Users", title: "Unite Curious Minds", description: "A convergence point for multidisciplinary engineering. We bridge the gap between theoretical curiosity and practical application." },
+  { icon: "Lightbulb", title: "Hands-on Experience", description: "Deployment of real-world scenarios. Mastering embedded systems, mechanical design, and control theory through direct fabrication." },
+  { icon: "Rocket", title: "Compete & Excel", description: "High-performance bot development for national arenas. Pushing the limits of torque, speed, and autonomous navigation." },
+  { icon: "Zap", title: "Inspire & Educate", description: "Knowledge transfer protocols. Workshops and outreach programs designed to ignite the next generation of roboticists." },
 ]
 
 export default function Purpose() {
+  const { content } = useSiteContent("purpose", { items: defaultPurposes })
+  const purposeData = content?.items ?? defaultPurposes
+  const purposes = purposeData.map((p: any, i: number) => ({
+    ...p,
+    icon: purposeIconMap[p.icon] || Zap,
+    id: `SYS-0${i + 1}`,
+    accent: accentColors[i % accentColors.length],
+    border: borderColors[i % borderColors.length],
+  }))
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 

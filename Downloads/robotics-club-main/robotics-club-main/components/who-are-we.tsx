@@ -2,17 +2,33 @@
 
 import { motion } from "framer-motion"
 import { Code, Cpu, Globe, Zap, Target, PenTool, Radio } from "lucide-react"
+import { useSiteContent } from "@/lib/use-site-content"
 
-const features = [
-  { label: "Computer Vision", icon: Target },
-  { label: "ROS & Simulation", icon: Globe },
-  { label: "Embedded Systems", icon: Cpu },
-  { label: "CAD & Design", icon: PenTool },
-  { label: "Machine Learning", icon: Code },
-  { label: "Kinematics", icon: Zap },
-]
+const iconMap: Record<string, any> = { Target, Globe, Cpu, PenTool, Code, Zap }
+
+const defaultWhoAreWe = {
+  heading: "Architects of the",
+  headingHighlight: "Future",
+  paragraph1: 'Robotics Club MNNIT is a dynamic ecosystem of innovators operating under the <strong>Student Activity Centre</strong>.',
+  paragraph2: 'We don\'t just build robots; we bridge the gap between <span class="cyan">software intelligence</span> and <span class="red">hardware reality</span>. Since our inception, we have been the breeding ground for interdisciplinary engineering.',
+  stats: [
+    { value: "2016", label: "Established" },
+    { value: "50+", label: "Projects Shipped" },
+  ],
+  competencies: [
+    { label: "Computer Vision", icon: "Target" },
+    { label: "ROS & Simulation", icon: "Globe" },
+    { label: "Embedded Systems", icon: "Cpu" },
+    { label: "CAD & Design", icon: "PenTool" },
+    { label: "Machine Learning", icon: "Code" },
+    { label: "Kinematics", icon: "Zap" },
+  ],
+}
 
 export default function WhoAreWe() {
+  const { content } = useSiteContent("who-are-we", defaultWhoAreWe)
+  const data = content ?? defaultWhoAreWe
+  const features = data.competencies.map((c: any) => ({ ...c, icon: iconMap[c.icon] || Zap }))
   return (
     <section id="who-are-we" className="py-24 px-4 bg-neutral-950 relative overflow-hidden scroll-mt-20">
 
@@ -49,42 +65,33 @@ export default function WhoAreWe() {
 
               {/* Heading */}
               <h2 className="text-4xl md:text-5xl font-bold leading-tight text-white">
-                Architects of the <br />
+                {data.heading} <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E55B5B] to-orange-500">
-                  Future
+                  {data.headingHighlight}
                 </span>
               </h2>
             </div>
 
             {/* Content Text */}
             <div className="prose prose-invert prose-lg text-neutral-400 font-light border-l border-white/5 pl-6">
-              <p>
-                Robotics Club MNNIT is a dynamic ecosystem of innovators operating under the <span className="text-white font-semibold">Student Activity Centre</span>.
-              </p>
-              <p>
-                We don't just build robots; we bridge the gap between <span className="text-[#00D4FF]">software intelligence</span> and <span className="text-[#E55B5B]">hardware reality</span>. Since our inception, we have been the breeding ground for interdisciplinary engineering.
-              </p>
+              <p dangerouslySetInnerHTML={{ __html: data.paragraph1.replace(/<strong>/g, '<span class="text-white font-semibold">').replace(/<\/strong>/g, '</span>') }} />
+              <p dangerouslySetInnerHTML={{ __html: data.paragraph2.replace(/class="cyan"/g, 'class="text-[#00D4FF]"').replace(/class="red"/g, 'class="text-[#E55B5B]"') }} />
             </div>
 
             {/* Stats Row */}
             <div className="flex gap-8 border-t border-white/10 pt-8">
-              <div className="group cursor-default">
-                <h4 className="text-3xl font-bold text-white group-hover:text-[#E55B5B] transition-colors">2016</h4>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="w-1 h-1 bg-neutral-500 rounded-full" />
-                  <p className="text-xs font-mono text-neutral-500 uppercase tracking-wider">Established</p>
+              {data.stats.map((stat: any, i: number) => (
+                <div key={i} className="flex items-center gap-8">
+                  {i > 0 && <div className="w-[1px] h-12 bg-white/10" />}
+                  <div className="group cursor-default">
+                    <h4 className={`text-3xl font-bold text-white transition-colors ${i === 0 ? 'group-hover:text-[#E55B5B]' : 'group-hover:text-[#00D4FF]'}`}>{stat.value}</h4>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="w-1 h-1 bg-neutral-500 rounded-full" />
+                      <p className="text-xs font-mono text-neutral-500 uppercase tracking-wider">{stat.label}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-
-              <div className="w-[1px] h-12 bg-white/10" />
-
-              <div className="group cursor-default">
-                <h4 className="text-3xl font-bold text-white group-hover:text-[#00D4FF] transition-colors">50+</h4>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="w-1 h-1 bg-neutral-500 rounded-full" />
-                  <p className="text-xs font-mono text-neutral-500 uppercase tracking-wider">Projects Shipped</p>
-                </div>
-              </div>
+              ))}
             </div>
           </motion.div>
 

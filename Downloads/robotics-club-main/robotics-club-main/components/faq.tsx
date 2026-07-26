@@ -3,26 +3,17 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronRight, Terminal, Cpu, HelpCircle } from "lucide-react"
+import { useSiteContent } from "@/lib/use-site-content"
 
-const faqs = [
-  {
-    question: "Do I need prior coding experience?",
-    answer: "Negative. Our initialization protocols are designed for beginners. We provide the necessary knowledge base to get you operational.",
-    id: "SYS_Q_01"
-  },
-  {
-    question: "Does the club provide components?",
-    answer: "Affirmative. We allocate hardware resources for all sanctioned club projects and R&D initiatives.",
-    id: "SYS_Q_02"
-  },
-  {
-    question: "Can students from any branch join?",
-    answer: "Confirmed. Robotics is an interdisciplinary field. We require diverse skill sets including mechanical, electrical, and logic synthesis.",
-    id: "SYS_Q_03"
-  },
+const defaultFaqs = [
+  { question: "Do I need prior coding experience?", answer: "Negative. Our initialization protocols are designed for beginners. We provide the necessary knowledge base to get you operational.", id: "SYS_Q_01" },
+  { question: "Does the club provide components?", answer: "Affirmative. We allocate hardware resources for all sanctioned club projects and R&D initiatives.", id: "SYS_Q_02" },
+  { question: "Can students from any branch join?", answer: "Confirmed. Robotics is an interdisciplinary field. We require diverse skill sets including mechanical, electrical, and logic synthesis.", id: "SYS_Q_03" },
 ]
 
 export default function FAQ() {
+  const { content } = useSiteContent("faq", { items: defaultFaqs })
+  const faqs = content?.items ?? defaultFaqs
   const [openIndex, setOpenIndex] = useState<number | null>(0)
 
   return (

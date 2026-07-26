@@ -6,14 +6,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  api: {
-    bodyParser: {
-      sizeLimit: '50mb',
-    },
-  },
-  serverRuntimeConfig: {
-    maxDuration: 60,
-  },
+  serverExternalPackages: ['bcryptjs', 'jsonwebtoken'],
 }
 
 export default nextConfig

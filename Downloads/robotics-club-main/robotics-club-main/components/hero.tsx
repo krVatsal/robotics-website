@@ -2,9 +2,20 @@
 
 import { motion, useScroll, useTransform } from "framer-motion"
 import { useAuth } from "@/lib/auth-context"
+import { useSiteContent } from "@/lib/use-site-content"
 import Link from "next/link"
 
+const defaultHero = {
+  tagline: "IDEATE. INNOVATE. AUTOMATE.",
+  heading: "Forging the Future,",
+  headingLine2: "One Bot at a Time",
+  subheading: "The official Robotics Club of MNNIT. We bridge the gap between imagination and engineering, fostering a community of creators, makers, and innovators.",
+  buttonText: "INITIALIZE PROTOCOL",
+}
+
 export default function Hero() {
+  const { content } = useSiteContent("hero", defaultHero)
+  const hero = content ?? defaultHero
   const { scrollY } = useScroll()
   const { user } = useAuth()
 
@@ -77,7 +88,7 @@ export default function Hero() {
         >
           <span className="w-1.5 h-1.5 bg-[#00D4FF] rounded-full animate-pulse" />
           <span className="text-[#00D4FF] text-xs font-mono tracking-[0.25em] uppercase">
-            IDEATE. INNOVATE. AUTOMATE.
+            {hero.tagline}
           </span>
         </motion.div>
 
@@ -88,9 +99,9 @@ export default function Hero() {
           transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
           className="text-5xl md:text-8xl font-black leading-tight tracking-tighter text-white mb-6"
         >
-          Forging the Future, <br className="hidden md:block" />
+          {hero.heading} <br className="hidden md:block" />
           <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-neutral-200 to-neutral-500">
-            One Bot at a Time
+            {hero.headingLine2}
           </span>
         </motion.h1>
 
@@ -101,7 +112,7 @@ export default function Hero() {
           transition={{ delay: 0.5 }}
           className="text-sm md:text-base text-neutral-400 max-w-2xl mx-auto leading-relaxed mb-12 font-mono"
         >
-          The official Robotics Club of MNNIT. We bridge the gap between imagination and engineering, fostering a community of creators, makers, and innovators.
+          {hero.subheading}
         </motion.p>
 
         {/* 4. CTA Button - Logic Added */}
@@ -121,7 +132,7 @@ export default function Hero() {
 
               {/* Button Text */}
               <span className="relative font-mono font-bold tracking-[0.15em] text-[#E55B5B] text-sm group-hover:text-black transition-colors z-10 flex items-center gap-3">
-                INITIALIZE PROTOCOL
+                {hero.buttonText}
               </span>
 
               {/* Corner Accents */}

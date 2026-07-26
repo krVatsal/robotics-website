@@ -56,11 +56,16 @@ export default function Footer() {
               EXPLORE
             </h4>
             <ul className="space-y-3 text-sm text-neutral-400 font-mono">
-              {['Projects', 'Tech Stack', 'Achievements', 'Team'].map((item) => (
-                <li key={item}>
-                  <a href="#" className="hover:text-[#00D4FF] hover:pl-2 transition-all duration-300 flex items-center gap-1 group w-fit">
+              {[
+                { name: 'Projects', href: '/projects' },
+                { name: 'Events', href: '/events' },
+                { name: 'Team', href: '/team' },
+                { name: 'SDC', href: '/sdc' },
+              ].map((item) => (
+                <li key={item.name}>
+                  <a href={item.href} className="hover:text-[#00D4FF] hover:pl-2 transition-all duration-300 flex items-center gap-1 group w-fit">
                     <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[#00D4FF]">{`>`}</span>
-                    {item}
+                    {item.name}
                   </a>
                 </li>
               ))}
