@@ -56,67 +56,66 @@ const stats = [
   { value: "2016", label: "Founded" },
 ]
 
+const ease = [0.32, 0.72, 0, 1] as const
+
 export default function TeamPage() {
   return (
     <main className="min-h-screen bg-[var(--bg)]">
       <Navbar />
 
-      {/* Hero */}
-      <section className="pt-32 pb-16 px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <p className="text-xs font-semibold text-[var(--fg-secondary)] uppercase tracking-widest mb-4">The People</p>
-            <h1 className="font-display text-5xl md:text-8xl font-bold text-[var(--fg)] tracking-tight leading-[0.95] mb-6">
-              Behind<br />The Club.
+      <section className="pt-32 pb-20 px-6">
+        <div className="max-w-[1200px] mx-auto">
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ ease }}>
+            <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-4">The People</p>
+            <h1 className="font-display text-[clamp(3.5rem,10vw,8rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.85] mb-6">
+              Behind<br />The Club
             </h1>
-            <p className="text-xl text-[var(--fg-secondary)] max-w-2xl leading-relaxed">
+            <p className="text-lg text-[var(--fg-secondary)] max-w-2xl leading-relaxed tracking-[-0.01em]">
               A multidisciplinary team of engineers, designers, and builders working at the
               intersection of hardware, software, and autonomy.
             </p>
           </motion.div>
 
-          {/* Stats row */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16"
+            transition={{ delay: 0.2, ease }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[var(--border)] mt-16"
           >
             {stats.map((stat, i) => (
-              <div key={i} className="p-5 rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)]">
-                <p className="font-display text-3xl font-bold text-[var(--fg)]">{stat.value}</p>
-                <p className="text-xs text-[var(--fg-tertiary)] uppercase tracking-wider mt-1">{stat.label}</p>
+              <div key={i} className="bg-[var(--bg)] p-6">
+                <p className="font-display text-4xl text-[var(--fg)] leading-none">{stat.value}</p>
+                <p className="font-mono text-xs uppercase tracking-wider text-[var(--fg-tertiary)] mt-2">{stat.label}</p>
               </div>
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* Faculty Advisors */}
-      <section className="py-20 px-6 lg:px-8 border-t border-[var(--border)]">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-20 px-6 border-t border-[var(--border)]">
+        <div className="max-w-[1200px] mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <p className="text-xs font-semibold text-[var(--fg-tertiary)] uppercase tracking-widest mb-3">Guidance</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-[var(--fg)] tracking-tight mb-12">Faculty Advisors</h2>
+            <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Guidance</p>
+            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Faculty Advisors</h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 gap-px bg-[var(--border)]">
             {faculty.map((person, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
+                transition={{ delay: i * 0.1, ease }}
                 viewport={{ once: true }}
-                className="flex items-center gap-5 p-6 rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] hover:border-[var(--border-hover)] transition-colors"
+                className="flex items-center gap-5 p-6 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] transition-colors"
               >
-                <div className="w-16 h-16 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center text-lg font-display font-bold text-[var(--fg-secondary)] shrink-0">
+                <div className="w-14 h-14 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center font-display text-lg text-[var(--fg-secondary)] shrink-0">
                   {person.initials}
                 </div>
                 <div>
-                  <p className="font-display text-lg font-semibold text-[var(--fg)]">{person.name}</p>
+                  <p className="text-base text-[var(--fg)]">{person.name}</p>
                   <p className="text-sm text-[var(--fg-secondary)]">{person.role}</p>
-                  <p className="text-xs text-[var(--fg-tertiary)] mt-0.5">{person.dept}</p>
+                  <p className="font-mono text-xs uppercase tracking-wider text-[var(--fg-tertiary)] mt-0.5">{person.dept}</p>
                 </div>
               </motion.div>
             ))}
@@ -124,30 +123,29 @@ export default function TeamPage() {
         </div>
       </section>
 
-      {/* Core Coordinators */}
-      <section className="py-20 px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-20 px-6">
+        <div className="max-w-[1200px] mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <p className="text-xs font-semibold text-[var(--fg-tertiary)] uppercase tracking-widest mb-3">Leadership</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-[var(--fg)] tracking-tight mb-12">Core Coordinators</h2>
+            <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Leadership</p>
+            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Core Coordinators</h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-3 gap-px bg-[var(--border)]">
             {coordinators.map((person, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
+                transition={{ delay: i * 0.1, ease }}
                 viewport={{ once: true }}
-                className="p-6 rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] hover:border-[var(--border-hover)] transition-colors group"
+                className="p-6 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] transition-colors"
               >
-                <div className="w-14 h-14 rounded-full bg-[var(--fg)] text-[var(--bg)] flex items-center justify-center text-base font-display font-bold mb-5">
+                <div className="w-12 h-12 rounded-full bg-[var(--fg)] text-[var(--bg)] flex items-center justify-center font-display text-sm mb-5">
                   {person.initials}
                 </div>
-                <p className="font-display text-xl font-bold text-[var(--fg)] mb-0.5">{person.name}</p>
-                <p className="text-sm font-medium text-[var(--fg-secondary)]">{person.role}</p>
-                <p className="text-[10px] text-[var(--fg-tertiary)] uppercase tracking-wider mt-1 mb-4">{person.year}</p>
+                <p className="text-xl text-[var(--fg)] mb-0.5">{person.name}</p>
+                <p className="text-sm text-[var(--fg-secondary)]">{person.role}</p>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-[var(--fg-tertiary)] mt-1 mb-4">{person.year}</p>
                 <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">{person.bio}</p>
               </motion.div>
             ))}
@@ -155,58 +153,56 @@ export default function TeamPage() {
         </div>
       </section>
 
-      {/* Verticals */}
-      <section className="py-20 px-6 lg:px-8 border-t border-[var(--border)]">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-20 px-6 border-t border-[var(--border)]">
+        <div className="max-w-[1200px] mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <p className="text-xs font-semibold text-[var(--fg-tertiary)] uppercase tracking-widest mb-3">Structure</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-[var(--fg)] tracking-tight mb-12">Technical Verticals</h2>
+            <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Structure</p>
+            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Technical Verticals</h2>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-px bg-[var(--border)]">
             {verticals.map((v, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.06 }}
+                transition={{ delay: i * 0.06, ease }}
                 viewport={{ once: true }}
-                className="p-5 rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] hover:border-[var(--border-hover)] transition-colors"
+                className="p-5 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] transition-colors"
               >
-                <p className="font-display text-2xl font-bold text-[var(--fg)] mb-0.5">{v.count}</p>
-                <p className="text-sm font-medium text-[var(--fg)] mb-2">{v.name}</p>
-                <p className="text-xs text-[var(--fg-tertiary)] leading-relaxed">{v.description}</p>
+                <p className="font-display text-3xl text-[var(--fg)] leading-none mb-1">{v.count}</p>
+                <p className="text-sm text-[var(--fg)] mb-2">{v.name}</p>
+                <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--fg-tertiary)] leading-relaxed">{v.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Team Leads */}
-      <section className="py-20 px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-20 px-6">
+        <div className="max-w-[1200px] mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <p className="text-xs font-semibold text-[var(--fg-tertiary)] uppercase tracking-widest mb-3">Vertical Heads</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-[var(--fg)] tracking-tight mb-12">Team Leads</h2>
+            <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Vertical Heads</p>
+            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Team Leads</h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-[var(--border)]">
             {leads.map((person, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.06 }}
+                transition={{ delay: i * 0.06, ease }}
                 viewport={{ once: true }}
-                className="flex items-center gap-4 p-5 rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] hover:border-[var(--border-hover)] transition-colors"
+                className="flex items-center gap-4 p-5 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] transition-colors"
               >
-                <div className="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center text-sm font-display font-semibold text-[var(--fg-secondary)] shrink-0">
+                <div className="w-11 h-11 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center font-mono text-xs text-[var(--fg-secondary)] shrink-0">
                   {person.initials}
                 </div>
                 <div>
-                  <p className="font-medium text-[var(--fg)]">{person.name}</p>
+                  <p className="text-sm text-[var(--fg)]">{person.name}</p>
                   <p className="text-xs text-[var(--fg-secondary)]">{person.role}</p>
-                  <p className="text-[10px] text-[var(--fg-tertiary)] uppercase tracking-wider mt-0.5">{person.vertical}</p>
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-[var(--fg-tertiary)] mt-0.5">{person.vertical}</p>
                 </div>
               </motion.div>
             ))}
@@ -214,18 +210,17 @@ export default function TeamPage() {
         </div>
       </section>
 
-      {/* Members Grid */}
-      <section className="py-20 px-6 lg:px-8 border-t border-[var(--border)]">
-        <div className="max-w-7xl mx-auto">
+      <section className="py-20 px-6 border-t border-[var(--border)]">
+        <div className="max-w-[1200px] mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="flex items-end justify-between mb-12">
             <div>
-              <p className="text-xs font-semibold text-[var(--fg-tertiary)] uppercase tracking-widest mb-3">Community</p>
-              <h2 className="font-display text-3xl md:text-4xl font-bold text-[var(--fg)] tracking-tight">Active Members</h2>
+              <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Community</p>
+              <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9]">Active Members</h2>
             </div>
-            <p className="text-sm text-[var(--fg-tertiary)] hidden md:block">Showing {members.length} of 120+</p>
+            <p className="font-mono text-xs uppercase text-[var(--fg-tertiary)] hidden md:block">{members.length} of 120+</p>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-[var(--border)]">
             {members.map((person, i) => (
               <motion.div
                 key={i}
@@ -233,14 +228,14 @@ export default function TeamPage() {
                 whileInView={{ opacity: 1 }}
                 transition={{ delay: i * 0.03 }}
                 viewport={{ once: true }}
-                className="flex items-center gap-3 p-3.5 rounded-xl border border-[var(--border)] hover:border-[var(--border-hover)] hover:bg-[var(--bg-secondary)] transition-colors"
+                className="flex items-center gap-3 p-3.5 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] transition-colors"
               >
-                <div className="w-9 h-9 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center text-[10px] font-semibold text-[var(--fg-secondary)] shrink-0">
+                <div className="w-9 h-9 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center font-mono text-[10px] text-[var(--fg-secondary)] shrink-0">
                   {person.name.split(" ").map(n => n[0]).join("")}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-[var(--fg)] truncate">{person.name}</p>
-                  <p className="text-[10px] text-[var(--fg-tertiary)]">{person.vertical} · {person.year}</p>
+                  <p className="text-sm text-[var(--fg)] truncate">{person.name}</p>
+                  <p className="font-mono text-[10px] uppercase text-[var(--fg-tertiary)]">{person.vertical} / {person.year}</p>
                 </div>
               </motion.div>
             ))}
@@ -248,11 +243,10 @@ export default function TeamPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-24 px-6 lg:px-8">
+      <section className="py-24 px-6 border-t border-[var(--border)]">
         <div className="max-w-3xl mx-auto text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-[var(--fg)] tracking-tight mb-4">
+            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-4">
               See yourself here?
             </h2>
             <p className="text-[var(--fg-secondary)] mb-8 max-w-md mx-auto">
@@ -260,7 +254,7 @@ export default function TeamPage() {
             </p>
             <Link
               href="/auth/signup"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[var(--fg)] text-[var(--bg)] text-sm font-medium hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 px-7 py-3 rounded-full border border-[var(--fg)] text-[var(--fg)] text-sm hover:bg-[var(--fg)] hover:text-[var(--bg)] transition-colors"
             >
               Apply to Join <ArrowRight className="w-4 h-4" />
             </Link>

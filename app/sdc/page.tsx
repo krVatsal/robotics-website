@@ -9,6 +9,8 @@ import { ArrowRight, Cpu, Eye, Cog, Wifi, Gauge, Code2, Users } from "lucide-rea
 import Link from "next/link"
 import Image from "next/image"
 
+const ease: [number, number, number, number] = [0.32, 0.72, 0, 1]
+
 const specs = [
   { label: "Perception", value: "LiDAR + Stereo Camera", icon: Eye },
   { label: "Compute", value: "Jetson Orin NX", icon: Cpu },
@@ -98,37 +100,34 @@ function AssemblyTimeline() {
   const trackHeight = useTransform(scrollYProgress, [0.1, 0.9], ["0%", "100%"])
 
   return (
-    <section ref={containerRef} className="py-24 lg:py-32 px-6 lg:px-8 border-t border-[var(--border)]">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
+    <section ref={containerRef} className="py-24 lg:py-32 px-6 border-t border-[var(--border)]">
+      <div className="max-w-[1200px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-20"
+          transition={{ ease }}
+          className="mb-20"
         >
-          <p className="text-xs font-semibold text-[var(--fg-secondary)] uppercase tracking-widest mb-3">
+          <p className="font-mono uppercase text-xs tracking-[0.2em] text-[var(--fg-secondary)] mb-3">
             Build Progression
           </p>
-          <h2 className="font-display text-4xl md:text-6xl font-bold text-[var(--fg)] tracking-tight">
+          <h2 className="font-display uppercase text-[clamp(2.5rem,6vw,4.5rem)] text-[var(--fg)] tracking-tight leading-[0.9]">
             From Chassis<br />To Autonomy.
           </h2>
         </motion.div>
 
-        {/* Timeline */}
         <div className="relative">
-          {/* Centre vertical line */}
           <div className="absolute left-1/2 top-0 bottom-0 w-px bg-[var(--border)] -translate-x-1/2">
-            <motion.div className="w-full bg-[var(--fg)] origin-top" style={{ height: trackHeight }} />
+            <motion.div className="w-full bg-[var(--accent)] origin-top" style={{ height: trackHeight }} />
           </div>
 
-          {/* Floating car icon on the line */}
           <motion.div
             className="absolute left-1/2 -translate-x-1/2 z-20 pointer-events-none"
             style={{ top: carY }}
           >
             <div className="relative -translate-y-1/2">
-              <div className="w-12 h-12 rounded-full bg-[var(--bg)] border-2 border-[var(--fg)] shadow-[var(--shadow-md)] flex items-center justify-center overflow-hidden">
+              <div className="w-12 h-12 bg-[var(--bg)] border-2 border-[var(--fg)] flex items-center justify-center overflow-hidden">
                 <div className="relative w-9 h-9">
                   {stages.map((stage, i) => (
                     <Image
@@ -147,7 +146,6 @@ function AssemblyTimeline() {
             </div>
           </motion.div>
 
-          {/* Stage rows — mobile: single column, sm+: alternating */}
           <div className="space-y-8 sm:space-y-16 md:space-y-24">
             {stages.map((stage, idx) => {
               const isEven = idx % 2 === 0
@@ -156,33 +154,33 @@ function AssemblyTimeline() {
                   key={idx}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
+                  transition={{ delay: 0.1, ease }}
                   viewport={{ once: true, margin: "-100px" }}
                 >
                   {/* Mobile layout */}
                   <div className="sm:hidden grid grid-cols-[24px_1fr] gap-3 items-start">
                     <div className="flex justify-center pt-2">
-                      <div className={`w-3 h-3 rounded-full border-2 transition-colors duration-500 ${
+                      <div className={`w-3 h-3 border-2 transition-colors duration-500 ${
                         idx <= activeIndex
-                          ? "bg-[var(--fg)] border-[var(--fg)]"
+                          ? "bg-[var(--accent)] border-[var(--accent)]"
                           : "bg-[var(--bg)] border-[var(--fg-tertiary)]/40"
                       }`} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-semibold text-[var(--fg)] uppercase tracking-widest">{stage.date}</span>
-                        <span className="text-[10px] text-[var(--fg-tertiary)] uppercase tracking-wider">Stage {idx + 1}</span>
+                        <span className="font-mono uppercase text-xs tracking-[0.15em] text-[var(--fg)]">{stage.date}</span>
+                        <span className="font-mono uppercase text-[10px] tracking-[0.12em] text-[var(--fg-tertiary)]">Stage {idx + 1}</span>
                       </div>
-                      <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-4 hover:border-[var(--border-hover)] transition-colors">
-                        <h3 className="font-display text-base font-semibold text-[var(--fg)] mb-1.5">{stage.title}</h3>
+                      <div className="border border-[var(--border)] bg-[var(--bg-secondary)] p-4 hover:border-[var(--accent)]/30 transition-colors">
+                        <h3 className="font-display uppercase text-base text-[var(--fg)] mb-1.5">{stage.title}</h3>
                         <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">{stage.description}</p>
                         <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[var(--border)]">
-                          <div className="w-7 h-7 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center text-[10px] font-semibold text-[var(--fg-secondary)] shrink-0">
+                          <div className="w-7 h-7 bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center font-mono text-[10px] uppercase text-[var(--fg-secondary)] shrink-0">
                             {stage.contributor.name.split(" ").map(n => n[0]).join("")}
                           </div>
                           <div>
                             <p className="text-xs font-medium text-[var(--fg)]">{stage.contributor.name}</p>
-                            <p className="text-[10px] text-[var(--fg-tertiary)]">{stage.contributor.role}</p>
+                            <p className="font-mono uppercase text-[10px] tracking-wider text-[var(--fg-tertiary)]">{stage.contributor.role}</p>
                           </div>
                         </div>
                       </div>
@@ -192,29 +190,29 @@ function AssemblyTimeline() {
                   {/* Desktop alternating layout */}
                   <div className="hidden sm:grid grid-cols-[1fr_40px_1fr] md:grid-cols-[1fr_60px_1fr] items-start gap-4 md:gap-6">
                     <div className="col-start-2 row-start-1 flex justify-center pt-2">
-                      <div className={`w-3 h-3 rounded-full border-2 transition-colors duration-500 ${
+                      <div className={`w-3 h-3 border-2 transition-colors duration-500 ${
                         idx <= activeIndex
-                          ? "bg-[var(--fg)] border-[var(--fg)]"
+                          ? "bg-[var(--accent)] border-[var(--accent)]"
                           : "bg-[var(--bg)] border-[var(--fg-tertiary)]/40"
                       }`} />
                     </div>
                     <div className={`col-start-1 row-start-1 ${isEven ? "text-right" : "text-right"}`}>
                       {isEven ? (
                         <div className="flex flex-col items-end pt-0.5">
-                          <span className="text-xs font-semibold text-[var(--fg)] uppercase tracking-widest">{stage.date}</span>
-                          <span className="text-[10px] text-[var(--fg-tertiary)] uppercase tracking-wider mt-0.5">Stage {idx + 1}</span>
+                          <span className="font-mono uppercase text-xs tracking-[0.15em] text-[var(--fg)]">{stage.date}</span>
+                          <span className="font-mono uppercase text-[10px] tracking-[0.12em] text-[var(--fg-tertiary)] mt-0.5">Stage {idx + 1}</span>
                         </div>
                       ) : (
-                        <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-5 hover:border-[var(--border-hover)] transition-colors">
-                          <h3 className="font-display text-lg font-semibold text-[var(--fg)] mb-2 text-left">{stage.title}</h3>
+                        <div className="border border-[var(--border)] bg-[var(--bg-secondary)] p-5 hover:border-[var(--accent)]/30 transition-colors">
+                          <h3 className="font-display uppercase text-lg text-[var(--fg)] mb-2 text-left">{stage.title}</h3>
                           <p className="text-sm text-[var(--fg-secondary)] leading-relaxed text-left">{stage.description}</p>
                           <div className="flex items-center gap-3 mt-4 pt-3 border-t border-[var(--border)]">
-                            <div className="w-7 h-7 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center text-[10px] font-semibold text-[var(--fg-secondary)] shrink-0">
+                            <div className="w-7 h-7 bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center font-mono text-[10px] uppercase text-[var(--fg-secondary)] shrink-0">
                               {stage.contributor.name.split(" ").map(n => n[0]).join("")}
                             </div>
                             <div className="text-left">
                               <p className="text-xs font-medium text-[var(--fg)]">{stage.contributor.name}</p>
-                              <p className="text-[10px] text-[var(--fg-tertiary)]">{stage.contributor.role}</p>
+                              <p className="font-mono uppercase text-[10px] tracking-wider text-[var(--fg-tertiary)]">{stage.contributor.role}</p>
                             </div>
                           </div>
                         </div>
@@ -222,23 +220,23 @@ function AssemblyTimeline() {
                     </div>
                     <div className="col-start-3 row-start-1">
                       {isEven ? (
-                        <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-5 hover:border-[var(--border-hover)] transition-colors">
-                          <h3 className="font-display text-lg font-semibold text-[var(--fg)] mb-2">{stage.title}</h3>
+                        <div className="border border-[var(--border)] bg-[var(--bg-secondary)] p-5 hover:border-[var(--accent)]/30 transition-colors">
+                          <h3 className="font-display uppercase text-lg text-[var(--fg)] mb-2">{stage.title}</h3>
                           <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">{stage.description}</p>
                           <div className="flex items-center gap-3 mt-4 pt-3 border-t border-[var(--border)]">
-                            <div className="w-7 h-7 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center text-[10px] font-semibold text-[var(--fg-secondary)] shrink-0">
+                            <div className="w-7 h-7 bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center font-mono text-[10px] uppercase text-[var(--fg-secondary)] shrink-0">
                               {stage.contributor.name.split(" ").map(n => n[0]).join("")}
                             </div>
                             <div>
                               <p className="text-xs font-medium text-[var(--fg)]">{stage.contributor.name}</p>
-                              <p className="text-[10px] text-[var(--fg-tertiary)]">{stage.contributor.role}</p>
+                              <p className="font-mono uppercase text-[10px] tracking-wider text-[var(--fg-tertiary)]">{stage.contributor.role}</p>
                             </div>
                           </div>
                         </div>
                       ) : (
                         <div className="flex flex-col items-start pt-0.5">
-                          <span className="text-xs font-semibold text-[var(--fg)] uppercase tracking-widest">{stage.date}</span>
-                          <span className="text-[10px] text-[var(--fg-tertiary)] uppercase tracking-wider mt-0.5">Stage {idx + 1}</span>
+                          <span className="font-mono uppercase text-xs tracking-[0.15em] text-[var(--fg)]">{stage.date}</span>
+                          <span className="font-mono uppercase text-[10px] tracking-[0.12em] text-[var(--fg-tertiary)] mt-0.5">Stage {idx + 1}</span>
                         </div>
                       )}
                     </div>
@@ -271,29 +269,29 @@ export default function SDCPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg)]/60 via-[var(--bg)]/80 to-[var(--bg)]" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 pt-36 pb-24">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+        <div className="relative max-w-[1200px] mx-auto px-6 pt-36 pb-24">
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease }}>
             <div className="flex items-center gap-3 mb-6">
-              <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-semibold text-[var(--fg-secondary)] uppercase tracking-widest">Active Project</span>
+              <span className="w-2.5 h-2.5 bg-[var(--accent)] animate-pulse" />
+              <span className="font-mono uppercase text-xs tracking-[0.2em] text-[var(--fg-secondary)]">Active Project</span>
             </div>
-            <h1 className="font-display text-5xl md:text-8xl font-bold text-[var(--fg)] tracking-tight leading-[0.95] mb-6">
+            <h1 className="font-display uppercase text-[clamp(3rem,10vw,7rem)] text-[var(--fg)] tracking-tight leading-[0.9] mb-6">
               Self-Driving<br />Car.
             </h1>
-            <p className="text-xl text-[var(--fg-secondary)] max-w-2xl leading-relaxed">
+            <p className="text-lg text-[var(--fg-secondary)] max-w-2xl leading-relaxed font-medium">
               Our flagship autonomous vehicle project — a ground-up build combining LiDAR perception,
               neural path planning, and custom drive-by-wire controls on a student-built chassis.
             </p>
             <div className="flex flex-wrap gap-3 mt-10">
               <Link
                 href="/events"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[var(--fg)] text-[var(--bg)] text-sm font-medium hover:opacity-90 transition-opacity"
+                className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[var(--accent)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
               >
-                View Competitions <ArrowRight className="w-4 h-4" />
+                View Competitions <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </Link>
               <Link
                 href="/projects"
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full border border-[var(--border)] text-[var(--fg)] text-sm font-medium hover:bg-[var(--bg-secondary)] transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[var(--border)] text-[var(--fg)] text-sm font-medium hover:bg-[var(--bg-secondary)] transition-colors"
               >
                 All Projects
               </Link>
@@ -303,17 +301,23 @@ export default function SDCPage() {
       </section>
 
       {/* Specs Grid */}
-      <section className="py-24 px-6 lg:px-8 border-t border-[var(--border)]">
-        <div className="max-w-7xl mx-auto">
-          <motion.h2
+      <section className="py-24 px-6 border-t border-[var(--border)]">
+        <div className="max-w-[1200px] mx-auto">
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="font-display text-4xl md:text-5xl font-bold text-[var(--fg)] tracking-tight mb-16"
+            transition={{ ease }}
+            className="mb-14"
           >
-            Technical Specs
-          </motion.h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <p className="font-mono uppercase text-xs tracking-[0.2em] text-[var(--fg-secondary)] mb-3">
+              Specifications
+            </p>
+            <h2 className="font-display uppercase text-[clamp(2.5rem,6vw,4.5rem)] text-[var(--fg)] tracking-tight leading-[0.9]">
+              Technical Specs
+            </h2>
+          </motion.div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-px bg-[var(--border)]">
             {specs.map((spec, idx) => {
               const Icon = spec.icon
               return (
@@ -321,15 +325,15 @@ export default function SDCPage() {
                   key={spec.label}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.06 }}
+                  transition={{ delay: idx * 0.06, ease }}
                   viewport={{ once: true }}
-                  className="p-6 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors"
+                  className="p-6 bg-[var(--bg)]"
                 >
-                  <div className="w-10 h-10 rounded-full border border-[var(--border)] flex items-center justify-center mb-4">
-                    <Icon className="w-4 h-4 text-[var(--fg-tertiary)]" />
+                  <div className="w-10 h-10 border border-[var(--border)] flex items-center justify-center mb-4">
+                    <Icon className="w-4 h-4 text-[var(--accent)]" />
                   </div>
-                  <p className="text-xs text-[var(--fg-tertiary)] uppercase tracking-wider mb-1">{spec.label}</p>
-                  <p className="font-display text-lg font-semibold text-[var(--fg)]">{spec.value}</p>
+                  <p className="font-mono uppercase text-[10px] tracking-[0.15em] text-[var(--fg-tertiary)] mb-1">{spec.label}</p>
+                  <p className="font-display uppercase text-lg text-[var(--fg)]">{spec.value}</p>
                 </motion.div>
               )
             })}
@@ -337,29 +341,35 @@ export default function SDCPage() {
         </div>
       </section>
 
-      {/* Assembly Timeline — the centrepiece */}
+      {/* Assembly Timeline */}
       <AssemblyTimeline />
 
       {/* Gallery */}
-      <section className="py-24 px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.h2
+      <section className="py-24 px-6">
+        <div className="max-w-[1200px] mx-auto">
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="font-display text-4xl md:text-5xl font-bold text-[var(--fg)] tracking-tight mb-16"
+            transition={{ ease }}
+            className="mb-14"
           >
-            Gallery
-          </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <p className="font-mono uppercase text-xs tracking-[0.2em] text-[var(--fg-secondary)] mb-3">
+              Documentation
+            </p>
+            <h2 className="font-display uppercase text-[clamp(2.5rem,6vw,4.5rem)] text-[var(--fg)] tracking-tight leading-[0.9]">
+              Gallery
+            </h2>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[var(--border)]">
             {gallery.map((img, idx) => (
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.08 }}
+                transition={{ delay: idx * 0.08, ease }}
                 viewport={{ once: true }}
-                className="group relative aspect-video rounded-2xl overflow-hidden border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors"
+                className="group relative aspect-video overflow-hidden bg-[var(--bg)]"
               >
                 <Image
                   src={img.src}
@@ -368,7 +378,7 @@ export default function SDCPage() {
                   className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <p className="absolute bottom-4 left-4 text-sm text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                <p className="absolute bottom-4 left-4 font-mono uppercase text-[11px] tracking-wider text-white opacity-0 group-hover:opacity-100 transition-opacity">
                   {img.caption}
                 </p>
               </motion.div>
@@ -378,32 +388,38 @@ export default function SDCPage() {
       </section>
 
       {/* Team */}
-      <section className="py-24 px-6 lg:px-8 border-t border-[var(--border)]">
-        <div className="max-w-7xl mx-auto">
-          <motion.h2
+      <section className="py-24 px-6 border-t border-[var(--border)]">
+        <div className="max-w-[1200px] mx-auto">
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="font-display text-4xl md:text-5xl font-bold text-[var(--fg)] tracking-tight mb-16 flex items-center gap-4"
+            transition={{ ease }}
+            className="mb-14"
           >
-            <Users className="w-8 h-8 text-[var(--fg-tertiary)]" /> The Team
-          </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <p className="font-mono uppercase text-xs tracking-[0.2em] text-[var(--fg-secondary)] mb-3">
+              Contributors
+            </p>
+            <h2 className="font-display uppercase text-[clamp(2.5rem,6vw,4.5rem)] text-[var(--fg)] tracking-tight leading-[0.9]">
+              The Team
+            </h2>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-[var(--border)]">
             {team.map((member, idx) => (
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.06 }}
+                transition={{ delay: idx * 0.06, ease }}
                 viewport={{ once: true }}
-                className="flex items-center gap-4 p-5 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors"
+                className="flex items-center gap-4 p-5 bg-[var(--bg)]"
               >
-                <div className="w-11 h-11 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center text-sm font-semibold text-[var(--fg-secondary)] shrink-0">
+                <div className="w-11 h-11 bg-[var(--bg-secondary)] border border-[var(--border)] flex items-center justify-center font-mono text-xs uppercase text-[var(--fg-secondary)] shrink-0">
                   {member.name.split(" ").map(n => n[0]).join("")}
                 </div>
                 <div>
                   <p className="font-medium text-[var(--fg)] text-sm">{member.name}</p>
-                  <p className="text-xs text-[var(--fg-tertiary)]">{member.role}</p>
+                  <p className="font-mono uppercase text-[10px] tracking-[0.12em] text-[var(--fg-tertiary)]">{member.role}</p>
                 </div>
               </motion.div>
             ))}
@@ -412,20 +428,20 @@ export default function SDCPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-24 px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-[var(--fg)] tracking-tight mb-4">
+      <section className="py-24 px-6 border-t border-[var(--border)]">
+        <div className="max-w-[1200px] mx-auto text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ ease }}>
+            <h2 className="font-display uppercase text-[clamp(2rem,5vw,3.5rem)] text-[var(--fg)] tracking-tight leading-[0.9] mb-4">
               Want to contribute?
             </h2>
-            <p className="text-[var(--fg-secondary)] mb-8">
+            <p className="text-[var(--fg-secondary)] mb-8 max-w-lg mx-auto">
               We are always looking for passionate engineers. Join the club and be part of our next breakthrough.
             </p>
             <Link
               href="/auth/signup"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[var(--fg)] text-[var(--bg)] text-sm font-medium hover:opacity-90 transition-opacity"
+              className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[var(--accent)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
             >
-              Join MNNIT Robotics <ArrowRight className="w-4 h-4" />
+              Join MNNIT Robotics <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </motion.div>
         </div>

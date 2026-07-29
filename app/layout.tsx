@@ -1,13 +1,14 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Inter, Space_Grotesk } from "next/font/google"
+import { Inter, Bebas_Neue, IBM_Plex_Mono } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
 import { ThemeProvider } from "@/components/theme-provider"
 import SmoothScrollProvider from "@/components/smooth-scroll-provider"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space" })
+const bebasNeue = Bebas_Neue({ subsets: ["latin"], variable: "--font-bebas", weight: "400" })
+const ibmPlexMono = IBM_Plex_Mono({ subsets: ["latin"], variable: "--font-ibm-mono", weight: ["400", "500", "600"] })
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${bebasNeue.variable} ${ibmPlexMono.variable} font-sans antialiased`}>
         <ThemeProvider>
           <AuthProvider>
             <SmoothScrollProvider>

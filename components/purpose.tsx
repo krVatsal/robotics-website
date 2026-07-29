@@ -16,23 +16,26 @@ const defaults = {
   ],
 }
 
+const ease = [0.32, 0.72, 0, 1]
+
 export default function Purpose() {
   const { content } = useSiteContent("purpose", defaults)
   const data = content ?? defaults
 
   return (
-    <section className="py-24 lg:py-32 px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-20 md:py-28 px-6">
+      <div className="max-w-[1200px] mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
+          transition={{ ease }}
           viewport={{ once: true }}
-          className="font-display text-4xl md:text-5xl font-bold text-[var(--fg)] tracking-tight mb-16"
+          className="font-display uppercase text-[clamp(3rem,8vw,5rem)] text-[var(--fg)] tracking-tight leading-[0.9] mb-16"
         >
           {data.heading}
         </motion.h2>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
           {(data.cards ?? []).map((card: any, idx: number) => {
             const Icon = iconMap[card.icon] || Zap
             return (
@@ -40,15 +43,18 @@ export default function Purpose() {
                 key={card.title}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.08 }}
+                transition={{ delay: idx * 0.08, ease }}
                 viewport={{ once: true }}
-                className="p-6 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border)] hover:border-[var(--border-hover)] transition-colors group"
+                className="p-6 rounded-none bg-[var(--bg)] border border-[var(--border)]"
               >
-                <div className="w-10 h-10 rounded-full border border-[var(--border)] flex items-center justify-center mb-5 group-hover:border-[var(--border-hover)] transition-colors">
+                <div className="w-10 h-10 rounded-none border border-[var(--border)] flex items-center justify-center mb-5">
                   <Icon className="w-4 h-4 text-[var(--fg-tertiary)]" />
                 </div>
-                <h3 className="font-display text-lg font-semibold text-[var(--fg)] mb-2">{card.title}</h3>
-                <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">{card.description}</p>
+                <h3 className="font-sans text-lg font-medium text-[var(--fg)] mb-2 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shrink-0" />
+                  {card.title}
+                </h3>
+                <p className="text-sm text-[var(--fg-secondary)] leading-relaxed font-medium">{card.description}</p>
               </motion.div>
             )
           })}

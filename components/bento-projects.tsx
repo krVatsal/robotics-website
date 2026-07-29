@@ -25,23 +25,21 @@ const spanPatterns = [
   "md:col-span-1 md:row-span-1",
 ]
 
+const ease = [0.32, 0.72, 0, 1]
+
 export default function BentoProjects() {
   const [projects, setProjects] = useState<Project[]>([])
   const [filter, setFilter] = useState("All")
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 4000)
-    fetch("/api/projects", { signal: controller.signal })
+    fetch("/api/projects")
       .then(res => res.json())
       .then(data => {
         setProjects(Array.isArray(data) ? data : data.projects ?? [])
         setIsLoading(false)
       })
       .catch(() => setIsLoading(false))
-      .finally(() => clearTimeout(timeout))
-    return () => { controller.abort(); clearTimeout(timeout) }
   }, [])
 
   const categories = ["All", ...Array.from(new Set(projects.map(p => p.category).filter(Boolean)))]
@@ -49,11 +47,11 @@ export default function BentoProjects() {
 
   if (isLoading) {
     return (
-      <section id="projects" className="py-24 lg:py-32 px-6 lg:px-8 scroll-mt-20">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[200px]">
+      <section id="projects" className="py-20 md:py-28 px-6 scroll-mt-20">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 auto-rows-[200px]">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className={`rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border)] animate-pulse ${spanPatterns[i] || ""}`} />
+              <div key={i} className={`rounded-none bg-[var(--bg-secondary)] border border-[var(--border)] animate-pulse ${spanPatterns[i] || ""}`} />
             ))}
           </div>
         </div>
@@ -64,18 +62,19 @@ export default function BentoProjects() {
   if (projects.length === 0) return null
 
   return (
-    <section id="projects" className="py-24 lg:py-32 px-6 lg:px-8 scroll-mt-20">
-      <div className="max-w-7xl mx-auto">
+    <section id="projects" className="py-20 md:py-28 px-6 scroll-mt-20">
+      <div className="max-w-[1200px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
+          transition={{ ease }}
           viewport={{ once: true }}
           className="mb-14"
         >
-          <h2 className="font-display text-4xl md:text-6xl font-bold text-[var(--fg)] tracking-tight leading-[1.05] mb-4">
+          <h2 className="font-display uppercase text-[clamp(3rem,8vw,5rem)] text-[var(--fg)] tracking-tight leading-[0.9] mb-4">
             Featured<br />Projects.
           </h2>
-          <p className="text-[var(--fg-secondary)] text-lg max-w-2xl">
+          <p className="font-sans text-lg text-[var(--fg-secondary)] max-w-2xl font-medium leading-relaxed">
             A snapshot of our ongoing builds — from autonomous vehicles to industrial manipulators. Each project is an open lab for learning.
           </p>
         </motion.div>
@@ -86,10 +85,10 @@ export default function BentoProjects() {
             <button
               key={cat}
               onClick={() => setFilter(cat)}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+              className={`px-4 py-1.5 rounded-full text-xs font-medium font-mono uppercase tracking-wider transition-colors ${
                 filter === cat
                   ? "bg-[var(--fg)] text-[var(--bg)]"
-                  : "bg-[var(--bg-secondary)] text-[var(--fg-secondary)] border border-[var(--border)] hover:border-[var(--border-hover)]"
+                  : "bg-[var(--bg)] text-[var(--fg-secondary)] border border-[var(--border)]"
               }`}
             >
               {cat}
@@ -97,7 +96,7 @@ export default function BentoProjects() {
           ))}
         </div>
 
-        <motion.div layout className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[220px]">
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-3 gap-3 auto-rows-[220px]">
           <AnimatePresence mode="popLayout">
             {filtered.map((project, idx) => (
               <motion.div
@@ -106,8 +105,8 @@ export default function BentoProjects() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ delay: idx * 0.05 }}
-                className={`group relative overflow-hidden rounded-2xl border border-[var(--border)] hover:border-[var(--border-hover)] transition-all cursor-pointer ${spanPatterns[idx % spanPatterns.length]}`}
+                transition={{ delay: idx * 0.05, ease }}
+                className={`group relative overflow-hidden rounded-none border border-[var(--border)] cursor-pointer ${spanPatterns[idx % spanPatterns.length]}`}
               >
                 {project.image ? (
                   <div className="absolute inset-0 z-0">
@@ -115,7 +114,7 @@ export default function BentoProjects() {
                       src={project.image}
                       alt={project.title}
                       fill
-                      className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-500"
+                      className="object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   </div>
@@ -126,19 +125,19 @@ export default function BentoProjects() {
                 <div className="relative z-10 h-full flex flex-col justify-between p-5">
                   <div className="flex items-center gap-2">
                     {project.category && (
-                      <span className="px-3 py-1 rounded-full bg-white/90 text-[10px] font-semibold text-black uppercase tracking-wider backdrop-blur-sm">
+                      <span className="px-3 py-1 rounded-full bg-black/80 font-mono uppercase text-[10px] text-white tracking-wider">
                         {project.category}
                       </span>
                     )}
                     {project.status && (
-                      <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 text-[10px] font-medium text-black backdrop-blur-sm">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/80 font-mono uppercase text-[10px] text-white tracking-wider">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
                         {project.status}
                       </span>
                     )}
                   </div>
 
-                  <h3 className={`text-xl font-display font-bold ${project.image ? "text-white" : "text-[var(--fg)]"}`}>
+                  <h3 className={`font-sans text-base font-medium ${project.image ? "text-white" : "text-[var(--fg)]"}`}>
                     {project.title}
                   </h3>
                 </div>
@@ -150,7 +149,7 @@ export default function BentoProjects() {
         <div className="mt-12 text-center">
           <Link
             href="/projects"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[var(--border)] text-sm font-medium text-[var(--fg)] hover:border-[var(--border-hover)] hover:bg-[var(--bg-secondary)] transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[var(--border)] font-mono uppercase text-xs tracking-wider text-[var(--fg)] transition-colors hover:bg-[var(--bg-secondary)]"
           >
             View All Projects
           </Link>

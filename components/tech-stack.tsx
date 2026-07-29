@@ -62,23 +62,26 @@ const defaults = {
   ],
 }
 
+const ease = [0.32, 0.72, 0, 1]
+
 export default function TechStack() {
   const { content } = useSiteContent("tech-stack", defaults)
   const data = content ?? defaults
 
   return (
-    <section id="tech-stack" className="py-24 lg:py-32 px-6 lg:px-8 scroll-mt-20">
-      <div className="max-w-7xl mx-auto">
+    <section id="tech-stack" className="py-20 md:py-28 px-6 scroll-mt-20 bg-[var(--bg-secondary)]">
+      <div className="max-w-[1200px] mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
+          transition={{ ease }}
           viewport={{ once: true }}
-          className="font-display text-4xl md:text-5xl font-bold text-[var(--fg)] tracking-tight mb-14"
+          className="font-display uppercase text-[clamp(3rem,8vw,5rem)] text-[var(--fg)] tracking-tight leading-[0.9] mb-14"
         >
           {data.heading}
         </motion.h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
           {(data.technologies ?? []).map((tech: any, idx: number) => {
             const Icon = iconMap[tech.icon] || Cpu
             return (
@@ -86,17 +89,17 @@ export default function TechStack() {
                 key={tech.name}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.06 }}
+                transition={{ delay: idx * 0.06, ease }}
                 viewport={{ once: true }}
-                className={`group rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border)] p-6 flex flex-col justify-between min-h-[260px] hover:border-[var(--border-hover)] transition-colors ${tech.span || ""}`}
+                className={`rounded-none bg-[var(--bg)] border border-[var(--border)] p-6 flex flex-col justify-between min-h-[260px] ${tech.span || ""}`}
               >
                 <div>
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <h3 className="font-display text-xl lg:text-2xl font-bold text-[var(--fg)]">{tech.name}</h3>
-                      <p className="text-sm text-[var(--fg-tertiary)] mt-1">{tech.subtitle}</p>
+                      <h3 className="font-sans text-xl lg:text-2xl font-medium text-[var(--fg)]">{tech.name}</h3>
+                      <p className="font-mono uppercase text-xs text-[var(--fg-tertiary)] mt-1 tracking-wider">{tech.subtitle}</p>
                     </div>
-                    <div className="w-10 h-10 rounded-full border border-[var(--border)] flex items-center justify-center shrink-0 ml-4">
+                    <div className="w-10 h-10 rounded-none border border-[var(--border)] flex items-center justify-center shrink-0 ml-4">
                       <Icon className="w-4 h-4 text-[var(--fg-tertiary)]" />
                     </div>
                   </div>
@@ -106,8 +109,8 @@ export default function TechStack() {
                   <div className="flex flex-wrap gap-x-8 gap-y-2 mt-auto pt-6 border-t border-[var(--border)]">
                     {tech.details.map((d: any) => (
                       <div key={d.label}>
-                        <p className="text-xs font-semibold text-[var(--fg)] uppercase tracking-wider">{d.label}</p>
-                        <p className="text-sm text-[var(--fg-secondary)]">{d.value}</p>
+                        <p className="font-mono uppercase text-xs text-[var(--fg-tertiary)] tracking-wider">{d.label}</p>
+                        <p className="font-sans text-sm text-[var(--fg-secondary)] font-medium">{d.value}</p>
                       </div>
                     ))}
                   </div>

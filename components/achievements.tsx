@@ -13,44 +13,48 @@ const defaults = {
   ],
 }
 
+const ease = [0.32, 0.72, 0, 1]
+
 export default function Achievements() {
   const { content } = useSiteContent("achievements", defaults)
   const data = content ?? defaults
 
   return (
-    <section className="py-24 lg:py-32 px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-20 md:py-28 px-6">
+      <div className="max-w-[1200px] mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
+          transition={{ ease }}
           viewport={{ once: true }}
-          className="font-display text-4xl md:text-5xl font-bold text-[var(--fg)] tracking-tight mb-14"
+          className="font-display uppercase text-[clamp(3rem,8vw,5rem)] text-[var(--fg)] tracking-tight leading-[0.9] mb-14"
         >
           {data.heading}
         </motion.h2>
 
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-3 gap-3">
           {(data.items ?? []).map((item: any, idx: number) => (
             <motion.article
               key={idx}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
+              transition={{ delay: idx * 0.1, ease }}
               viewport={{ once: true }}
-              className="group p-6 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border)] hover:border-[var(--border-hover)] transition-all flex flex-col"
+              className="group p-6 rounded-none bg-[var(--bg)] border border-[var(--border)] flex flex-col"
             >
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-semibold text-[var(--fg)] uppercase tracking-wider">{item.source}</span>
-                <span className="text-[10px] text-[var(--fg-tertiary)] px-2.5 py-1 rounded-full border border-[var(--border)]">
+                <span className="font-mono uppercase text-xs text-[var(--fg-tertiary)] tracking-wider">{item.source}</span>
+                <span className="font-mono uppercase text-[10px] text-[var(--fg-tertiary)] px-2.5 py-1 rounded-full border border-[var(--border)]">
                   {item.category}
                 </span>
               </div>
-              <h3 className="text-[var(--fg)] font-medium leading-snug mb-6 group-hover:text-[var(--fg)] transition-colors">
-                {item.title}
+              <h3 className="font-sans text-base font-medium text-[var(--fg)] leading-snug mb-6 flex gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shrink-0 mt-2" />
+                <span>{item.title}</span>
               </h3>
               <div className="mt-auto flex items-center justify-between pt-4 border-t border-[var(--border)]">
-                <span className="text-xs text-[var(--fg-tertiary)]">{item.date}</span>
-                <ArrowUpRight className="w-4 h-4 text-[var(--fg-tertiary)] group-hover:text-[var(--fg)] transition-colors" />
+                <span className="font-mono uppercase text-xs text-[var(--fg-tertiary)]">{item.date}</span>
+                <ArrowUpRight className="w-4 h-4 text-[var(--fg-tertiary)]" />
               </div>
             </motion.article>
           ))}

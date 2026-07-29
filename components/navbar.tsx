@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useAuth } from "@/lib/auth-context"
 import { UserAvatar } from "@/components/user-avatar"
 import { motion, AnimatePresence } from "framer-motion"
@@ -36,17 +37,24 @@ export default function Navbar() {
       <div
         className={`max-w-6xl mx-auto rounded-full transition-all duration-500 ${
           scrolled
-            ? "bg-[var(--bg)]/90 backdrop-blur-2xl shadow-[var(--shadow-md)] border border-[var(--border)]"
+            ? "bg-[var(--bg)]/90 backdrop-blur-2xl border border-[var(--border)]"
             : "bg-[var(--bg)]/60 backdrop-blur-xl border border-[var(--border)]/50"
         }`}
       >
         <div className="flex items-center justify-between h-14 px-6">
-          {/* Logo */}
-          <Link href="/" className="font-display font-bold text-[var(--fg)] text-lg tracking-tight shrink-0">
-            {nav.logo?.text || "MNNIT Robotics"}
+          <Link href="/" className="flex items-center gap-2.5 shrink-0">
+            <Image
+              src="/favicon.png"
+              alt="Robotics Club Logo"
+              width={32}
+              height={32}
+              className="dark:invert"
+            />
+            <span className="font-display text-lg tracking-tight text-[var(--fg)]">
+              {nav.logo?.text || "MNNIT Robotics"}
+            </span>
           </Link>
 
-          {/* Center nav links — pill group */}
           <div className="hidden md:flex items-center">
             <div className="flex items-center gap-1 rounded-full bg-[var(--bg-secondary)]/80 px-1.5 py-1">
               {(nav.links ?? []).map((link: any) => (
@@ -61,7 +69,6 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Right side */}
           <div className="hidden md:flex items-center gap-3">
             <ThemeToggle />
 
@@ -87,7 +94,6 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile toggle */}
           <div className="flex items-center gap-2 md:hidden">
             <ThemeToggle />
             <button
@@ -102,7 +108,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -110,7 +115,7 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden mt-2 mx-2 rounded-2xl bg-[var(--bg)] border border-[var(--border)] shadow-[var(--shadow-lg)] overflow-hidden"
+            className="md:hidden mt-2 mx-2 rounded-2xl bg-[var(--bg)] border border-[var(--border)] overflow-hidden"
           >
             <div className="px-5 py-4 space-y-1">
               {(nav.links ?? []).map((link: any) => (
