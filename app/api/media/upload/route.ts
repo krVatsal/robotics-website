@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ObjectId } from 'mongodb'
 import { createMedia } from '@/lib/models/media'
-import { requireUser } from '@/lib/auth-guard'
+import { getAuthUserId, isAdmin } from '@/lib/auth-guard'
 import { env } from '@/lib/env'
 import { ApiError, handleApiError } from '@/lib/errors'
 
@@ -17,8 +17,9 @@ const ALLOWED_MIME = new Set([
 
 export async function POST(request: NextRequest) {
   try {
-    // Auth is now REQUIRED — no more phantom '000...000' ObjectId fallback.
-    const userId = await requireUser()
+    const userId = await getAuthUserId()
+    const admin = await isAdmin()
+    if (!userId && !admin) throw new ApiError(401, 'Unauthorized')
 
     const formData = await request.formData()
     const file = formData.get('file')
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
       filename: file.name,
       cloudinaryUrl: uploadResult.secure_url,
       cloudinaryPublicId: uploadResult.public_id,
-      uploadedBy: new ObjectId(userId),
+      uploadedBy: userId ? new ObjectId(userId) : new ObjectId('000000000000000000000000'),
       fileSize: buffer.byteLength,
       mimeType: file.type,
     })

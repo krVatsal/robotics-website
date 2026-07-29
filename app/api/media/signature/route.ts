@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createHash } from 'node:crypto'
-import { requireUser } from '@/lib/auth-guard'
+import { getAuthUserId, isAdmin } from '@/lib/auth-guard'
+import { AuthError } from '@/lib/errors'
 import { env } from '@/lib/env'
 import { handleApiError } from '@/lib/errors'
 
@@ -29,8 +30,9 @@ import { handleApiError } from '@/lib/errors'
  */
 export async function POST() {
   try {
-    // Only signed-in users may upload — same rule the proxy upload enforces.
-    await requireUser()
+    const userId = await getAuthUserId()
+    const admin = await isAdmin()
+    if (!userId && !admin) throw new AuthError()
 
     const timestamp = Math.floor(Date.now() / 1000)
     const folder = 'robotics-club'

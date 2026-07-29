@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
 import { getAllMedia } from '@/lib/models/media'
-import { requireUser } from '@/lib/auth-guard'
+import { getAuthUserId, isAdmin } from '@/lib/auth-guard'
+import { AuthError } from '@/lib/errors'
 import { handleApiError } from '@/lib/errors'
 
 export async function GET() {
   try {
-    // Media library is an authenticated-only view. Anon users don't need to
-    // browse every uploaded image.
-    await requireUser()
+    const userId = await getAuthUserId()
+    const admin = await isAdmin()
+    if (!userId && !admin) throw new AuthError()
 
     const allMedia = await getAllMedia()
 
