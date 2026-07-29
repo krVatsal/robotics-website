@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { motion } from "framer-motion"
 import {
   Plus, X, Save, Layout, Cpu,
@@ -12,11 +12,88 @@ import ReactMarkdown from "react-markdown"
 
 const inputClass = "w-full rounded-xl bg-[var(--bg)] border border-[var(--border)] px-4 py-3 text-[var(--fg)] placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg)] focus:outline-none transition-colors text-sm"
 
+/**
+ * Human-readable labels for fields so the error banner reads
+ * "Cover image URL: Invalid url" instead of "image: Invalid url".
+ * Fall back to the raw field name if no mapping exists.
+ */
+const FIELD_LABELS: Record<string, string> = {
+  title: "Project title",
+  description: "Full description",
+  shortDescription: "Short description",
+  category: "Category",
+  image: "Cover image URL",
+  content: "Content",
+  hardwareUsed: "Hardware used",
+  softwareUsed: "Software used",
+  techStack: "Tech stack",
+  contributors: "Contributors",
+  mentors: "Mentors",
+  achievements: "Achievements",
+  "links.github": "GitHub link",
+  "links.demo": "Demo link",
+  "links.documentation": "Documentation link",
+}
+
+interface FieldError {
+  field: string
+  message: string
+}
+
+/**
+ * The API's error shape when Zod rejects a body:
+ *   { error: "Invalid input", details: { fieldErrors: { title: [...] }, formErrors: [...] } }
+ * Flatten it into a simple [{field, message}] list the UI can render.
+ * Handles nested paths (e.g. links.github) via the underscore convention Zod uses.
+ */
+function parseApiError(data: any): { summary: string; fields: FieldError[] } {
+  const summary = data?.error ?? "Failed to save project."
+  const fields: FieldError[] = []
+
+  const fe = data?.details?.fieldErrors
+  if (fe && typeof fe === "object") {
+    for (const key of Object.keys(fe)) {
+      const msgs: string[] = Array.isArray(fe[key]) ? fe[key] : [String(fe[key])]
+      for (const msg of msgs) {
+        fields.push({
+          field: FIELD_LABELS[key] ?? key,
+          message: msg,
+        })
+      }
+    }
+  }
+  const formErrors = data?.details?.formErrors
+  if (Array.isArray(formErrors)) {
+    for (const msg of formErrors) fields.push({ field: "Form", message: String(msg) })
+  }
+
+  return { summary, fields }
+}
+
 export function ProjectForm({ onSuccess, initialData }: { onSuccess: () => void, initialData?: any }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<FieldError[]>([])
   const [activeSection, setActiveSection] = useState("basic")
   const [showPreview, setShowPreview] = useState(false)
+
+  // Controlled text for the "type and press Enter" chip inputs. Storing this
+  // in React state (instead of reading from the DOM on Enter only) means we
+  // can also drain it on blur AND on form submit — so users no longer lose
+  // items just because they forgot to press Enter.
+  const [pendingChips, setPendingChips] = useState<Record<string, string>>({
+    techStack: "",
+    hardwareUsed: "",
+    softwareUsed: "",
+  })
+
+  /** Push whatever's in the pending input into the array + clear the input. */
+  const flushPendingChip = (field: string) => {
+    const val = pendingChips[field]?.trim()
+    if (!val) return
+    setFormData((prev: any) => ({ ...prev, [field]: [...prev[field], val] }))
+    setPendingChips((prev) => ({ ...prev, [field]: "" }))
+  }
 
   const [formData, setFormData] = useState({
     title: initialData?.title || "",
@@ -61,16 +138,66 @@ export function ProjectForm({ onSuccess, initialData }: { onSuccess: () => void,
     e.preventDefault()
     setIsSubmitting(true)
     setError(null)
+    setFieldErrors([])
+
+    // Safety net: sweep any pending chip-input text into the arrays BEFORE we
+    // build the payload. Handles the "typed but forgot to press Enter" case
+    // that lost data before this fix.
+    const flushedArrays: Record<string, string[]> = {}
+    for (const field of Object.keys(pendingChips)) {
+      const val = pendingChips[field]?.trim()
+      const current = (formData as any)[field] as string[]
+      flushedArrays[field] = val ? [...current, val] : current
+    }
+
+    // Client-side pre-check: strip empty strings from optional link fields so
+    // the Zod URL validator doesn't complain about "" not being a URL.
+    const links: any = { ...formData.links }
+    for (const k of Object.keys(links)) {
+      if (!links[k] || !String(links[k]).trim()) delete links[k]
+    }
+    const payload = {
+      ...formData,
+      ...flushedArrays, // <-- overrides techStack / hardwareUsed / softwareUsed with drained versions
+      // The image field on the schema also accepts "" — but if the user typed
+      // spaces, trim first so Zod doesn't reject a whitespace-only URL.
+      image: formData.image?.trim() ? formData.image.trim() : "",
+      links,
+    }
+
+    // Also update local state so the chips render for the (unlikely) case that
+    // the save fails and the user goes back to edit — they shouldn't lose the
+    // chip they just added.
+    setFormData((prev: any) => ({ ...prev, ...flushedArrays }))
+    setPendingChips({ techStack: "", hardwareUsed: "", softwareUsed: "" })
 
     try {
       const url = initialData ? `/api/projects/${initialData._id}` : "/api/projects"
       const response = await fetch(url, {
         method: initialData ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
+        credentials: "include",
       })
 
-      if (!response.ok) throw new Error("Failed to save project.")
+      if (!response.ok) {
+        // Parse the API's structured error response and surface actionable
+        // field-level messages instead of a generic "Failed to save."
+        let data: any = null
+        try {
+          data = await response.json()
+        } catch {
+          // Non-JSON body (rare — probably a proxy 502). Fall back to status.
+          throw new Error(`Save failed (${response.status})`)
+        }
+        const { summary, fields } = parseApiError(data)
+        setFieldErrors(fields)
+        throw new Error(
+          fields.length > 0
+            ? summary // detail rendered below the summary
+            : (data?.error ?? "Failed to save project."),
+        )
+      }
       onSuccess()
     } catch (err: any) {
       setError(err.message)
@@ -111,8 +238,23 @@ export function ProjectForm({ onSuccess, initialData }: { onSuccess: () => void,
 
       <form onSubmit={handleSubmit} className="space-y-8 min-h-[400px]">
         {error && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 flex items-center gap-2 text-sm">
-            <AlertCircle size={18} /> {error}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-sm"
+          >
+            <div className="flex items-center gap-2 font-medium">
+              <AlertCircle size={18} /> {error}
+            </div>
+            {fieldErrors.length > 0 && (
+              <ul className="mt-2 ml-7 list-disc space-y-1 text-xs">
+                {fieldErrors.map((fe, i) => (
+                  <li key={i}>
+                    <span className="font-medium">{fe.field}:</span> {fe.message}
+                  </li>
+                ))}
+              </ul>
+            )}
           </motion.div>
         )}
 
@@ -201,16 +343,32 @@ export function ProjectForm({ onSuccess, initialData }: { onSuccess: () => void,
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="Type and press Enter..."
-                    className={inputClass}
+                    value={pendingChips[section.key] ?? ""}
+                    onChange={(e) =>
+                      setPendingChips((prev) => ({
+                        ...prev,
+                        [section.key]: e.target.value,
+                      }))
+                    }
+                    // Press Enter OR click the + button OR blur the input — all three add.
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        addArrayItem(section.key, (e.target as any).value);
-                        (e.target as any).value = ""
+                      if (e.key === "Enter") {
+                        e.preventDefault()
+                        flushPendingChip(section.key)
                       }
                     }}
+                    onBlur={() => flushPendingChip(section.key)}
+                    placeholder="Type and press Enter (or click +)..."
+                    className={inputClass}
                   />
+                  <button
+                    type="button"
+                    onClick={() => flushPendingChip(section.key)}
+                    className="shrink-0 px-4 rounded-xl border border-[var(--border)] text-[var(--fg-secondary)] hover:border-[var(--border-hover)] hover:text-[var(--fg)] transition-colors flex items-center"
+                    aria-label={`Add ${section.label}`}
+                  >
+                    <Plus size={16} />
+                  </button>
                 </div>
               </div>
             ))}

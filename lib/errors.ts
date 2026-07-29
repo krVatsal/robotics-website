@@ -49,8 +49,23 @@ export class ConflictError extends ApiError {
   }
 }
 
+export class RateLimitError extends ApiError {
+  public readonly retryAfterSec: number
+  constructor(retryAfterSec: number, message = 'Too many requests') {
+    super(429, message)
+    this.name = 'RateLimitError'
+    this.retryAfterSec = retryAfterSec
+  }
+}
+
 
 export function handleApiError(error: unknown): NextResponse {
+  // Malformed JSON — request.json() throws SyntaxError. Without this branch it
+  // would fall through to the generic 500 handler and get logged as an unhandled
+  // error. Return a clean 400 instead.
+  if (error instanceof SyntaxError) {
+    return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 })
+  }
 
   if (error instanceof ZodError) {
     return NextResponse.json(
@@ -63,10 +78,19 @@ export function handleApiError(error: unknown): NextResponse {
   if (error instanceof ApiError) {
     const body: Record<string, unknown> = { error: error.message }
     if (error.details !== undefined) body.details = error.details
-    return NextResponse.json(body, { status: error.statusCode })
+    // 429s benefit from Retry-After — clients that respect it back off cleanly.
+    const headers: Record<string, string> = {}
+    if (error instanceof RateLimitError) {
+      headers['Retry-After'] = String(error.retryAfterSec)
+    }
+    return NextResponse.json(body, { status: error.statusCode, headers })
   }
 
-
+  // Hook point: if Sentry (or another APM) is wired up, capture the exception
+  // HERE. Keep it optional — the hook fires only if SENTRY_DSN is configured.
+  // The dep isn't installed by default (avoids a chunky bundle just for the hook).
+  //
+  //   if (env.SENTRY_DSN) Sentry.captureException(error)
   log.error('unhandled api error', error)
   return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
 }

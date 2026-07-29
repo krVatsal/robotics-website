@@ -13,10 +13,13 @@ export async function GET() {
     const participations = await db
       .collection('teams')
       .aggregate([
+        // Same $toObjectId guard used in lib/models/team.ts — supports legacy
+        // team docs where competitionId was accidentally stored as a string.
+        { $addFields: { competitionIdObj: { $toObjectId: '$competitionId' } } },
         {
           $lookup: {
             from: 'competitions',
-            localField: 'competitionId',
+            localField: 'competitionIdObj',
             foreignField: '_id',
             as: 'competition',
           },

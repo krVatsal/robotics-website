@@ -36,6 +36,24 @@ export const SigninSchema = z.object({
 })
 export type SigninInput = z.infer<typeof SigninSchema>
 
+/**
+ * Codename format: 3-20 chars, alphanumeric + underscore. No leading digit.
+ * Stored lowercase for case-insensitive uniqueness — display can be Title Case
+ * on the frontend if we ever care.
+ */
+export const CodenameSchema = z
+  .string()
+  .min(3, 'Codename must be at least 3 characters')
+  .max(20, 'Codename can be at most 20 characters')
+  .regex(
+    /^[a-zA-Z][a-zA-Z0-9_]*$/,
+    'Codename must start with a letter and contain only letters, digits, or underscore',
+  )
+  .transform((s) => s.toLowerCase())
+
+export const SetCodenameSchema = z.object({ codename: CodenameSchema })
+export type SetCodenameInput = z.infer<typeof SetCodenameSchema>
+
 export const UpdateUserSchema = z
   .object({
     name: z.string().min(1).max(100).trim().optional(),
@@ -109,20 +127,99 @@ export const ProjectPatchActionSchema = z.object({
 // EVENT
 // ────────────────────────────────────────────────────────────
 
-export const CreateEventSchema = z.object({
-  name: z.string().min(1).max(200).trim(),
-  year: z.number().int().min(2000).max(2100),
-  theme: z.string().max(200).default(''),
-  tagline: z.string().max(300).default(''),
-  description: z.string().max(5000).default(''),
-  date: z.string().min(1).max(100),
-  location: z.string().max(200).default(''),
-  participantsLabel: z.string().max(100).default(''),
-  highlights: z.array(z.string().max(200)).max(20).default([]),
-})
+/**
+ * Client sends YYYY-MM-DD from an <input type="date">. We format a display
+ * string like "OCT 24-26, 2026" for the UI and derive the year on the backend
+ * so the frontend doesn't need to know either detail.
+ *
+ * Handles three cases:
+ *   - same month + year:     "OCT 24-26, 2026"
+ *   - same day:              "OCT 24, 2026"
+ *   - crosses month or year: "OCT 30 - NOV 2, 2026"
+ */
+function formatEventDate(startISO: string, endISO: string): string {
+  const s = new Date(startISO)
+  const e = new Date(endISO)
+  const monthS = s.toLocaleString('en-US', { month: 'short' }).toUpperCase()
+  const monthE = e.toLocaleString('en-US', { month: 'short' }).toUpperCase()
+  const dS = s.getDate()
+  const dE = e.getDate()
+  const yS = s.getFullYear()
+  const yE = e.getFullYear()
+
+  if (yS === yE && s.getMonth() === e.getMonth()) {
+    if (dS === dE) return `${monthS} ${dS}, ${yS}`
+    return `${monthS} ${dS}-${dE}, ${yS}`
+  }
+  if (yS === yE) return `${monthS} ${dS} - ${monthE} ${dE}, ${yS}`
+  return `${monthS} ${dS}, ${yS} - ${monthE} ${dE}, ${yE}`
+}
+
+/** Accepts an <input type="date"> value: "YYYY-MM-DD". */
+const ISODateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be a valid date (YYYY-MM-DD)')
+
+export const CreateEventSchema = z
+  .object({
+    name: z.string().min(1).max(200).trim(),
+    startDate: ISODateSchema,
+    endDate: ISODateSchema,
+    theme: z.string().max(200).default(''),
+    tagline: z.string().max(300).default(''),
+    description: z.string().max(5000).default(''),
+    location: z.string().max(200).default(''),
+    participantsLabel: z.string().max(100).default(''),
+    highlights: z.array(z.string().max(200)).max(20).default([]),
+  })
+  .refine((d) => new Date(d.endDate) >= new Date(d.startDate), {
+    message: 'End date must be on or after start date',
+    path: ['endDate'],
+  })
+  // Derive year + display date server-side so the frontend can stop sending
+  // them. The DB doc keeps all four (startDate, endDate, year, date) for
+  // easy querying + display.
+  .transform((d) => ({
+    ...d,
+    year: new Date(d.startDate).getFullYear(),
+    date: formatEventDate(d.startDate, d.endDate),
+  }))
 export type CreateEventInput = z.infer<typeof CreateEventSchema>
 
-export const UpdateEventSchema = CreateEventSchema.partial().strict()
+// Update: partial version. If BOTH dates are provided, still enforce ordering
+// and re-derive year + date. Anything else is a plain field patch.
+export const UpdateEventSchema = z
+  .object({
+    name: z.string().min(1).max(200).trim().optional(),
+    startDate: ISODateSchema.optional(),
+    endDate: ISODateSchema.optional(),
+    theme: z.string().max(200).optional(),
+    tagline: z.string().max(300).optional(),
+    description: z.string().max(5000).optional(),
+    location: z.string().max(200).optional(),
+    participantsLabel: z.string().max(100).optional(),
+    highlights: z.array(z.string().max(200)).max(20).optional(),
+  })
+  .strict()
+  .refine(
+    (d) =>
+      !(d.startDate && d.endDate) ||
+      new Date(d.endDate) >= new Date(d.startDate),
+    {
+      message: 'End date must be on or after start date',
+      path: ['endDate'],
+    },
+  )
+  .transform((d) => {
+    if (d.startDate && d.endDate) {
+      return {
+        ...d,
+        year: new Date(d.startDate).getFullYear(),
+        date: formatEventDate(d.startDate, d.endDate),
+      }
+    }
+    return d
+  })
 export type UpdateEventInput = z.infer<typeof UpdateEventSchema>
 
 // ────────────────────────────────────────────────────────────
@@ -158,7 +255,81 @@ export const UpdateCompetitionSchema = z
     registrationOpen: z.boolean().optional(),
   })
   .strict()
+  // If BOTH sizes are provided in an update, enforce max >= min. If only one
+  // is provided we can't validate against the existing doc here (would need
+  // a DB read); good enough for MVP.
+  .refine(
+    (d) =>
+      d.minTeamSize === undefined ||
+      d.maxTeamSize === undefined ||
+      d.maxTeamSize >= d.minTeamSize,
+    { message: 'maxTeamSize must be >= minTeamSize', path: ['maxTeamSize'] },
+  )
 export type UpdateCompetitionInput = z.infer<typeof UpdateCompetitionSchema>
+
+// ────────────────────────────────────────────────────────────
+// ADMIN — TEAM APPROVAL
+// ────────────────────────────────────────────────────────────
+
+/** Body for POST /api/admin/teams/[id]/reject — optional reason string. */
+export const RejectTeamSchema = z
+  .object({
+    reason: z.string().max(500).optional(),
+  })
+  .strict()
+export type RejectTeamInput = z.infer<typeof RejectTeamSchema>
+
+/** Query param helper for GET /api/admin/teams?status=... */
+export const TeamStatusQuery = z.enum(['draft', 'submitted', 'approved', 'rejected'])
+
+/** Body for POST /api/teams/[id]/transfer-leadership */
+export const TransferLeadershipSchema = z.object({
+  newLeaderId: ObjectIdSchema,
+})
+export type TransferLeadershipInput = z.infer<typeof TransferLeadershipSchema>
+
+/** Body for POST /api/auth/forgot-password — just email. */
+export const ForgotPasswordSchema = z.object({
+  email: z.string().email().max(200).toLowerCase().trim(),
+})
+export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>
+
+/** Body for POST /api/auth/reset-password — token + new password. */
+export const ResetPasswordSchema = z.object({
+  token: z.string().min(32).max(200),
+  password: z.string().min(8, 'Password must be at least 8 characters').max(100),
+})
+export type ResetPasswordInput = z.infer<typeof ResetPasswordSchema>
+
+// ────────────────────────────────────────────────────────────
+// PROJECT ↔ TEAM ASSIGNMENT
+// ────────────────────────────────────────────────────────────
+
+export const AssignTeamToProjectSchema = z.object({
+  teamId: ObjectIdSchema,
+})
+export type AssignTeamToProjectInput = z.infer<typeof AssignTeamToProjectSchema>
+
+// ────────────────────────────────────────────────────────────
+// INVITATIONS
+// ────────────────────────────────────────────────────────────
+
+/**
+ * Body for POST /api/teams/[id]/invitations.
+ * Accepts EITHER `{ invitedUser: <userId> }` OR `{ email: "..." }` — the route
+ * resolves email → userId via a users-collection lookup.
+ * Callers who don't know the user's ObjectId (99% of real UX) can just pass email.
+ */
+export const SendInvitationSchema = z.union([
+  z.object({ invitedUser: ObjectIdSchema }),
+  z.object({
+    email: z.string().email().max(200).toLowerCase().trim(),
+  }),
+  z.object({
+    codename: CodenameSchema, // lowercased by the schema
+  }),
+])
+export type SendInvitationInput = z.infer<typeof SendInvitationSchema>
 
 // ────────────────────────────────────────────────────────────
 // PARTICIPATE (team create/join)

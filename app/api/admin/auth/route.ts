@@ -4,9 +4,12 @@ import jwt from 'jsonwebtoken'
 import { env } from '@/lib/env'
 import { AdminAuthSchema } from '@/lib/validation'
 import { AuthError, handleApiError } from '@/lib/errors'
+import { adminAuthLimiter, clientIp, enforceLimit } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
   try {
+    // Brute-force protection — the admin password is a single shared secret.
+    await enforceLimit(adminAuthLimiter(), clientIp(request))
     const { password } = AdminAuthSchema.parse(await request.json())
 
     // Constant-time-ish compare would be ideal here; strings are short enough

@@ -3,6 +3,7 @@ import { getUserById, updateUser } from '@/lib/models/user'
 import { requireSelfOrAdmin } from '@/lib/auth-guard'
 import { ObjectIdSchema, UpdateUserSchema } from '@/lib/validation'
 import { NotFoundError, handleApiError } from '@/lib/errors'
+import { cacheDel, cacheKeys } from '@/lib/redis'
 
 // Next.js 15/16: params is a Promise. The old signature (`{ id: string }`)
 // would blow up at runtime — this file had the bug and is fixed here.
@@ -50,6 +51,11 @@ export async function PUT(request: NextRequest, { params }: Props) {
     const updates = UpdateUserSchema.parse(await request.json())
     const user = await updateUser(id, updates)
     if (!user) throw new NotFoundError('User not found')
+
+    // Bust the cached user doc so /api/auth/me returns fresh data on the very
+    // next call. Fire-and-forget — don't block the response.
+    void cacheDel(cacheKeys.user(id))
+
     return NextResponse.json(publicUser(user))
   } catch (error) {
     return handleApiError(error)

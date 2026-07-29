@@ -26,7 +26,22 @@ const EnvSchema = z.object({
   CLOUDINARY_API_SECRET: z.string().min(1, 'CLOUDINARY_API_SECRET is required'),
   CLOUDINARY_UPLOAD_PRESET: z.string().min(1, 'CLOUDINARY_UPLOAD_PRESET is required'),
 
-  
+
+  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().min(1).optional(),
+
+
+  RESEND_API_KEY: z.string().min(1).optional(),
+  EMAIL_FROM: z.string().email().optional(),
+
+  APP_URL: z.string().url().default('http://localhost:3000'),
+
+  SENTRY_DSN: z.string().url().optional(),
+
+
+  GOOGLE_CLIENT_ID: z.string().min(1).optional(),
+  GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
+
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 })
 
