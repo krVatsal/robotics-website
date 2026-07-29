@@ -8,9 +8,13 @@ export async function GET(
   { params }: { params: Promise<{ sectionId: string }> }
 ) {
   const { sectionId } = await params
-  const section = await getSectionContent(sectionId)
-  if (!section) return NextResponse.json({ error: 'Section not found' }, { status: 404 })
-  return NextResponse.json(section)
+  try {
+    const section = await getSectionContent(sectionId)
+    if (!section) return NextResponse.json({ error: 'Section not found' }, { status: 404 })
+    return NextResponse.json(section)
+  } catch {
+    return NextResponse.json({ error: 'Service unavailable' }, { status: 503 })
+  }
 }
 
 export async function PUT(

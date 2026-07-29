@@ -31,13 +31,17 @@ export default function BentoProjects() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetch("/api/projects")
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 4000)
+    fetch("/api/projects", { signal: controller.signal })
       .then(res => res.json())
       .then(data => {
         setProjects(Array.isArray(data) ? data : data.projects ?? [])
         setIsLoading(false)
       })
       .catch(() => setIsLoading(false))
+      .finally(() => clearTimeout(timeout))
+    return () => { controller.abort(); clearTimeout(timeout) }
   }, [])
 
   const categories = ["All", ...Array.from(new Set(projects.map(p => p.category).filter(Boolean)))]

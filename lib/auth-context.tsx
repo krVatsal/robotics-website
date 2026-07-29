@@ -52,23 +52,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // 1. Check for valid session on initial load
   useEffect(() => {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 4000)
     const checkAuth = async () => {
       try {
-        const res = await fetch("/api/auth/me")
+        const res = await fetch("/api/auth/me", { signal: controller.signal })
         if (res.ok) {
           const userData = await res.json()
           setUser(userData)
         } else {
           setUser(null)
         }
-      } catch (error) {
-        console.error("Session check failed", error)
+      } catch {
         setUser(null)
       } finally {
         setIsLoading(false)
+        clearTimeout(timeout)
       }
     }
     checkAuth()
+    return () => { controller.abort(); clearTimeout(timeout) }
   }, [])
 
   // Codename gate — if the user is signed in but hasn't picked a codename,

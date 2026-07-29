@@ -31,8 +31,8 @@ const options: MongoClientOptions = {
   maxPoolSize: 20,
   minPoolSize: 2,
   // Fail fast on flaky networks rather than hanging the request.
-  serverSelectionTimeoutMS: 5_000,
-  connectTimeoutMS: 10_000,
+  serverSelectionTimeoutMS: 3_000,
+  connectTimeoutMS: 5_000,
   socketTimeoutMS: 45_000,
   retryWrites: true,
 }

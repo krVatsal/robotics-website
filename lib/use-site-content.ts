@@ -21,25 +21,30 @@ export function useSiteContent<T = Record<string, any>>(sectionId: string, fallb
       return
     }
 
-    let cancelled = false
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 4000)
 
-    fetch(`/api/site-content/${sectionId}`)
+    fetch(`/api/site-content/${sectionId}`, { signal: controller.signal })
       .then(res => {
         if (!res.ok) throw new Error('Not found')
         return res.json()
       })
       .then(data => {
-        if (cancelled) return
+        if (controller.signal.aborted) return
         cache.set(sectionId, { content: data.content, ts: Date.now() })
         setContent(data.content as T)
         setIsLoading(false)
       })
       .catch(() => {
-        if (cancelled) return
+        if (controller.signal.aborted) return
         setIsLoading(false)
       })
+      .finally(() => clearTimeout(timeout))
 
-    return () => { cancelled = true }
+    return () => {
+      controller.abort()
+      clearTimeout(timeout)
+    }
   }, [sectionId])
 
   return { content, isLoading }
