@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { motion, AnimatePresence } from "framer-motion"
@@ -45,7 +46,7 @@ export default function ProjectsPage() {
       </section>
 
       {/* Category filters */}
-      <section className="sticky top-0 z-40 py-4 px-6 lg:px-8 backdrop-blur-xl bg-[var(--bg)]/80 border-b border-[var(--border)]">
+      <section className="sticky top-[68px] z-40 py-4 px-6 lg:px-8 backdrop-blur-xl bg-[var(--bg)]/80 border-b border-[var(--border)]">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex flex-wrap gap-2">
             {categories.map(cat => (
@@ -91,10 +92,11 @@ export default function ProjectsPage() {
                       <div className="group h-full rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] overflow-hidden hover:border-[var(--border-hover)] transition-all">
                         <div className="relative h-52 overflow-hidden bg-[var(--bg-tertiary)]">
                           {project.image ? (
-                            <img
+                            <Image
                               src={project.image}
                               alt={project.title}
-                              className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                              fill
+                              className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-[var(--fg-tertiary)] text-sm">No image</div>

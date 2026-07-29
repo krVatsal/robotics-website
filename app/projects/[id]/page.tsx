@@ -7,6 +7,7 @@ import { motion } from "framer-motion"
 import ReactMarkdown from "react-markdown"
 import { Github, ExternalLink, Users, Zap, Loader2, ArrowLeft, Calendar, Cpu, Shield, FileText } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 interface Project {
   _id: string
@@ -73,7 +74,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
       <section className="relative h-[50vh] min-h-[400px] w-full overflow-hidden">
         <div className="absolute inset-0 bg-[var(--bg-tertiary)]">
           {project.image && (
-            <img src={project.image} alt={project.title} className="w-full h-full object-cover opacity-60" />
+            <Image src={project.image} alt={project.title} fill className="object-cover opacity-60" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg)] via-[var(--bg)]/60 to-transparent" />
         </div>

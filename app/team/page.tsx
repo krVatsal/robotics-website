@@ -163,7 +163,7 @@ export default function TeamPage() {
             <h2 className="font-display text-3xl md:text-4xl font-bold text-[var(--fg)] tracking-tight mb-12">Technical Verticals</h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {verticals.map((v, i) => (
               <motion.div
                 key={i}

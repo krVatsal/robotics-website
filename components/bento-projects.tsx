@@ -47,7 +47,7 @@ export default function BentoProjects() {
     return (
       <section id="projects" className="py-24 lg:py-32 px-6 lg:px-8 scroll-mt-20">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 auto-rows-[200px]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[200px]">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className={`rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border)] animate-pulse ${spanPatterns[i] || ""}`} />
             ))}

@@ -52,8 +52,12 @@ export default function AdminParticipationsPage() {
             new Date(t.createdAt).toLocaleDateString()
         ])
 
+        const escapeCSV = (val: any) => {
+            const s = String(val ?? "")
+            return s.includes(",") || s.includes('"') || s.includes("\n") ? `"${s.replace(/"/g, '""')}"` : s
+        }
         const csvContent = "data:text/csv;charset=utf-8,"
-            + [headers.join(","), ...rows.map(e => e.join(","))].join("\n")
+            + [headers.join(","), ...rows.map(e => e.map(escapeCSV).join(","))].join("\n")
 
         const encodedUri = encodeURI(csvContent)
         const link = document.createElement("a")

@@ -147,8 +147,8 @@ function AssemblyTimeline() {
             </div>
           </motion.div>
 
-          {/* Stage rows */}
-          <div className="space-y-16 md:space-y-24">
+          {/* Stage rows — mobile: single column, sm+: alternating */}
+          <div className="space-y-8 sm:space-y-16 md:space-y-24">
             {stages.map((stage, idx) => {
               const isEven = idx % 2 === 0
               return (
@@ -158,55 +158,25 @@ function AssemblyTimeline() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
                   viewport={{ once: true, margin: "-100px" }}
-                  className="relative grid grid-cols-[1fr_40px_1fr] md:grid-cols-[1fr_60px_1fr] items-start gap-4 md:gap-6"
                 >
-                  {/* Dot on the line */}
-                  <div className="col-start-2 row-start-1 flex justify-center pt-2">
-                    <div className={`w-3 h-3 rounded-full border-2 transition-colors duration-500 ${
-                      idx <= activeIndex
-                        ? "bg-[var(--fg)] border-[var(--fg)]"
-                        : "bg-[var(--bg)] border-[var(--fg-tertiary)]/40"
-                    }`} />
-                  </div>
-
-                  {/* Left column */}
-                  <div className={`col-start-1 row-start-1 ${isEven ? "text-right" : "text-right md:text-right"}`}>
-                    {isEven ? (
-                      // Date + month on left
-                      <div className="flex flex-col items-end pt-0.5">
+                  {/* Mobile layout */}
+                  <div className="sm:hidden grid grid-cols-[24px_1fr] gap-3 items-start">
+                    <div className="flex justify-center pt-2">
+                      <div className={`w-3 h-3 rounded-full border-2 transition-colors duration-500 ${
+                        idx <= activeIndex
+                          ? "bg-[var(--fg)] border-[var(--fg)]"
+                          : "bg-[var(--bg)] border-[var(--fg-tertiary)]/40"
+                      }`} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
                         <span className="text-xs font-semibold text-[var(--fg)] uppercase tracking-widest">{stage.date}</span>
-                        <span className="text-[10px] text-[var(--fg-tertiary)] uppercase tracking-wider mt-0.5">
-                          Stage {idx + 1}
-                        </span>
+                        <span className="text-[10px] text-[var(--fg-tertiary)] uppercase tracking-wider">Stage {idx + 1}</span>
                       </div>
-                    ) : (
-                      // Work description on left
-                      <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-5 hover:border-[var(--border-hover)] transition-colors">
-                        <h3 className="font-display text-lg font-semibold text-[var(--fg)] mb-2 text-left">{stage.title}</h3>
-                        <p className="text-sm text-[var(--fg-secondary)] leading-relaxed text-left">{stage.description}</p>
-                        {/* Contributor */}
-                        <div className="flex items-center gap-3 mt-4 pt-3 border-t border-[var(--border)]">
-                          <div className="w-7 h-7 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center text-[10px] font-semibold text-[var(--fg-secondary)] shrink-0">
-                            {stage.contributor.name.split(" ").map(n => n[0]).join("")}
-                          </div>
-                          <div className="text-left">
-                            <p className="text-xs font-medium text-[var(--fg)]">{stage.contributor.name}</p>
-                            <p className="text-[10px] text-[var(--fg-tertiary)]">{stage.contributor.role}</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right column */}
-                  <div className={`col-start-3 row-start-1 ${isEven ? "" : ""}`}>
-                    {isEven ? (
-                      // Work description on right
-                      <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-5 hover:border-[var(--border-hover)] transition-colors">
-                        <h3 className="font-display text-lg font-semibold text-[var(--fg)] mb-2">{stage.title}</h3>
+                      <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-4 hover:border-[var(--border-hover)] transition-colors">
+                        <h3 className="font-display text-base font-semibold text-[var(--fg)] mb-1.5">{stage.title}</h3>
                         <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">{stage.description}</p>
-                        {/* Contributor */}
-                        <div className="flex items-center gap-3 mt-4 pt-3 border-t border-[var(--border)]">
+                        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[var(--border)]">
                           <div className="w-7 h-7 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center text-[10px] font-semibold text-[var(--fg-secondary)] shrink-0">
                             {stage.contributor.name.split(" ").map(n => n[0]).join("")}
                           </div>
@@ -216,15 +186,62 @@ function AssemblyTimeline() {
                           </div>
                         </div>
                       </div>
-                    ) : (
-                      // Date + month on right
-                      <div className="flex flex-col items-start pt-0.5">
-                        <span className="text-xs font-semibold text-[var(--fg)] uppercase tracking-widest">{stage.date}</span>
-                        <span className="text-[10px] text-[var(--fg-tertiary)] uppercase tracking-wider mt-0.5">
-                          Stage {idx + 1}
-                        </span>
-                      </div>
-                    )}
+                    </div>
+                  </div>
+
+                  {/* Desktop alternating layout */}
+                  <div className="hidden sm:grid grid-cols-[1fr_40px_1fr] md:grid-cols-[1fr_60px_1fr] items-start gap-4 md:gap-6">
+                    <div className="col-start-2 row-start-1 flex justify-center pt-2">
+                      <div className={`w-3 h-3 rounded-full border-2 transition-colors duration-500 ${
+                        idx <= activeIndex
+                          ? "bg-[var(--fg)] border-[var(--fg)]"
+                          : "bg-[var(--bg)] border-[var(--fg-tertiary)]/40"
+                      }`} />
+                    </div>
+                    <div className={`col-start-1 row-start-1 ${isEven ? "text-right" : "text-right"}`}>
+                      {isEven ? (
+                        <div className="flex flex-col items-end pt-0.5">
+                          <span className="text-xs font-semibold text-[var(--fg)] uppercase tracking-widest">{stage.date}</span>
+                          <span className="text-[10px] text-[var(--fg-tertiary)] uppercase tracking-wider mt-0.5">Stage {idx + 1}</span>
+                        </div>
+                      ) : (
+                        <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-5 hover:border-[var(--border-hover)] transition-colors">
+                          <h3 className="font-display text-lg font-semibold text-[var(--fg)] mb-2 text-left">{stage.title}</h3>
+                          <p className="text-sm text-[var(--fg-secondary)] leading-relaxed text-left">{stage.description}</p>
+                          <div className="flex items-center gap-3 mt-4 pt-3 border-t border-[var(--border)]">
+                            <div className="w-7 h-7 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center text-[10px] font-semibold text-[var(--fg-secondary)] shrink-0">
+                              {stage.contributor.name.split(" ").map(n => n[0]).join("")}
+                            </div>
+                            <div className="text-left">
+                              <p className="text-xs font-medium text-[var(--fg)]">{stage.contributor.name}</p>
+                              <p className="text-[10px] text-[var(--fg-tertiary)]">{stage.contributor.role}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="col-start-3 row-start-1">
+                      {isEven ? (
+                        <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-secondary)] p-5 hover:border-[var(--border-hover)] transition-colors">
+                          <h3 className="font-display text-lg font-semibold text-[var(--fg)] mb-2">{stage.title}</h3>
+                          <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">{stage.description}</p>
+                          <div className="flex items-center gap-3 mt-4 pt-3 border-t border-[var(--border)]">
+                            <div className="w-7 h-7 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center text-[10px] font-semibold text-[var(--fg-secondary)] shrink-0">
+                              {stage.contributor.name.split(" ").map(n => n[0]).join("")}
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium text-[var(--fg)]">{stage.contributor.name}</p>
+                              <p className="text-[10px] text-[var(--fg-tertiary)]">{stage.contributor.role}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-start pt-0.5">
+                          <span className="text-xs font-semibold text-[var(--fg)] uppercase tracking-widest">{stage.date}</span>
+                          <span className="text-[10px] text-[var(--fg-tertiary)] uppercase tracking-wider mt-0.5">Stage {idx + 1}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               )

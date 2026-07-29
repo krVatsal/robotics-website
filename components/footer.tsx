@@ -30,7 +30,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-[var(--border)] bg-[var(--bg)]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
-        <div className="grid md:grid-cols-3 gap-12">
+        <div className="grid md:grid-cols-3 gap-8 md:gap-12">
           <div className="md:col-span-1">
             <p className="font-display font-bold text-lg text-[var(--fg)] mb-3">{data.brandName}</p>
             <p className="text-sm text-[var(--fg-secondary)] leading-relaxed mb-6">{data.brandDescription}</p>
