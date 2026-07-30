@@ -31,3 +31,6 @@ next-env.d.ts
 
 __pycache__/
 *.pyc
+
+# Design assets (PDFs, etc.)
+/design/

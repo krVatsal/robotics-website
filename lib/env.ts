@@ -34,7 +34,7 @@ const EnvSchema = z.object({
   RESEND_API_KEY: z.string().min(1).optional(),
   EMAIL_FROM: z.string().email().optional(),
 
-  APP_URL: z.string().url().default('http://localhost:3000'),
+  APP_URL: z.string().url().default('https://robotics-website-smoky.vercel.app'),
 
   SENTRY_DSN: z.string().url().optional(),
 

@@ -1,6 +1,7 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { useRef, useState } from "react"
+import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { ArrowRight, Cpu, Eye, Cog, Wifi, Gauge, Code2, Users, GraduationCap } from "lucide-react"
@@ -82,8 +83,23 @@ const gallery = [
 ]
 
 function ProjectTimeline() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  })
+
+  const [activeIndex, setActiveIndex] = useState(0)
+  const trackHeight = useTransform(scrollYProgress, [0.1, 0.9], ["0%", "100%"])
+
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    const clamped = Math.max(0, Math.min(1, (v - 0.1) / 0.8))
+    const idx = Math.min(timeline.length - 1, Math.floor(clamped * timeline.length))
+    setActiveIndex(idx)
+  })
+
   return (
-    <section className="py-24 lg:py-32 px-6 border-t border-[var(--border)]">
+    <section ref={containerRef} className="py-24 lg:py-32 px-6 border-t border-[var(--border)]">
       <div className="max-w-[1200px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -102,9 +118,13 @@ function ProjectTimeline() {
 
         <div className="relative">
           {/* Center track line — desktop */}
-          <div className="hidden sm:block absolute left-1/2 top-0 bottom-0 w-px bg-[var(--border)] -translate-x-1/2" />
+          <div className="hidden sm:block absolute left-1/2 top-0 bottom-0 w-px bg-[var(--border)] -translate-x-1/2">
+            <motion.div className="w-full bg-[var(--accent)] origin-top" style={{ height: trackHeight }} />
+          </div>
           {/* Left track line — mobile */}
-          <div className="sm:hidden absolute left-3 top-0 bottom-0 w-px bg-[var(--border)]" />
+          <div className="sm:hidden absolute left-3 top-0 bottom-0 w-px bg-[var(--border)]">
+            <motion.div className="w-full bg-[var(--accent)] origin-top" style={{ height: trackHeight }} />
+          </div>
 
           <div className="space-y-8 sm:space-y-16 md:space-y-24">
             {timeline.map((item, idx) => {
@@ -120,7 +140,11 @@ function ProjectTimeline() {
                   {/* Mobile layout — left-aligned */}
                   <div className="sm:hidden grid grid-cols-[24px_1fr] gap-3 items-start">
                     <div className="flex justify-center pt-2">
-                      <div className="w-3 h-3 border-2 bg-[var(--accent)] border-[var(--accent)]" />
+                      <div className={`w-3 h-3 border-2 transition-colors duration-500 ${
+                        idx <= activeIndex
+                          ? "bg-[var(--accent)] border-[var(--accent)]"
+                          : "bg-[var(--bg)] border-[var(--fg-tertiary)]/40"
+                      }`} />
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-2">
@@ -137,7 +161,11 @@ function ProjectTimeline() {
                   {/* Desktop alternating layout — center line */}
                   <div className="hidden sm:grid grid-cols-[1fr_40px_1fr] md:grid-cols-[1fr_60px_1fr] items-start gap-4 md:gap-6">
                     <div className="col-start-2 row-start-1 flex justify-center pt-2">
-                      <div className="w-3 h-3 border-2 bg-[var(--accent)] border-[var(--accent)]" />
+                      <div className={`w-3 h-3 border-2 transition-colors duration-500 ${
+                        idx <= activeIndex
+                          ? "bg-[var(--accent)] border-[var(--accent)]"
+                          : "bg-[var(--bg)] border-[var(--fg-tertiary)]/40"
+                      }`} />
                     </div>
                     <div className="col-start-1 row-start-1 text-right">
                       {isEven ? (
