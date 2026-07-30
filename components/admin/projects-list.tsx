@@ -18,7 +18,7 @@ export function ProjectsList({ onProjectDeleted }: { onProjectDeleted: () => voi
     try {
       const response = await fetch("/api/projects")
       const data = await response.json()
-      setProjects(Array.isArray(data) ? data : [])
+      setProjects(data?.projects ?? (Array.isArray(data) ? data : []))
     } catch (err) {
       console.error("Failed to fetch projects", err)
     } finally {

@@ -23,7 +23,7 @@ declare global {
   var __mongoClientPromise: Promise<MongoClient> | undefined
 }
 
-const DB_NAME = 'robotics_club'
+const DB_NAME = 'robotics-club'
 
 const options: MongoClientOptions = {
   // Pool sizing: enough for burst traffic, not so many that we exhaust Atlas

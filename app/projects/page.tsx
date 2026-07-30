@@ -17,9 +17,12 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch("/api/projects?published=true")
+    fetch("/api/projects?published=true&limit=100")
       .then(res => res.json())
-      .then(data => setProjects(Array.isArray(data) ? data : []))
+      .then(data => {
+        const list = data?.projects ?? (Array.isArray(data) ? data : [])
+        setProjects(list)
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])

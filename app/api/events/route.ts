@@ -5,13 +5,15 @@ import { requireAdmin } from '@/lib/auth-guard'
 import { CreateEventSchema } from '@/lib/validation'
 import { handleApiError } from '@/lib/errors'
 
-// Events change rarely — long-ish revalidate is fine. Writes below bust it.
 export const revalidate = 300
 
 export async function GET() {
   try {
     const events = await getAllEvents()
-    return NextResponse.json(events)
+
+    const res = NextResponse.json(events)
+    res.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600')
+    return res
   } catch (error) {
     return handleApiError(error)
   }
