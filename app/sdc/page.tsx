@@ -5,7 +5,7 @@ import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-mot
 import { useState } from "react"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import { ArrowRight, Cpu, Eye, Cog, Wifi, Gauge, Code2, Users } from "lucide-react"
+import { ArrowRight, Cpu, Eye, Cog, Wifi, Gauge, Code2, Users, GraduationCap } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -20,68 +20,70 @@ const specs = [
   { label: "Top Speed", value: "25 km/h (governed)", icon: Gauge },
 ]
 
-const stages = [
+const timeline = [
   {
-    image: "/sdc-stages/stage-1.png",
-    title: "Bare Chassis",
-    date: "Jan 2023",
-    description: "Bare unibody frame — aluminium extrusion chassis with mounting rails for drivetrain and electronics bays.",
-    contributor: { name: "Rohan Gupta", role: "Mechanical Design" },
+    year: 2020,
+    head: "Gaurav Bansal",
+    batch: "Batch 2020",
+    description: "Kickstarted the Self-Driving Car Project by introducing it to the Robotics Club and beginning initial development.",
   },
   {
-    image: "/sdc-stages/stage-2.png",
-    title: "Drivetrain & Suspension",
-    date: "Apr 2023",
-    description: "Ackermann steering geometry integrated. Brushless hub motors, suspension arms, and battery tray mounted.",
-    contributor: { name: "Rohan Gupta", role: "Mechanical Design" },
+    year: 2021,
+    head: "Bhuvan Jhamb",
+    batch: "Batch 2021",
+    description: "Initial simulation of autonomous stack in CARLA simulator and roadmap defined for the project.",
   },
   {
-    image: "/sdc-stages/stage-3.png",
-    title: "Electronics Bay",
-    date: "Aug 2023",
-    description: "Jetson compute stack, CAN bus harness, power distribution board, and safety relay system installed.",
-    contributor: { name: "Sneha Verma", role: "Electronics & Embedded" },
+    year: 2022,
+    head: "Ashutosh Kumar",
+    batch: "Batch 2022",
+    description: "Developed and tested the prototype with the control system successfully established.",
   },
   {
-    image: "/sdc-stages/stage-4.png",
-    title: "Sensor Integration",
-    date: "Dec 2023",
-    description: "LiDAR, stereo cameras, IMU, and GPS modules mounted. Sensor fusion pipeline operational with EKF.",
-    contributor: { name: "Priya Sharma", role: "Perception Engineer" },
+    year: 2023,
+    head: "Amit Gupta",
+    batch: "Batch 2023",
+    description: "Work on automation of braking, throttle and lane detection algorithms continued.",
   },
   {
-    image: "/sdc-stages/stage-5.png",
-    title: "Body Panels",
-    date: "Mar 2024",
-    description: "Carbon-fibre composite body panels fitted. Aerodynamic profile finalised. Interior dashboard with telemetry display.",
-    contributor: { name: "Aarav Mehta", role: "Team Lead" },
+    year: 2024,
+    head: "Ayush Singh Gour",
+    batch: "Batch 2024",
+    description: "Automation of steering system completed. Mechanical work done. Kitty Dataset collection performed. Work started on odometry.",
   },
   {
-    image: "/sdc-stages/stage-6.png",
-    title: "Competition Ready",
-    date: "Jul 2024",
-    description: "Full autonomous stack deployed. Waypoint navigation, obstacle avoidance, and traffic sign recognition validated.",
-    contributor: { name: "Vikram Singh", role: "Software — Simulation" },
+    year: 2025,
+    head: "Rishi Mishra",
+    batch: "Batch 2025",
+    description: "Odometry done. Integration of road lane detection system and basic decision making system. Sensor integration. Improvement of control system.",
+  },
+  {
+    year: 2026,
+    head: "Dhruv Chandhok",
+    batch: "Batch 2026",
+    description: "Current SDC Head. Continuing the legacy of autonomous driving innovation.",
   },
 ]
 
-const team = [
-  { name: "Aarav Mehta", role: "Team Lead — Planning & Controls" },
-  { name: "Priya Sharma", role: "Perception Engineer" },
-  { name: "Rohan Gupta", role: "Mechanical Design" },
-  { name: "Sneha Verma", role: "Electronics & Embedded" },
-  { name: "Vikram Singh", role: "Software — Simulation" },
-  { name: "Ananya Rao", role: "Computer Vision" },
+const faculty = [
+  { name: "Dr. Samir Saraswati", role: "Faculty In-charge & Mentor, Associate Professor MED" },
+  { name: "Dr. Jitendra Narayan Gangwar", role: "Faculty In-charge & Mentor, Assistant Professor Grade-1" },
+]
+
+const alumniMentors = [
+  { name: "Bhuvan Jhamb", batch: "Alumni, 2020", role: "R&D Engineer, Tesla" },
+  { name: "Kishan Tiwari", batch: "Alumni, 2019", role: "Founder, TSAW Drones" },
+  { name: "Sharad Rawat", batch: "Alumni, 2016", role: "Software Engineer, Germany" },
 ]
 
 const gallery = [
-  { src: "/autonomous-self-driving-car-robot.jpg", alt: "SDC on test track", caption: "Campus test track run — March 2024" },
+  { src: "/autonomous-self-driving-car-robot.jpg", alt: "SDC on test track", caption: "Campus test track run" },
   { src: "/autonomous-line-follower-robot.jpg", alt: "Sensor array close-up", caption: "Line-following prototype — early testing" },
   { src: "/surveillance-rover-robot.jpg", alt: "Night testing", caption: "Rover platform — field trials" },
   { src: "/drone-delivery-aerial-robot.jpg", alt: "Aerial view of track", caption: "Aerial survey of the test environment" },
 ]
 
-function AssemblyTimeline() {
+function ProjectTimeline() {
   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -89,15 +91,13 @@ function AssemblyTimeline() {
   })
 
   const [activeIndex, setActiveIndex] = useState(0)
+  const trackHeight = useTransform(scrollYProgress, [0.1, 0.9], ["0%", "100%"])
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     const clamped = Math.max(0, Math.min(1, (v - 0.1) / 0.8))
-    const idx = Math.min(stages.length - 1, Math.floor(clamped * stages.length))
+    const idx = Math.min(timeline.length - 1, Math.floor(clamped * timeline.length))
     setActiveIndex(idx)
   })
-
-  const carY = useTransform(scrollYProgress, [0.1, 0.9], ["0%", "100%"])
-  const trackHeight = useTransform(scrollYProgress, [0.1, 0.9], ["0%", "100%"])
 
   return (
     <section ref={containerRef} className="py-24 lg:py-32 px-6 border-t border-[var(--border)]">
@@ -110,140 +110,51 @@ function AssemblyTimeline() {
           className="mb-20"
         >
           <p className="font-mono uppercase text-xs tracking-[0.2em] text-[var(--fg-secondary)] mb-3">
-            Build Progression
+            Project Execution
           </p>
           <h2 className="font-display uppercase text-[clamp(2.5rem,6vw,4.5rem)] text-[var(--fg)] tracking-tight leading-[0.9]">
-            From Chassis<br />To Autonomy.
+            SDC Timeline
           </h2>
         </motion.div>
 
         <div className="relative">
-          <div className="absolute left-1/2 top-0 bottom-0 w-px bg-[var(--border)] -translate-x-1/2">
+          {/* Vertical track line — left on mobile, left on all */}
+          <div className="absolute left-4 md:left-8 top-0 bottom-0 w-px bg-[var(--border)]">
             <motion.div className="w-full bg-[var(--accent)] origin-top" style={{ height: trackHeight }} />
           </div>
 
-          <motion.div
-            className="absolute left-1/2 -translate-x-1/2 z-20 pointer-events-none"
-            style={{ top: carY }}
-          >
-            <div className="relative -translate-y-1/2">
-              <div className="w-12 h-12 bg-[var(--bg)] border-2 border-[var(--fg)] flex items-center justify-center overflow-hidden">
-                <div className="relative w-9 h-9">
-                  {stages.map((stage, i) => (
-                    <Image
-                      key={i}
-                      src={stage.image}
-                      alt={stage.title}
-                      fill
-                      className={`object-contain transition-opacity duration-300 ${
-                        i === activeIndex ? "opacity-100" : "opacity-0"
-                      }`}
-                      priority={i === 0}
-                    />
-                  ))}
+          <div className="space-y-8 md:space-y-12">
+            {timeline.map((item, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1, ease }}
+                viewport={{ once: true, margin: "-80px" }}
+                className="relative grid grid-cols-[32px_1fr] md:grid-cols-[64px_1fr] gap-4 md:gap-6"
+              >
+                {/* Dot on timeline */}
+                <div className="flex justify-center pt-1">
+                  <div className={`w-3 h-3 border-2 transition-colors duration-500 z-10 ${
+                    idx <= activeIndex
+                      ? "bg-[var(--accent)] border-[var(--accent)]"
+                      : "bg-[var(--bg)] border-[var(--fg-tertiary)]/40"
+                  }`} />
                 </div>
-              </div>
-            </div>
-          </motion.div>
 
-          <div className="space-y-8 sm:space-y-16 md:space-y-24">
-            {stages.map((stage, idx) => {
-              const isEven = idx % 2 === 0
-              return (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1, ease }}
-                  viewport={{ once: true, margin: "-100px" }}
-                >
-                  {/* Mobile layout */}
-                  <div className="sm:hidden grid grid-cols-[24px_1fr] gap-3 items-start">
-                    <div className="flex justify-center pt-2">
-                      <div className={`w-3 h-3 border-2 transition-colors duration-500 ${
-                        idx <= activeIndex
-                          ? "bg-[var(--accent)] border-[var(--accent)]"
-                          : "bg-[var(--bg)] border-[var(--fg-tertiary)]/40"
-                      }`} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="font-mono uppercase text-xs tracking-[0.15em] text-[var(--fg)]">{stage.date}</span>
-                        <span className="font-mono uppercase text-[10px] tracking-[0.12em] text-[var(--fg-tertiary)]">Stage {idx + 1}</span>
-                      </div>
-                      <div className="border border-[var(--border)] bg-[var(--bg-secondary)] p-4 hover:border-[var(--accent)]/30 transition-colors">
-                        <h3 className="font-display uppercase text-base text-[var(--fg)] mb-1.5">{stage.title}</h3>
-                        <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">{stage.description}</p>
-                        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[var(--border)]">
-                          <div className="w-7 h-7 bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center font-mono text-[10px] uppercase text-[var(--fg-secondary)] shrink-0">
-                            {stage.contributor.name.split(" ").map(n => n[0]).join("")}
-                          </div>
-                          <div>
-                            <p className="text-xs font-medium text-[var(--fg)]">{stage.contributor.name}</p>
-                            <p className="font-mono uppercase text-[10px] tracking-wider text-[var(--fg-tertiary)]">{stage.contributor.role}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                {/* Content card */}
+                <div className={`border bg-[var(--bg-secondary)] p-4 md:p-6 transition-colors ${
+                  idx <= activeIndex ? "border-[var(--accent)]/30" : "border-[var(--border)]"
+                }`}>
+                  <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-2">
+                    <span className="font-display text-xl md:text-2xl text-[var(--fg)]">{item.year}</span>
+                    <span className="font-mono text-[10px] md:text-xs uppercase tracking-wider text-[var(--fg-tertiary)]">{item.batch}</span>
                   </div>
-
-                  {/* Desktop alternating layout */}
-                  <div className="hidden sm:grid grid-cols-[1fr_40px_1fr] md:grid-cols-[1fr_60px_1fr] items-start gap-4 md:gap-6">
-                    <div className="col-start-2 row-start-1 flex justify-center pt-2">
-                      <div className={`w-3 h-3 border-2 transition-colors duration-500 ${
-                        idx <= activeIndex
-                          ? "bg-[var(--accent)] border-[var(--accent)]"
-                          : "bg-[var(--bg)] border-[var(--fg-tertiary)]/40"
-                      }`} />
-                    </div>
-                    <div className={`col-start-1 row-start-1 ${isEven ? "text-right" : "text-right"}`}>
-                      {isEven ? (
-                        <div className="flex flex-col items-end pt-0.5">
-                          <span className="font-mono uppercase text-xs tracking-[0.15em] text-[var(--fg)]">{stage.date}</span>
-                          <span className="font-mono uppercase text-[10px] tracking-[0.12em] text-[var(--fg-tertiary)] mt-0.5">Stage {idx + 1}</span>
-                        </div>
-                      ) : (
-                        <div className="border border-[var(--border)] bg-[var(--bg-secondary)] p-5 hover:border-[var(--accent)]/30 transition-colors">
-                          <h3 className="font-display uppercase text-lg text-[var(--fg)] mb-2 text-left">{stage.title}</h3>
-                          <p className="text-sm text-[var(--fg-secondary)] leading-relaxed text-left">{stage.description}</p>
-                          <div className="flex items-center gap-3 mt-4 pt-3 border-t border-[var(--border)]">
-                            <div className="w-7 h-7 bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center font-mono text-[10px] uppercase text-[var(--fg-secondary)] shrink-0">
-                              {stage.contributor.name.split(" ").map(n => n[0]).join("")}
-                            </div>
-                            <div className="text-left">
-                              <p className="text-xs font-medium text-[var(--fg)]">{stage.contributor.name}</p>
-                              <p className="font-mono uppercase text-[10px] tracking-wider text-[var(--fg-tertiary)]">{stage.contributor.role}</p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className="col-start-3 row-start-1">
-                      {isEven ? (
-                        <div className="border border-[var(--border)] bg-[var(--bg-secondary)] p-5 hover:border-[var(--accent)]/30 transition-colors">
-                          <h3 className="font-display uppercase text-lg text-[var(--fg)] mb-2">{stage.title}</h3>
-                          <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">{stage.description}</p>
-                          <div className="flex items-center gap-3 mt-4 pt-3 border-t border-[var(--border)]">
-                            <div className="w-7 h-7 bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center font-mono text-[10px] uppercase text-[var(--fg-secondary)] shrink-0">
-                              {stage.contributor.name.split(" ").map(n => n[0]).join("")}
-                            </div>
-                            <div>
-                              <p className="text-xs font-medium text-[var(--fg)]">{stage.contributor.name}</p>
-                              <p className="font-mono uppercase text-[10px] tracking-wider text-[var(--fg-tertiary)]">{stage.contributor.role}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-start pt-0.5">
-                          <span className="font-mono uppercase text-xs tracking-[0.15em] text-[var(--fg)]">{stage.date}</span>
-                          <span className="font-mono uppercase text-[10px] tracking-[0.12em] text-[var(--fg-tertiary)] mt-0.5">Stage {idx + 1}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              )
-            })}
+                  <h3 className="font-display uppercase text-base md:text-lg text-[var(--fg)] mb-2">{item.head}</h3>
+                  <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">{item.description}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </div>
@@ -279,8 +190,9 @@ export default function SDCPage() {
               Self-Driving<br />Car.
             </h1>
             <p className="text-lg text-[var(--fg-secondary)] max-w-2xl leading-relaxed font-medium">
-              Our flagship autonomous vehicle project — a ground-up build combining LiDAR perception,
-              neural path planning, and custom drive-by-wire controls on a student-built chassis.
+              A Mechanical Engineering Department & Robotics Club initiative. Sponsored and initiated by
+              MNNIT Alumni Excellence (MAE) Foundation — a 1995 Batch Initiative. From a humble four-wheeled
+              prototype to a major leap in autonomous mobility.
             </p>
             <div className="flex flex-wrap gap-3 mt-10">
               <Link
@@ -341,8 +253,83 @@ export default function SDCPage() {
         </div>
       </section>
 
-      {/* Assembly Timeline */}
-      <AssemblyTimeline />
+      {/* Project Timeline */}
+      <ProjectTimeline />
+
+      {/* Faculty & Mentors */}
+      <section className="py-24 px-6 border-t border-[var(--border)]">
+        <div className="max-w-[1200px] mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ ease }}
+            className="mb-14"
+          >
+            <p className="font-mono uppercase text-xs tracking-[0.2em] text-[var(--fg-secondary)] mb-3">
+              Guidance & Mentorship
+            </p>
+            <h2 className="font-display uppercase text-[clamp(2.5rem,6vw,4.5rem)] text-[var(--fg)] tracking-tight leading-[0.9]">
+              Faculty & Alumni
+            </h2>
+          </motion.div>
+
+          {/* Faculty */}
+          <div className="mb-12">
+            <p className="font-mono uppercase text-[10px] tracking-[0.2em] text-[var(--fg-tertiary)] mb-4 flex items-center gap-2">
+              <GraduationCap className="w-3.5 h-3.5" /> Technical Guidance
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[var(--border)]">
+              {faculty.map((f, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.06, ease }}
+                  viewport={{ once: true }}
+                  className="flex items-center gap-4 p-5 bg-[var(--bg)]"
+                >
+                  <div className="w-11 h-11 bg-[var(--bg-secondary)] border border-[var(--border)] flex items-center justify-center font-mono text-xs uppercase text-[var(--fg-secondary)] shrink-0">
+                    {f.name.split(" ").filter(n => n !== "Dr.").map(n => n[0]).join("")}
+                  </div>
+                  <div>
+                    <p className="font-medium text-[var(--fg)] text-sm">{f.name}</p>
+                    <p className="font-mono uppercase text-[10px] tracking-[0.12em] text-[var(--fg-tertiary)]">{f.role}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Alumni Mentors */}
+          <div>
+            <p className="font-mono uppercase text-[10px] tracking-[0.2em] text-[var(--fg-tertiary)] mb-4 flex items-center gap-2">
+              <Users className="w-3.5 h-3.5" /> Alumni Mentors
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[var(--border)]">
+              {alumniMentors.map((m, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.06, ease }}
+                  viewport={{ once: true }}
+                  className="flex items-center gap-4 p-5 bg-[var(--bg)]"
+                >
+                  <div className="w-11 h-11 bg-[var(--bg-secondary)] border border-[var(--border)] flex items-center justify-center font-mono text-xs uppercase text-[var(--fg-secondary)] shrink-0">
+                    {m.name.split(" ").map(n => n[0]).join("")}
+                  </div>
+                  <div>
+                    <p className="font-medium text-[var(--fg)] text-sm">{m.name}</p>
+                    <p className="font-mono uppercase text-[10px] tracking-[0.12em] text-[var(--fg-tertiary)]">{m.role}</p>
+                    <p className="font-mono uppercase text-[10px] tracking-[0.12em] text-[var(--fg-tertiary)]">{m.batch}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Gallery */}
       <section className="py-24 px-6">
@@ -381,46 +368,6 @@ export default function SDCPage() {
                 <p className="absolute bottom-4 left-4 font-mono uppercase text-[11px] tracking-wider text-white opacity-0 group-hover:opacity-100 transition-opacity">
                   {img.caption}
                 </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Team */}
-      <section className="py-24 px-6 border-t border-[var(--border)]">
-        <div className="max-w-[1200px] mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ ease }}
-            className="mb-14"
-          >
-            <p className="font-mono uppercase text-xs tracking-[0.2em] text-[var(--fg-secondary)] mb-3">
-              Contributors
-            </p>
-            <h2 className="font-display uppercase text-[clamp(2.5rem,6vw,4.5rem)] text-[var(--fg)] tracking-tight leading-[0.9]">
-              The Team
-            </h2>
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-[var(--border)]">
-            {team.map((member, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.06, ease }}
-                viewport={{ once: true }}
-                className="flex items-center gap-4 p-5 bg-[var(--bg)]"
-              >
-                <div className="w-11 h-11 bg-[var(--bg-secondary)] border border-[var(--border)] flex items-center justify-center font-mono text-xs uppercase text-[var(--fg-secondary)] shrink-0">
-                  {member.name.split(" ").map(n => n[0]).join("")}
-                </div>
-                <div>
-                  <p className="font-medium text-[var(--fg)] text-sm">{member.name}</p>
-                  <p className="font-mono uppercase text-[10px] tracking-[0.12em] text-[var(--fg-tertiary)]">{member.role}</p>
-                </div>
               </motion.div>
             ))}
           </div>
