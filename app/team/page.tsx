@@ -7,53 +7,76 @@ import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 const faculty = [
-  { name: "Dr. Rajesh Kumar", role: "Faculty Advisor", dept: "Mechanical Engineering", initials: "RK" },
-  { name: "Dr. Anita Srivastava", role: "Co-Advisor", dept: "Electronics & Communication", initials: "AS" },
+  { name: "Prof. Rama Shanker Verma", role: "Director", dept: "MNNIT Allahabad", initials: "RV" },
+  { name: "Prof. Pritam Singh", role: "SAC President", dept: "MNNIT Allahabad", initials: "PS" },
+  { name: "Prof. Asim Mukharjee", role: "Faculty In-Charge", dept: "Technical Activities", initials: "AM" },
+  { name: "Prof. Anand Sharma", role: "Faculty Coordinator", dept: "Robotics Club", initials: "AS" },
+  { name: "Prof. Samir Saraswati", role: "Faculty In-Charge & Mentor", dept: "Self Driving Car · MED", initials: "SS" },
+  { name: "Prof. Jitendra Narayan Gangwar", role: "Faculty In-Charge & Mentor", dept: "Self Driving Car · Asst. Prof. Grade-1", initials: "JG" },
 ]
 
-const coordinators = [
-  { name: "Aarav Mehta", role: "President", year: "Final Year · ME", bio: "Leading the club's strategic direction and competition portfolio. 3 years in autonomous systems.", initials: "AM" },
-  { name: "Priya Sharma", role: "Vice President", year: "Final Year · ECE", bio: "Oversees all technical verticals. Built our LiDAR perception pipeline from scratch.", initials: "PS" },
-  { name: "Vikram Singh", role: "Technical Head", year: "Pre-Final · CSE", bio: "ROS 2 architect and simulation lead. Manages the software stack across all projects.", initials: "VS" },
+const coordinators25 = [
+  { name: "Anu Priya", initials: "AP" },
+  { name: "Ayush Verma", initials: "AV" },
+  { name: "Ashay Jadhav", initials: "AJ" },
+  { name: "Bhanu Pratap Singh", initials: "BS" },
+  { name: "Devendra Saini", initials: "DS" },
+  { name: "Rishi Mishra", initials: "RM" },
+  { name: "Sudhanshu Ranjan", initials: "SR" },
+  { name: "Sarthak Kumar", initials: "SK" },
+  { name: "Tushar Kesarwani", initials: "TK" },
 ]
 
-const leads = [
-  { name: "Rohan Gupta", role: "Mechanical Lead", vertical: "Mechanical", initials: "RG" },
-  { name: "Sneha Verma", role: "Electronics Lead", vertical: "Electronics", initials: "SV" },
-  { name: "Ananya Rao", role: "CV Lead", vertical: "Computer Vision", initials: "AR" },
-  { name: "Karan Patel", role: "Software Lead", vertical: "Software", initials: "KP" },
-  { name: "Meera Iyer", role: "Design Lead", vertical: "CAD & Fabrication", initials: "MI" },
-  { name: "Arjun Nair", role: "Outreach Lead", vertical: "Events & PR", initials: "AN" },
+const coordinators26 = [
+  { name: "Inam Yadav", initials: "IY" },
+  { name: "Krishna Gupta", initials: "KG" },
+  { name: "Kushagra Verma", initials: "KV" },
+  { name: "Devanshi Gupta", initials: "DG" },
+  { name: "Ankit Upadhyay", initials: "AU" },
+  { name: "Mohammad Kaif", initials: "MK" },
+  { name: "Abdul Basit", initials: "AB" },
+  { name: "Aman Sharma", initials: "AS" },
+  { name: "Astha Singh", initials: "AS" },
+  { name: "Abhay Agarwal", initials: "AA" },
+  { name: "Dhruv Chandhok", initials: "DC" },
+  { name: "Aryan Vishwakarma", initials: "AV" },
+  { name: "Avneesh Sahu", initials: "AS" },
 ]
 
-const members = [
-  { name: "Aditya Raj", vertical: "Software", year: "2nd Year" },
-  { name: "Ishita Gupta", vertical: "Electronics", year: "2nd Year" },
-  { name: "Manav Reddy", vertical: "Mechanical", year: "3rd Year" },
-  { name: "Sanya Kapoor", vertical: "Computer Vision", year: "2nd Year" },
-  { name: "Dhruv Tiwari", vertical: "Software", year: "3rd Year" },
-  { name: "Nisha Agarwal", vertical: "Electronics", year: "2nd Year" },
-  { name: "Rahul Saxena", vertical: "Mechanical", year: "2nd Year" },
-  { name: "Pooja Mishra", vertical: "Software", year: "3rd Year" },
-  { name: "Amit Verma", vertical: "Computer Vision", year: "2nd Year" },
-  { name: "Tanvi Joshi", vertical: "CAD & Fabrication", year: "2nd Year" },
-  { name: "Nikhil Sharma", vertical: "Electronics", year: "3rd Year" },
-  { name: "Kavya Nair", vertical: "Software", year: "2nd Year" },
+const nonTechMembers = [
+  { name: "Kanishk Agrawal", role: "Design Lead" },
+  { name: "Vatsal Kumar", role: "Design Lead" },
+  { name: "Rudraksh Mall", role: "Designer" },
+  { name: "Rishu Raj", role: "Designer" },
+  { name: "Deepak Hadiya", role: "Designer" },
+  { name: "Raghav Bansal", role: "Designer" },
+  { name: "Gaurab Gupta", role: "Designer" },
+  { name: "Ranjan Kumar", role: "Video Lead" },
+  { name: "Krishna Garg", role: "Video Lead" },
+  { name: "Daksh Katta", role: "Video Editor" },
+  { name: "Roli Rathour", role: "Video Editor" },
+]
+
+const alumniMentors = [
+  { name: "Bhuvan Jhamb", role: "R&D Engineer, Tesla", batch: "Alumni, 2020", initials: "BJ" },
+  { name: "Kishan Tiwari", role: "Founder, TSAW Drones", batch: "Alumni, 2019", initials: "KT" },
+  { name: "Sharad Rawat", role: "Software Engineer, Germany", batch: "Alumni, 2016", initials: "SR" },
+  { name: "Rohit Garg", role: "Head Member, MNNIT Alumni Excellence (MAE) Foundation", batch: "", initials: "RG" },
 ]
 
 const verticals = [
-  { name: "Software", count: 28, description: "ROS 2, path planning, SLAM, simulation" },
-  { name: "Electronics", count: 16, description: "PCB design, embedded firmware, CAN bus" },
-  { name: "Mechanical", count: 14, description: "CAD, fabrication, 3D printing, chassis" },
-  { name: "Computer Vision", count: 12, description: "Object detection, depth estimation, tracking" },
-  { name: "CAD & Fabrication", count: 8, description: "SolidWorks, laser cutting, CNC milling" },
+  { name: "Computer Vision", description: "Object detection, depth estimation, lane detection" },
+  { name: "AI & ML", description: "Machine learning, reinforcement learning, sentiment analysis" },
+  { name: "Embedded Systems", description: "Arduino, ESP32, sensor integration, firmware" },
+  { name: "Hardware & Mechanical", description: "CAD, fabrication, 3D printing, chassis design" },
+  { name: "Software", description: "ROS 2, path planning, SLAM, simulation, odometry" },
 ]
 
 const stats = [
-  { value: "120+", label: "Active Members" },
-  { value: "5", label: "Verticals" },
-  { value: "6", label: "Team Leads" },
-  { value: "2016", label: "Founded" },
+  { value: "22+", label: "Coordinators" },
+  { value: "6", label: "Verticals" },
+  { value: "11", label: "Design & Media" },
+  { value: "4", label: "Alumni Mentors" },
 ]
 
 const ease = [0.32, 0.72, 0, 1] as const
@@ -72,7 +95,7 @@ export default function TeamPage() {
             </h1>
             <p className="text-lg text-[var(--fg-secondary)] max-w-2xl leading-relaxed tracking-[-0.01em]">
               A multidisciplinary team of engineers, designers, and builders working at the
-              intersection of hardware, software, and autonomy.
+              intersection of hardware, software, and autonomy at MNNIT Allahabad.
             </p>
           </motion.div>
 
@@ -96,7 +119,7 @@ export default function TeamPage() {
         <div className="max-w-[1200px] mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
             <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Guidance</p>
-            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Faculty Advisors</h2>
+            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Faculty & Mentors</h2>
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-px bg-[var(--border)]">
@@ -127,26 +150,23 @@ export default function TeamPage() {
         <div className="max-w-[1200px] mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
             <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Leadership</p>
-            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Core Coordinators</h2>
+            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Coordinators &apos;25</h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-px bg-[var(--border)]">
-            {coordinators.map((person, i) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-px bg-[var(--border)]">
+            {coordinators25.map((person, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1, ease }}
+                transition={{ delay: i * 0.06, ease }}
                 viewport={{ once: true }}
-                className="p-6 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] transition-colors"
+                className="flex items-center gap-4 p-5 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] transition-colors"
               >
-                <div className="w-12 h-12 rounded-full bg-[var(--fg)] text-[var(--bg)] flex items-center justify-center font-display text-sm mb-5">
+                <div className="w-12 h-12 rounded-full bg-[var(--fg)] text-[var(--bg)] flex items-center justify-center font-display text-sm shrink-0">
                   {person.initials}
                 </div>
-                <p className="text-xl text-[var(--fg)] mb-0.5">{person.name}</p>
-                <p className="text-sm text-[var(--fg-secondary)]">{person.role}</p>
-                <p className="font-mono text-[10px] uppercase tracking-widest text-[var(--fg-tertiary)] mt-1 mb-4">{person.year}</p>
-                <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">{person.bio}</p>
+                <p className="text-base text-[var(--fg)]">{person.name}</p>
               </motion.div>
             ))}
           </div>
@@ -154,6 +174,33 @@ export default function TeamPage() {
       </section>
 
       <section className="py-20 px-6 border-t border-[var(--border)]">
+        <div className="max-w-[1200px] mx-auto">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+            <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Next Generation</p>
+            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Coordinators &apos;26</h2>
+          </motion.div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-[var(--border)]">
+            {coordinators26.map((person, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.04, ease }}
+                viewport={{ once: true }}
+                className="flex items-center gap-4 p-5 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] transition-colors"
+              >
+                <div className="w-11 h-11 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center font-display text-sm text-[var(--fg-secondary)] shrink-0">
+                  {person.initials}
+                </div>
+                <p className="text-sm text-[var(--fg)]">{person.name}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 px-6">
         <div className="max-w-[1200px] mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
             <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Structure</p>
@@ -170,40 +217,8 @@ export default function TeamPage() {
                 viewport={{ once: true }}
                 className="p-5 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] transition-colors"
               >
-                <p className="font-display text-3xl text-[var(--fg)] leading-none mb-1">{v.count}</p>
-                <p className="text-sm text-[var(--fg)] mb-2">{v.name}</p>
+                <p className="text-sm text-[var(--fg)] font-medium mb-2">{v.name}</p>
                 <p className="font-mono text-[10px] uppercase tracking-wider text-[var(--fg-tertiary)] leading-relaxed">{v.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 px-6">
-        <div className="max-w-[1200px] mx-auto">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Vertical Heads</p>
-            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Team Leads</h2>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-[var(--border)]">
-            {leads.map((person, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.06, ease }}
-                viewport={{ once: true }}
-                className="flex items-center gap-4 p-5 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] transition-colors"
-              >
-                <div className="w-11 h-11 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center font-mono text-xs text-[var(--fg-secondary)] shrink-0">
-                  {person.initials}
-                </div>
-                <div>
-                  <p className="text-sm text-[var(--fg)]">{person.name}</p>
-                  <p className="text-xs text-[var(--fg-secondary)]">{person.role}</p>
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-[var(--fg-tertiary)] mt-0.5">{person.vertical}</p>
-                </div>
               </motion.div>
             ))}
           </div>
@@ -212,16 +227,13 @@ export default function TeamPage() {
 
       <section className="py-20 px-6 border-t border-[var(--border)]">
         <div className="max-w-[1200px] mx-auto">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="flex items-end justify-between mb-12">
-            <div>
-              <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Community</p>
-              <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9]">Active Members</h2>
-            </div>
-            <p className="font-mono text-xs uppercase text-[var(--fg-tertiary)] hidden md:block">{members.length} of 120+</p>
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+            <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Creative</p>
+            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Design & Media</h2>
           </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-[var(--border)]">
-            {members.map((person, i) => (
+            {nonTechMembers.map((person, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0 }}
@@ -235,7 +247,38 @@ export default function TeamPage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm text-[var(--fg)] truncate">{person.name}</p>
-                  <p className="font-mono text-[10px] uppercase text-[var(--fg-tertiary)]">{person.vertical} / {person.year}</p>
+                  <p className="font-mono text-[10px] uppercase text-[var(--fg-tertiary)]">{person.role}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20 px-6">
+        <div className="max-w-[1200px] mx-auto">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+            <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Mentorship</p>
+            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Alumni Mentors</h2>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-px bg-[var(--border)]">
+            {alumniMentors.map((person, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1, ease }}
+                viewport={{ once: true }}
+                className="flex items-center gap-5 p-6 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] transition-colors"
+              >
+                <div className="w-14 h-14 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center font-display text-lg text-[var(--fg-secondary)] shrink-0">
+                  {person.initials}
+                </div>
+                <div>
+                  <p className="text-base text-[var(--fg)]">{person.name}</p>
+                  <p className="text-sm text-[var(--fg-secondary)]">{person.role}</p>
+                  {person.batch && <p className="font-mono text-xs uppercase tracking-wider text-[var(--fg-tertiary)] mt-0.5">{person.batch}</p>}
                 </div>
               </motion.div>
             ))}

@@ -1,8 +1,6 @@
 "use client"
 
-import { useRef } from "react"
-import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion"
-import { useState } from "react"
+import { motion } from "framer-motion"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { ArrowRight, Cpu, Eye, Cog, Wifi, Gauge, Code2, Users, GraduationCap } from "lucide-react"
@@ -84,23 +82,8 @@ const gallery = [
 ]
 
 function ProjectTimeline() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  })
-
-  const [activeIndex, setActiveIndex] = useState(0)
-  const trackHeight = useTransform(scrollYProgress, [0.1, 0.9], ["0%", "100%"])
-
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    const clamped = Math.max(0, Math.min(1, (v - 0.1) / 0.8))
-    const idx = Math.min(timeline.length - 1, Math.floor(clamped * timeline.length))
-    setActiveIndex(idx)
-  })
-
   return (
-    <section ref={containerRef} className="py-24 lg:py-32 px-6 border-t border-[var(--border)]">
+    <section className="py-24 lg:py-32 px-6 border-t border-[var(--border)]">
       <div className="max-w-[1200px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -118,43 +101,74 @@ function ProjectTimeline() {
         </motion.div>
 
         <div className="relative">
-          {/* Vertical track line — left on mobile, left on all */}
-          <div className="absolute left-4 md:left-8 top-0 bottom-0 w-px bg-[var(--border)]">
-            <motion.div className="w-full bg-[var(--accent)] origin-top" style={{ height: trackHeight }} />
-          </div>
+          {/* Center track line — desktop */}
+          <div className="hidden sm:block absolute left-1/2 top-0 bottom-0 w-px bg-[var(--border)] -translate-x-1/2" />
+          {/* Left track line — mobile */}
+          <div className="sm:hidden absolute left-3 top-0 bottom-0 w-px bg-[var(--border)]" />
 
-          <div className="space-y-8 md:space-y-12">
-            {timeline.map((item, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1, ease }}
-                viewport={{ once: true, margin: "-80px" }}
-                className="relative grid grid-cols-[32px_1fr] md:grid-cols-[64px_1fr] gap-4 md:gap-6"
-              >
-                {/* Dot on timeline */}
-                <div className="flex justify-center pt-1">
-                  <div className={`w-3 h-3 border-2 transition-colors duration-500 z-10 ${
-                    idx <= activeIndex
-                      ? "bg-[var(--accent)] border-[var(--accent)]"
-                      : "bg-[var(--bg)] border-[var(--fg-tertiary)]/40"
-                  }`} />
-                </div>
-
-                {/* Content card */}
-                <div className={`border bg-[var(--bg-secondary)] p-4 md:p-6 transition-colors ${
-                  idx <= activeIndex ? "border-[var(--accent)]/30" : "border-[var(--border)]"
-                }`}>
-                  <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-2">
-                    <span className="font-display text-xl md:text-2xl text-[var(--fg)]">{item.year}</span>
-                    <span className="font-mono text-[10px] md:text-xs uppercase tracking-wider text-[var(--fg-tertiary)]">{item.batch}</span>
+          <div className="space-y-8 sm:space-y-16 md:space-y-24">
+            {timeline.map((item, idx) => {
+              const isEven = idx % 2 === 0
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1, ease }}
+                  viewport={{ once: true, margin: "-100px" }}
+                >
+                  {/* Mobile layout — left-aligned */}
+                  <div className="sm:hidden grid grid-cols-[24px_1fr] gap-3 items-start">
+                    <div className="flex justify-center pt-2">
+                      <div className="w-3 h-3 border-2 bg-[var(--accent)] border-[var(--accent)]" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="font-display text-lg text-[var(--fg)]">{item.year}</span>
+                        <span className="font-mono uppercase text-[10px] tracking-[0.12em] text-[var(--fg-tertiary)]">{item.batch}</span>
+                      </div>
+                      <div className="border border-[var(--border)] bg-[var(--bg-secondary)] p-4 hover:border-[var(--accent)]/30 transition-colors">
+                        <h3 className="font-display uppercase text-base text-[var(--fg)] mb-1.5">{item.head}</h3>
+                        <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">{item.description}</p>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="font-display uppercase text-base md:text-lg text-[var(--fg)] mb-2">{item.head}</h3>
-                  <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">{item.description}</p>
-                </div>
-              </motion.div>
-            ))}
+
+                  {/* Desktop alternating layout — center line */}
+                  <div className="hidden sm:grid grid-cols-[1fr_40px_1fr] md:grid-cols-[1fr_60px_1fr] items-start gap-4 md:gap-6">
+                    <div className="col-start-2 row-start-1 flex justify-center pt-2">
+                      <div className="w-3 h-3 border-2 bg-[var(--accent)] border-[var(--accent)]" />
+                    </div>
+                    <div className="col-start-1 row-start-1 text-right">
+                      {isEven ? (
+                        <div className="flex flex-col items-end pt-0.5">
+                          <span className="font-display text-2xl text-[var(--fg)]">{item.year}</span>
+                          <span className="font-mono uppercase text-[10px] tracking-[0.12em] text-[var(--fg-tertiary)] mt-0.5">{item.batch}</span>
+                        </div>
+                      ) : (
+                        <div className="border border-[var(--border)] bg-[var(--bg-secondary)] p-5 hover:border-[var(--accent)]/30 transition-colors">
+                          <h3 className="font-display uppercase text-lg text-[var(--fg)] mb-2 text-left">{item.head}</h3>
+                          <p className="text-sm text-[var(--fg-secondary)] leading-relaxed text-left">{item.description}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="col-start-3 row-start-1">
+                      {isEven ? (
+                        <div className="border border-[var(--border)] bg-[var(--bg-secondary)] p-5 hover:border-[var(--accent)]/30 transition-colors">
+                          <h3 className="font-display uppercase text-lg text-[var(--fg)] mb-2">{item.head}</h3>
+                          <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">{item.description}</p>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-start pt-0.5">
+                          <span className="font-display text-2xl text-[var(--fg)]">{item.year}</span>
+                          <span className="font-mono uppercase text-[10px] tracking-[0.12em] text-[var(--fg-tertiary)] mt-0.5">{item.batch}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </div>

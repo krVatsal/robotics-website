@@ -27,16 +27,40 @@ const spanPatterns = [
 
 const ease = [0.32, 0.72, 0, 1]
 
+function pickAcrossDomains(projects: Project[], max: number): Project[] {
+  const byCategory = new Map<string, Project[]>()
+  for (const p of projects) {
+    const cat = p.category || "Other"
+    if (!byCategory.has(cat)) byCategory.set(cat, [])
+    byCategory.get(cat)!.push(p)
+  }
+  const result: Project[] = []
+  const cats = Array.from(byCategory.keys())
+  let round = 0
+  while (result.length < max && round < projects.length) {
+    for (const cat of cats) {
+      const arr = byCategory.get(cat)!
+      if (round < arr.length && result.length < max) {
+        result.push(arr[round])
+      }
+    }
+    round++
+  }
+  return result
+}
+
 export default function BentoProjects() {
   const [projects, setProjects] = useState<Project[]>([])
   const [filter, setFilter] = useState("All")
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetch("/api/projects")
+    fetch("/api/projects?published=true&limit=100")
       .then(res => res.json())
       .then(data => {
-        setProjects(Array.isArray(data) ? data : data.projects ?? [])
+        const all: Project[] = Array.isArray(data) ? data : data.projects ?? []
+        const picked = pickAcrossDomains(all, 6)
+        setProjects(picked)
         setIsLoading(false)
       })
       .catch(() => setIsLoading(false))
