@@ -169,6 +169,8 @@ export async function getTeamById(id: string) {
         name: 1,
         teamCode: 1,
         isFinalized: 1,
+        approvalStatus: 1,
+        rejectedReason: 1,
         leaderId: 1,
         competitionId: 1,
         competitionName: {
@@ -615,6 +617,8 @@ async function runUserTeamsPipeline(userId: string, opts: { limit?: number } = {
         name: 1,
         teamCode: 1,
         isFinalized: 1,
+        approvalStatus: 1,
+        rejectedReason: 1,
         leaderId: 1,
         competitionId: 1,
         competitionName: {

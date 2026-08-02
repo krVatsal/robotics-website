@@ -80,17 +80,12 @@ export default function Navbar() {
                 <UserAvatar />
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <Link href="/auth/signin" className="text-sm text-[var(--fg-secondary)] hover:text-[var(--fg)] transition-colors px-3">
-                  Log in
-                </Link>
-                <Link
-                  href="/auth/signup"
-                  className="px-5 py-2 rounded-full bg-[var(--fg)] text-[var(--bg)] text-sm font-medium hover:opacity-90 transition-opacity"
-                >
-                  Join Us
-                </Link>
-              </div>
+              <Link
+                href="/auth/signin"
+                className="px-5 py-2 rounded-full bg-[var(--fg)] text-[var(--bg)] text-sm font-medium hover:opacity-90 transition-opacity"
+              >
+                Sign In
+              </Link>
             )}
           </div>
 
@@ -137,18 +132,13 @@ export default function Navbar() {
                   Sign out
                 </button>
               ) : (
-                <div className="flex items-center gap-3 pt-1">
-                  <Link href="/auth/signin" onClick={() => setIsOpen(false)} className="text-sm text-[var(--fg-secondary)]">
-                    Log in
-                  </Link>
-                  <Link
-                    href="/auth/signup"
-                    onClick={() => setIsOpen(false)}
-                    className="px-5 py-2 rounded-full bg-[var(--fg)] text-[var(--bg)] text-sm font-medium"
-                  >
-                    Join Us
-                  </Link>
-                </div>
+                <Link
+                  href="/auth/signin"
+                  onClick={() => setIsOpen(false)}
+                  className="px-5 py-2 rounded-full bg-[var(--fg)] text-[var(--bg)] text-sm font-medium inline-block"
+                >
+                  Sign In
+                </Link>
               )}
             </div>
           </motion.div>

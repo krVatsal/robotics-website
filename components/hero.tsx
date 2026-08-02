@@ -12,7 +12,7 @@ const defaults = {
   heading: "We Build\nThe Future.",
   subheading: "A student-led engineering community designing autonomous systems, competing nationally, and pushing the frontier of applied robotics.",
   ctaPrimary: { text: "Explore Projects", href: "/projects" },
-  ctaSecondary: { text: "Join the Club", href: "/auth/signup" },
+  ctaSecondary: { text: "Join the Club", href: "/auth/signin" },
 }
 
 const ease: [number, number, number, number] = [0.32, 0.72, 0, 1]
@@ -22,7 +22,7 @@ export default function Hero() {
   const { content } = useSiteContent("hero", defaults)
   const hero = content ?? defaults
   const primaryHref = user ? (hero.ctaPrimary?.href || "/projects") : "/auth/signin"
-  const secondaryHref = user ? "/projects" : (hero.ctaSecondary?.href || "/auth/signup")
+  const secondaryHref = user ? "/projects" : (hero.ctaSecondary?.href || "/auth/signin")
 
   return (
     <section className="relative overflow-hidden bg-[var(--bg)] pt-16 pb-16 md:pt-20 md:pb-24">

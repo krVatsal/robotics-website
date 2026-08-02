@@ -296,7 +296,7 @@ export default function TeamPage() {
               We recruit every semester. No prior robotics experience needed — just curiosity and the drive to build.
             </p>
             <Link
-              href="/auth/signup"
+              href="/auth/signin"
               className="inline-flex items-center gap-2 px-7 py-3 rounded-full border border-[var(--fg)] text-[var(--fg)] text-sm hover:bg-[var(--fg)] hover:text-[var(--bg)] transition-colors"
             >
               Apply to Join <ArrowRight className="w-4 h-4" />

@@ -427,7 +427,7 @@ export default function SDCPage() {
               We are always looking for passionate engineers. Join the club and be part of our next breakthrough.
             </p>
             <Link
-              href="/auth/signup"
+              href="/auth/signin"
               className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[var(--accent)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
             >
               Join MNNIT Robotics <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />

@@ -64,11 +64,30 @@ export const UpdateUserSchema = z
       .max(20)
       .regex(/^[+\d\s\-()]*$/, 'Invalid phone number')
       .optional(),
+    college: z.string().max(200).trim().optional(),
+    isMnnit: z.boolean().optional(),
+    isProfileComplete: z.boolean().optional(),
     profileImage: z.string().url().max(500).optional(),
     bio: z.string().max(1000).optional(),
   })
-  .strict() 
+  .strict()
 export type UpdateUserInput = z.infer<typeof UpdateUserSchema>
+
+export const CompleteProfileSchema = z.object({
+  phone: z.string().min(1, 'Phone number is required').max(20).regex(/^[+\d\s\-()]*$/, 'Invalid phone number'),
+  branch: z.string().min(1, 'Branch is required').max(100).trim(),
+  isMnnit: z.boolean(),
+  rollNo: z.string().max(20).trim().optional(),
+  college: z.string().max(200).trim().optional(),
+  codename: CodenameSchema.optional(),
+}).refine(
+  (d) => !d.isMnnit || (d.rollNo && d.rollNo.length > 0),
+  { message: 'Registration number is required for MNNIT students', path: ['rollNo'] },
+).refine(
+  (d) => d.isMnnit || (d.college && d.college.length > 0),
+  { message: 'College name is required', path: ['college'] },
+)
+export type CompleteProfileInput = z.infer<typeof CompleteProfileSchema>
 
 // ────────────────────────────────────────────────────────────
 // ADMIN

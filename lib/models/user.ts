@@ -6,35 +6,19 @@ import { ConflictError } from '@/lib/errors'
 export interface User {
   _id?: ObjectId
   email: string
-  /**
-   * bcrypt hash of the user's password. OPTIONAL because Google-OAuth-only
-   * users never set a password. If missing, /api/auth/signin returns a hint
-   * telling the user to sign in with Google.
-   */
   password?: string
   name: string
   rollNo?: string
   department: string
-  // Optional profile fields (populated after signup via profile edits)
   phone?: string
+  college?: string
+  isMnnit?: boolean
+  isProfileComplete?: boolean
   profileImage?: string
   bio?: string
   teamId?: ObjectId
-  // Coarse role flag — currently unused for auth (admin auth uses a shared password
-  // via ADMIN_PASSWORD env), but the field is here so we can migrate to role-based
-  // admin without a schema change later.
   role?: 'user' | 'admin'
-  /**
-   * Google account subject id (the `sub` claim from Google's OAuth response).
-   * Populated when a user signs in with Google. Unique via sparse index so
-   * multiple password-only users can coexist without conflicting on null.
-   */
   googleId?: string
-  /**
-   * Unique lowercase handle chosen by the user (letters/digits/underscore,
-   * starts with a letter). Used by team leaders to invite people they know
-   * without needing the raw ObjectId. Unique via sparse index.
-   */
   codename?: string
   createdAt: Date
 }
@@ -102,8 +86,9 @@ export async function createUserFromGoogle(profile: {
     name: profile.name,
     googleId: profile.googleId,
     profileImage: profile.profileImage,
-    // Required by our current schema; store 'unknown' until user fills it in.
-    department: 'unknown',
+    department: '',
+    isProfileComplete: false,
+    isMnnit: profile.email.endsWith('@mnnit.ac.in'),
     createdAt: new Date(),
   }
   try {
