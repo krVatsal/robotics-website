@@ -8,6 +8,7 @@ import CarTimeline from "@/components/car-timeline"
 import Achievements from "@/components/achievements"
 import FAQ from "@/components/faq"
 import Footer from "@/components/footer"
+import ChatbotWidget from "@/components/chatbot-widget"
 
 export default function Home() {
   return (
@@ -22,6 +23,7 @@ export default function Home() {
       <Achievements />
       <FAQ />
       <Footer />
+      <ChatbotWidget />
     </main>
   )
 }
