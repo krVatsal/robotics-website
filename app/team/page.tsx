@@ -3,45 +3,60 @@
 import { motion } from "framer-motion"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, ExternalLink } from "lucide-react"
 import Link from "next/link"
 
 const faculty = [
-  { name: "Prof. Rama Shanker Verma", role: "Director", dept: "MNNIT Allahabad", initials: "RV" },
-  { name: "Prof. Pritam Singh", role: "SAC President", dept: "MNNIT Allahabad", initials: "PS" },
-  { name: "Prof. Asim Mukharjee", role: "Faculty In-Charge", dept: "Technical Activities", initials: "AM" },
-  { name: "Prof. Anand Sharma", role: "Faculty Coordinator", dept: "Robotics Club", initials: "AS" },
-  { name: "Prof. Samir Saraswati", role: "Faculty In-Charge & Mentor", dept: "Self Driving Car · MED", initials: "SS" },
-  { name: "Prof. Jitendra Narayan Gangwar", role: "Faculty In-Charge & Mentor", dept: "Self Driving Car · Asst. Prof. Grade-1", initials: "JG" },
+  { name: "Prof. Sushil Kumar", role: "SAC President", dept: "MNNIT Allahabad", initials: "SK", href: "https://mnnit.ac.in/profile/sushilk" },
+  { name: "Dr. V. P. Singh", role: "Technical In-Charge", dept: "Technical Activities", initials: "VS", href: "https://mnnit.ac.in/profile/vps15783" },
+  { name: "Dr. Jitendra N. Gangwar", role: "Faculty Advisor", dept: "Robotics Club", initials: "JG", href: "https://mnnit.ac.in/profile/jgangwar" },
 ]
 
-const coordinators25 = [
-  { name: "Anu Priya", initials: "AP" },
-  { name: "Ayush Verma", initials: "AV" },
-  { name: "Ashay Jadhav", initials: "AJ" },
-  { name: "Bhanu Pratap Singh", initials: "BS" },
-  { name: "Devendra Saini", initials: "DS" },
-  { name: "Rishi Mishra", initials: "RM" },
-  { name: "Sudhanshu Ranjan", initials: "SR" },
-  { name: "Sarthak Kumar", initials: "SK" },
-  { name: "Tushar Kesarwani", initials: "TK" },
+const finalYearCoordinators = [
+  "Vedang Tripathi",
+  "Amit KS",
+  "Krishna Raj Agrawal",
+  "Divyansh Pandey",
+  "Aaditya Gupta",
+  "Abhijit Sahu",
+  "Alok Gupta",
+  "Aman Shukla",
+  "Kritika Parihar",
+  "Harshit Kumar Mahaur",
+  "Kanishk Agrawal",
+  "Guransh Goyal",
+  "Jatin Rana",
+  "Aditya Sahani",
+  "Vatsal Kumar",
+  "Krishna Mohan",
+  "Naman Agrawal",
 ]
 
-const coordinators26 = [
-  { name: "Inam Yadav", initials: "IY" },
-  { name: "Krishna Gupta", initials: "KG" },
-  { name: "Kushagra Verma", initials: "KV" },
-  { name: "Devanshi Gupta", initials: "DG" },
-  { name: "Ankit Upadhyay", initials: "AU" },
-  { name: "Mohammad Kaif", initials: "MK" },
-  { name: "Abdul Basit", initials: "AB" },
-  { name: "Aman Sharma", initials: "AS" },
-  { name: "Astha Singh", initials: "AS" },
-  { name: "Abhay Agarwal", initials: "AA" },
-  { name: "Dhruv Chandhok", initials: "DC" },
-  { name: "Aryan Vishwakarma", initials: "AV" },
-  { name: "Avneesh Sahu", initials: "AS" },
+const thirdYearMentors = [
+  "Abhay Agrahari",
+  "Aditya Dhangar",
+  "Aryan Kumar",
+  "Ravish Kumar",
+  "Rishu Raj",
+  "Rishav Raj",
+  "Shiva Jadaun",
+  "Surya Bhan Singh",
+  "Tannu Panwar",
+  "Vikrant Kumar Singh",
+  "Aditya Jaipuria",
+  "Aniket Poddar",
+  "Gouri Srivastava",
+  "Harsh Choudhary",
+  "Madhav Gaba",
+  "Naina",
+  "Nikhil Yadav",
+  "Ritvik Rai",
+  "Sidharth Singh",
+  "Yash Srivastava",
+  "Abhishek Kumar",
 ]
+
+const getInitials = (name: string) => name.split(" ").map(part => part[0]).join("").slice(0, 2).toUpperCase()
 
 const nonTechMembers = [
   { name: "Kanishk Agrawal", role: "Design Lead" },
@@ -73,10 +88,10 @@ const verticals = [
 ]
 
 const stats = [
-  { value: "22+", label: "Coordinators" },
-  { value: "6", label: "Verticals" },
+  { value: "17", label: "Final Year Coordinators" },
+  { value: "21", label: "Third Year Mentors" },
+  { value: "5", label: "Technical Verticals" },
   { value: "11", label: "Design & Media" },
-  { value: "4", label: "Alumni Mentors" },
 ]
 
 const ease = [0.32, 0.72, 0, 1] as const
@@ -122,25 +137,32 @@ export default function TeamPage() {
             <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Faculty & Mentors</h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-px bg-[var(--border)]">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-[var(--border)]">
             {faculty.map((person, i) => (
-              <motion.div
+              <motion.a
                 key={i}
+                href={person.href}
+                target="_blank"
+                rel="noopener noreferrer"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1, ease }}
                 viewport={{ once: true }}
-                className="flex items-center gap-5 p-6 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] transition-colors"
+                className="group flex items-center gap-5 p-6 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--fg)]"
+                aria-label={`View ${person.name}'s MNNIT profile`}
               >
                 <div className="w-14 h-14 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center font-display text-lg text-[var(--fg-secondary)] shrink-0">
                   {person.initials}
                 </div>
-                <div>
-                  <p className="text-base text-[var(--fg)]">{person.name}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="flex items-center gap-2 text-base text-[var(--fg)]">
+                    <span>{person.name}</span>
+                    <ExternalLink className="h-3.5 w-3.5 shrink-0 text-[var(--fg-tertiary)] transition-colors group-hover:text-[var(--fg)]" aria-hidden="true" />
+                  </p>
                   <p className="text-sm text-[var(--fg-secondary)]">{person.role}</p>
                   <p className="font-mono text-xs uppercase tracking-wider text-[var(--fg-tertiary)] mt-0.5">{person.dept}</p>
                 </div>
-              </motion.div>
+              </motion.a>
             ))}
           </div>
         </div>
@@ -150,11 +172,11 @@ export default function TeamPage() {
         <div className="max-w-[1200px] mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
             <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Leadership</p>
-            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Coordinators &apos;25</h2>
+            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Final Year Coordinators</h2>
           </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-px bg-[var(--border)]">
-            {coordinators25.map((person, i) => (
+            {finalYearCoordinators.map((name, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
@@ -164,9 +186,9 @@ export default function TeamPage() {
                 className="flex items-center gap-4 p-5 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] transition-colors"
               >
                 <div className="w-12 h-12 rounded-full bg-[var(--fg)] text-[var(--bg)] flex items-center justify-center font-display text-sm shrink-0">
-                  {person.initials}
+                  {getInitials(name)}
                 </div>
-                <p className="text-base text-[var(--fg)]">{person.name}</p>
+                <p className="text-base text-[var(--fg)]">{name}</p>
               </motion.div>
             ))}
           </div>
@@ -176,12 +198,12 @@ export default function TeamPage() {
       <section className="py-20 px-6 border-t border-[var(--border)]">
         <div className="max-w-[1200px] mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Next Generation</p>
-            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Coordinators &apos;26</h2>
+            <p className="font-mono text-xs uppercase tracking-widest text-[var(--fg-tertiary)] mb-3">Mentorship</p>
+            <h2 className="font-display text-[clamp(2rem,5vw,3.5rem)] uppercase text-[var(--fg)] tracking-tight leading-[0.9] mb-12">Third Year Mentors</h2>
           </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-[var(--border)]">
-            {coordinators26.map((person, i) => (
+            {thirdYearMentors.map((name, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
@@ -191,9 +213,9 @@ export default function TeamPage() {
                 className="flex items-center gap-4 p-5 bg-[var(--bg)] hover:bg-[var(--bg-secondary)] transition-colors"
               >
                 <div className="w-11 h-11 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border)] flex items-center justify-center font-display text-sm text-[var(--fg-secondary)] shrink-0">
-                  {person.initials}
+                  {getInitials(name)}
                 </div>
-                <p className="text-sm text-[var(--fg)]">{person.name}</p>
+                <p className="text-sm text-[var(--fg)]">{name}</p>
               </motion.div>
             ))}
           </div>
